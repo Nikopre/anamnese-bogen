@@ -1,0 +1,540 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light">
+<title>Anamnesebogen</title>
+<style>
+  :root{--ink:#1f2a33;--grau:#4f5d66;--linie:#d5dbe0;--grund:#f4f6f5;--karte:#fff;--akzent:#17606b;--akzent-text:#124b54;--akzent-hell:#e3f0f2;--warn:#8a4b00;--warn-hell:#fff1dc;--ok:#1f6b3a;--ok-hell:#e2f3e8}
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;font-size:18px;line-height:1.5;color:var(--ink);background:var(--grund)}
+  .kopf{position:sticky;top:0;z-index:5;background:var(--karte);border-bottom:1px solid var(--linie);padding:0.7rem 1rem;padding-top:calc(0.7rem + env(safe-area-inset-top))}
+  .kopf .titel{font-weight:700;letter-spacing:0.08em;text-transform:uppercase;font-size:0.85rem;color:var(--akzent-text)}
+  .fortschritt{height:8px;background:var(--linie);border-radius:4px;margin-top:0.5rem;overflow:hidden}
+  .fortschritt div{height:100%;background:var(--akzent);width:0;transition:width 0.2s}
+  .kopf .schritt{font-size:0.9rem;color:var(--grau);margin-top:0.3rem}
+  main{max-width:720px;margin:0 auto;padding:1rem 1rem 8rem}
+  h1{font-size:1.5rem;margin:0.5rem 0 0.4rem;line-height:1.3}
+  h2{font-size:1.25rem;margin:1.6rem 0 0.5rem;color:var(--akzent-text)}
+  p{margin:0.4rem 0}
+  .hinweis{background:var(--akzent-hell);border:1px solid #bcd6da;border-radius:10px;padding:0.8rem 1rem;margin:0.8rem 0;font-size:1rem}
+  .warnbox{background:var(--warn-hell);border:1px solid #ecd9a6;border-radius:10px;padding:0.8rem 1rem;margin:0.8rem 0;font-size:1rem}
+  .frage{background:var(--karte);border:1px solid var(--linie);border-radius:12px;padding:1rem;margin:0.9rem 0}
+  .frage label.haupt{display:block;font-weight:600;margin-bottom:0.5rem}
+  .frage .hilfe{color:var(--grau);font-size:0.95rem;margin:-0.2rem 0 0.6rem}
+  input[type=text],input[type=number],textarea,select{font:inherit;width:100%;padding:0.75rem 0.8rem;border:1.5px solid var(--linie);border-radius:10px;background:#fff;color:var(--ink);min-height:48px}
+  textarea{min-height:6rem;resize:vertical}
+  input:focus,textarea:focus,select:focus{outline:3px solid #9fc9cf;border-color:var(--akzent)}
+  .optionen{display:flex;flex-wrap:wrap;gap:0.5rem}
+  .optionen label{display:inline-flex;align-items:center;gap:0.45rem;border:1.5px solid var(--linie);border-radius:999px;padding:0.55rem 0.9rem;background:#fff;cursor:pointer;min-height:48px;font-size:1rem}
+  .optionen label:has(input:checked){border-color:var(--akzent);background:var(--akzent-hell);color:var(--akzent-text);font-weight:600}
+  .optionen input{width:1.15rem;height:1.15rem;margin:0;accent-color:var(--akzent)}
+  .skala{display:grid;grid-template-columns:repeat(11,1fr);gap:0.3rem}
+  .skala label{display:flex;align-items:center;justify-content:center;border:1.5px solid var(--linie);border-radius:8px;min-height:48px;background:#fff;cursor:pointer;font-weight:600}
+  .skala label:has(input:checked){background:var(--akzent);color:#fff;border-color:var(--akzent)}
+  .skala input{position:absolute;opacity:0;width:0;height:0}
+  .skala-legende{display:flex;justify-content:space-between;color:var(--grau);font-size:0.85rem;margin-top:0.3rem}
+  .liste .zeile{display:grid;gap:0.5rem;border-top:1px solid var(--linie);padding-top:0.7rem;margin-top:0.7rem}
+  .liste .zeile:first-child{border-top:none;padding-top:0;margin-top:0}
+  .liste .zeile .titel{font-size:0.85rem;color:var(--grau);text-transform:uppercase;letter-spacing:0.05em}
+  .knopf{font:inherit;font-weight:600;padding:0.85rem 1.2rem;border-radius:12px;border:1.5px solid var(--akzent);background:var(--akzent);color:#fff;cursor:pointer;min-height:52px}
+  .knopf.zweit{background:#fff;color:var(--akzent-text)}
+  .knopf.klein{min-height:44px;padding:0.5rem 0.9rem;font-size:0.95rem}
+  .knopf:disabled{opacity:0.5}
+  .leiste{position:fixed;left:0;right:0;bottom:0;background:var(--karte);border-top:1px solid var(--linie);padding:0.7rem 1rem;padding-bottom:calc(0.7rem + env(safe-area-inset-bottom));display:flex;gap:0.6rem;justify-content:space-between;z-index:5}
+  .leiste .knopf{flex:1}
+  .unbekannt{margin-top:0.6rem}
+  .unbekannt label{display:inline-flex;align-items:center;gap:0.45rem;color:var(--grau);font-size:0.95rem;cursor:pointer;min-height:44px}
+  .unbekannt input{width:1.15rem;height:1.15rem;accent-color:var(--grau)}
+  .frage.ist-unbekannt input[type=text],.frage.ist-unbekannt textarea,.frage.ist-unbekannt select,.frage.ist-unbekannt .optionen,.frage.ist-unbekannt .skala,.frage.ist-unbekannt .liste{opacity:0.4;pointer-events:none}
+  .uebersicht{background:var(--karte);border:1px solid var(--linie);border-radius:12px;padding:1rem}
+  .uebersicht .abschnitt{border-top:1px solid var(--linie);padding:0.6rem 0}
+  .uebersicht .abschnitt:first-child{border-top:none}
+  .uebersicht .abschnitt b{display:block;color:var(--akzent-text)}
+  .uebersicht .abschnitt span{color:var(--grau);font-size:0.95rem}
+  .meldung{position:fixed;left:1rem;right:1rem;bottom:6rem;background:var(--ink);color:#fff;padding:0.8rem 1rem;border-radius:10px;z-index:9;text-align:center}
+  .meldung.fehler{background:#8b1a1a}
+  .klein{font-size:0.9rem;color:var(--grau)}
+  .aktionen{display:flex;flex-wrap:wrap;gap:0.6rem;margin-top:0.8rem}
+  @media (min-width:700px){body{font-size:17px}}
+  @media print{.kopf,.leiste,.aktionen,.unbekannt{display:none}main{padding:0}.frage{break-inside:avoid}}
+</style>
+</head>
+<body>
+<header class="kopf">
+  <div class="titel">Anamnesebogen · vertraulich</div>
+  <div class="fortschritt"><div id="balken"></div></div>
+  <div class="schritt" id="schritt-text">Schritt 1</div>
+</header>
+<main id="app"></main>
+<nav class="leiste">
+  <button class="knopf zweit" id="zurueck" type="button">Zurück</button>
+  <button class="knopf" id="weiter" type="button">Weiter</button>
+</nav>
+<div id="meldung" class="meldung" hidden></div>
+
+<script>
+/* Briefkasten-Kontext: wird vom Server (Edge Function) mit {token, fall} gefüllt, wenn der Bogen über
+   einen Einmal-Link geöffnet wird. Als eigenständige Datei bleibt er null (Rückweg per Mail). */
+window.BRIEFKASTEN = (function () { try { return JSON.parse('__BRIEFKASTEN__'); } catch (e) { return null; } })();
+/* Statisch gehostete Variante: Adresse der Datenschnittstelle wird beim Export eingesetzt; die Seite holt sich
+   dann Fall und Gültigkeit zum Token (?t=...) selbst und schickt die Antwort dorthin. */
+window.BRIEFKASTEN_API = (function () { var a = 'https://xaevwixicuctfbfxnpfa.supabase.co/functions/v1/anamnese-briefkasten'; return /^https:\/\//.test(a) ? a : null; })();
+</script>
+<script>
+/* Anamnesebogen, Version 1.1 (02.09.2026). Eine Datei, kein Server nötig. Antworten bleiben im Browser
+   gespeichert, bis der Bogen abgeschickt, exportiert oder gelöscht wird. Jede Frage ist freiwillig. */
+(function () {
+  const BOGEN_VERSION = "1.1";
+  let BRIEFKASTEN = window.BRIEFKASTEN && window.BRIEFKASTEN.token ? window.BRIEFKASTEN : null;
+  const API = window.BRIEFKASTEN_API || null;
+  const TOKEN_AUS_URL = (new URLSearchParams(location.search).get("t") || "").trim() || null;
+  /* Schlüssel für die Verschlüsselung steht nur im Link-Fragment (#k=...), erreicht den Server nie. */
+  let SCHLUESSEL = (location.hash.match(/[#&]k=([A-Za-z0-9_-]{40,})/) || [])[1] || null;
+  const abgabeUrl = () => (API ? API : location.pathname);
+  const JA_NEIN_UNSICHER = ["ja", "nein", "weiß ich nicht"];
+  const HAEUFIG = ["nie", "selten", "mehrmals pro Woche", "täglich"];
+
+  /* ---------- Fragenkatalog nach der IFM-Matrix ---------- */
+  const abschnitte = [
+    { id: "start", titel: "Bevor es losgeht", intro: `<p>Dieser Bogen hilft, Ihre Situation gründlich zu verstehen, bevor wir sprechen. Je mehr Sie beantworten, desto genauer wird die Einordnung.</p>
+      <div class="hinweis"><b>Alles ist freiwillig.</b> Überspringen Sie Fragen, die Sie nicht beantworten möchten, oder tippen Sie „weiß ich nicht“. Ihre Antworten bleiben auf diesem Gerät, bis Sie den Bogen am Ende speichern und zurücksenden. Dauer: etwa 20 bis 30 Minuten, gern in mehreren Etappen.</div>`,
+      fragen: [
+        { id: "fallnummer", typ: "text", label: "Ihre Fallnummer", hilfe: "Steht in der Nachricht, mit der Sie den Bogen bekommen haben (Form PPR-2026-0000). Ihr Name ist nicht nötig.", ohneUnbekannt: true },
+        { id: "geschlecht", typ: "radio", label: "Geschlecht", optionen: ["weiblich", "männlich", "divers"] },
+        { id: "geburtsjahr", typ: "number", label: "Geburtsjahr", hilfe: "Vier Ziffern, kein genaues Datum nötig." },
+        { id: "groesse", typ: "number", label: "Körpergröße in cm" },
+        { id: "gewicht", typ: "number", label: "Aktuelles Gewicht in kg" },
+        { id: "gewicht_verlauf", typ: "textarea", label: "Hat sich Ihr Gewicht in den letzten zwei Jahren verändert?", hilfe: "Zum Beispiel: plus 6 kg seit Frühjahr 2025, ungewollt." },
+      ] },
+    { id: "sicherheit", titel: "Wichtig für die Sicherheit", intro: `<p>Diese Fragen entscheiden, was in Ihrem Fall empfohlen werden darf und was nicht.</p>`,
+      fragen: [
+        { id: "schwanger", typ: "radio", label: "Sind Sie schwanger oder stillen Sie?", optionen: ["nein", "ja, schwanger", "ja, ich stille", "möglich, nicht sicher", "trifft nicht zu"] },
+        { id: "krebs", typ: "radio", label: "Gibt es aktuell eine Krebserkrankung oder eine Krebsbehandlung in den letzten zwei Jahren?", optionen: JA_NEIN_UNSICHER },
+        { id: "medikamente_kritisch", typ: "checks", label: "Nehmen Sie eines dieser Medikamente?", optionen: ["Blutverdünner", "Immunsuppressiva (z. B. nach Transplantation, bei Rheuma)", "Medikamente gegen Epilepsie", "Antihormonelle Therapie", "Schilddrüsenhormone", "Cortison als Dauertherapie", "Psychopharmaka", "keines davon"] },
+        { id: "warnzeichen", typ: "checks", label: "Haben Sie aktuell eines dieser Warnzeichen?", hilfe: "Wenn ja, bitte zeitnah ärztlich abklären lassen, unabhängig von diesem Bogen.", optionen: ["Brustschmerz oder Atemnot", "Ungewollter Gewichtsverlust über 5 kg", "Blut im Stuhl oder Urin", "Neu aufgetretene starke Kopfschmerzen oder Sehstörungen", "Herzstolpern, Ohnmacht, Schwindelanfälle", "Nächtliche Schweißausbrüche mit Fieber", "keines davon"] },
+        { id: "belastbarkeit", typ: "radio", label: "Wie belastbar sind Sie im Alltag?", optionen: ["normal belastbar", "eingeschränkt, Alltag geht", "stark eingeschränkt", "überwiegend bettlägerig"] },
+      ] },
+    { id: "beschwerden", titel: "Ihre Hauptbeschwerden", intro: `<p>Was beschäftigt Sie am meisten? Bis zu fünf Punkte, die wichtigsten zuerst.</p>`,
+      fragen: [
+        { id: "beschwerden", typ: "liste", label: "Beschwerden", anzahl: 5, felder: [
+          { id: "was", typ: "text", label: "Beschwerde" },
+          { id: "staerke", typ: "skala", label: "Wie stark? 0 = gar nicht, 10 = unerträglich" },
+          { id: "seit", typ: "text", label: "Seit wann? (z. B. Oktober 2025, seit 3 Jahren)" },
+          { id: "verlauf", typ: "radio", label: "Verlauf", optionen: ["besser", "gleich", "schlechter", "schwankend"] },
+        ] },
+        { id: "beginn", typ: "textarea", label: "Wie hat alles angefangen? Gab es einen Auslöser?", hilfe: "Zum Beispiel ein Infekt, eine Geburt, ein Umzug, eine belastende Zeit, eine Diät, ein neues Medikament." },
+        { id: "tagesverlauf", typ: "textarea", label: "Wann am Tag geht es Ihnen am schlechtesten, wann am besten?" },
+        { id: "besser_schlechter", typ: "textarea", label: "Was macht es besser, was macht es schlechter?" },
+      ] },
+    { id: "verlauf", titel: "Zeitachse", intro: `<p>Wichtige Ereignisse Ihrer Gesundheitsgeschichte, grob in Reihenfolge. Jahreszahl reicht.</p>`,
+      fragen: [
+        { id: "ereignisse", typ: "liste", label: "Ereignisse", anzahl: 8, felder: [
+          { id: "wann", typ: "text", label: "Wann (Jahr oder Monat)" },
+          { id: "was", typ: "text", label: "Was (Diagnose, Operation, Infekt, Lebensereignis, Therapie)" },
+        ] },
+      ] },
+    { id: "vorerkrankungen", titel: "Vorerkrankungen und Diagnosen",
+      fragen: [
+        { id: "diagnosen", typ: "checks", label: "Wurde bei Ihnen jemals eines davon festgestellt?", optionen: ["Schilddrüsenerkrankung (z. B. Hashimoto, Unterfunktion, Knoten)", "Andere Autoimmunerkrankung", "Diabetes oder Insulinresistenz", "Bluthochdruck oder Herzerkrankung", "Magen-Darm-Erkrankung (z. B. Reizdarm, Zöliakie, Gastritis)", "Allergien oder Unverträglichkeiten", "Migräne", "Depression, Angststörung oder Burnout", "Essstörung (aktuell oder früher)", "Schlafstörung", "Hormonelle Erkrankung (z. B. PCOS, Endometriose)", "Blutarmut (Anämie)", "Osteoporose", "Nierenerkrankung", "Lebererkrankung", "keines davon"] },
+        { id: "diagnosen_text", typ: "textarea", label: "Details dazu, weitere Diagnosen, Operationen, Krankenhausaufenthalte" },
+        { id: "infekte", typ: "textarea", label: "Schwere oder langwierige Infekte?", hilfe: "Zum Beispiel Pfeiffersches Drüsenfieber, Corona mit langem Verlauf, Borreliose, häufige Antibiotika." },
+        { id: "aerzte", typ: "textarea", label: "Welche Ärzte oder Therapeuten betreuen Sie aktuell?", hilfe: "Fachrichtung reicht, kein Name nötig." },
+      ] },
+    { id: "medikation", titel: "Medikamente und Präparate", intro: `<p>Bitte alles aufführen, was Sie regelmäßig einnehmen, auch Nahrungsergänzung, Hormone, Cremes und pflanzliche Mittel. Wenn Sie die Dosis nicht wissen, reicht der Name.</p>`,
+      fragen: [
+        { id: "medikamente", typ: "liste", label: "Medikamente (vom Arzt verordnet)", anzahl: 8, felder: [
+          { id: "name", typ: "text", label: "Name" },
+          { id: "dosis", typ: "text", label: "Dosis und wie oft" },
+          { id: "seit", typ: "text", label: "Seit wann, wofür" },
+        ] },
+        { id: "supplemente", typ: "liste", label: "Nahrungsergänzung, Hormone, pflanzliche Mittel", anzahl: 12, felder: [
+          { id: "name", typ: "text", label: "Name (bei Kombiprodukten bitte Inhaltsstoffe vom Etikett)" },
+          { id: "dosis", typ: "text", label: "Dosis und wie oft" },
+          { id: "seit", typ: "text", label: "Seit wann, warum, wer hat es empfohlen" },
+        ] },
+        { id: "frueher_abgesetzt", typ: "textarea", label: "Was haben Sie in den letzten zwei Jahren eingenommen und wieder abgesetzt? Warum?" },
+        { id: "vertraeglichkeit", typ: "textarea", label: "Unverträglichkeiten oder Nebenwirkungen bei Medikamenten oder Präparaten?" },
+      ] },
+    { id: "familie", titel: "Familie",
+      fragen: [
+        { id: "familie", typ: "checks", label: "Gibt es bei Eltern, Geschwistern oder Großeltern eines davon?", optionen: ["Schilddrüsenerkrankung", "Autoimmunerkrankung", "Diabetes", "Herzinfarkt oder Schlaganfall vor dem 60. Lebensjahr", "Krebs", "Depression oder andere psychische Erkrankung", "Demenz", "Osteoporose", "Zöliakie oder Darmerkrankung", "nichts davon bekannt"] },
+        { id: "familie_text", typ: "textarea", label: "Details, falls bekannt (wer, was, in welchem Alter)" },
+      ] },
+    { id: "ernaehrung", titel: "Ernährung", intro: `<p>Es gibt hier kein richtig oder falsch. Beschreiben Sie, wie es tatsächlich ist.</p>`,
+      fragen: [
+        { id: "kostform", typ: "radio", label: "Wie würden Sie Ihre Ernährung beschreiben?", optionen: ["gemischt, ohne besondere Regeln", "überwiegend pflanzlich", "vegetarisch", "vegan", "kohlenhydratarm oder ketogen", "tierisch betont (viel Fleisch, Eier, Fisch)", "glutenfrei", "eine andere Form"] },
+        { id: "kostform_text", typ: "text", label: "Falls „andere Form“ oder Ergänzung dazu" },
+        { id: "mahlzeiten", typ: "radio", label: "Wie viele Mahlzeiten essen Sie an einem normalen Tag?", optionen: ["1", "2", "3", "4 oder mehr", "sehr unregelmäßig"] },
+        { id: "fasten", typ: "radio", label: "Lassen Sie bewusst Mahlzeiten aus oder fasten Sie?", optionen: ["nein", "gelegentlich", "regelmäßig (z. B. Intervallfasten)"] },
+        { id: "fisch", typ: "radio", label: "Seefisch", optionen: HAEUFIG },
+        { id: "fleisch", typ: "radio", label: "Fleisch", optionen: HAEUFIG },
+        { id: "milch", typ: "radio", label: "Milchprodukte", optionen: HAEUFIG },
+        { id: "gemuese", typ: "radio", label: "Gemüse", optionen: HAEUFIG },
+        { id: "obst", typ: "radio", label: "Obst", optionen: HAEUFIG },
+        { id: "zucker", typ: "radio", label: "Süßes, Softdrinks, Weißmehl", optionen: HAEUFIG },
+        { id: "salz", typ: "radio", label: "Welches Salz verwenden Sie zu Hause?", optionen: ["jodiertes Speisesalz", "Meersalz oder Steinsalz ohne Jod", "weiß ich nicht", "gemischt"] },
+        { id: "kaffee", typ: "radio", label: "Kaffee oder andere Koffeinquellen", optionen: ["keine", "1 Tasse am Tag", "2 bis 3 Tassen", "mehr als 3 Tassen"] },
+        { id: "alkohol", typ: "radio", label: "Alkohol", optionen: ["nie", "selten", "1 bis 3 Mal pro Woche", "fast täglich"] },
+        { id: "unvertraeglich", typ: "textarea", label: "Lebensmittel, die Sie nicht vertragen oder meiden? Mit welcher Reaktion?" },
+        { id: "essverhalten", typ: "checks", label: "Trifft etwas davon auf Sie zu?", hilfe: "Die Antwort hilft, Empfehlungen sicher zu gestalten. Sie dürfen die Frage auslassen.", optionen: ["Heißhungerattacken", "Ich habe schon viele Diäten gemacht", "Ich esse aus Stress oder Kummer", "Es gab Phasen mit Erbrechen oder Abführmitteln", "Ich fühle mich beim Essen unter Druck oder kontrolliert", "nichts davon", "möchte ich nicht beantworten"] },
+        { id: "wasser", typ: "radio", label: "Wie viel trinken Sie am Tag (Wasser, Tee)?", optionen: ["unter 1 Liter", "1 bis 2 Liter", "über 2 Liter"] },
+      ] },
+    { id: "verdauung", titel: "Verdauung",
+      fragen: [
+        { id: "stuhl_frequenz", typ: "radio", label: "Wie oft haben Sie Stuhlgang?", optionen: ["seltener als jeden zweiten Tag", "jeden zweiten Tag", "täglich", "2 bis 3 Mal am Tag", "häufiger"] },
+        { id: "stuhl_form", typ: "radio", label: "Wie ist der Stuhl meistens?", optionen: ["hart, klumpig", "geformt, weich", "breiig", "wässrig", "wechselnd"] },
+        { id: "verdauung_symptome", typ: "checks", label: "Beschwerden?", optionen: ["Blähungen", "Völlegefühl nach dem Essen", "Sodbrennen", "Übelkeit", "Bauchschmerzen", "Schleim oder Blut im Stuhl", "Fettglänzender Stuhl", "keine"] },
+      ] },
+    { id: "schlaf", titel: "Schlaf und Energie",
+      fragen: [
+        { id: "schlafdauer", typ: "radio", label: "Wie lange schlafen Sie normalerweise?", optionen: ["unter 5 Stunden", "5 bis 6 Stunden", "6 bis 7 Stunden", "7 bis 8 Stunden", "über 8 Stunden"] },
+        { id: "einschlafen", typ: "radio", label: "Einschlafen", optionen: ["schnell", "dauert über 30 Minuten", "sehr schwer"] },
+        { id: "durchschlafen", typ: "radio", label: "Durchschlafen", optionen: ["ohne Unterbrechung", "1 bis 2 Mal wach", "häufig wach", "zwischen 2 und 4 Uhr regelmäßig wach"] },
+        { id: "erholt", typ: "radio", label: "Fühlen Sie sich morgens erholt?", optionen: ["ja", "manchmal", "selten", "nie"] },
+        { id: "energie", typ: "skala", label: "Ihre Energie an einem normalen Tag: 0 = keine, 10 = voll" },
+        { id: "schnarchen", typ: "radio", label: "Schnarchen Sie oder wurde eine Atempause im Schlaf beobachtet?", optionen: JA_NEIN_UNSICHER },
+      ] },
+    { id: "stress", titel: "Stress, Stimmung, Belastung", intro: `<p>Diese Fragen sind persönlich. Sie helfen, das Nervensystem einzuordnen. Beantworten Sie nur, was Sie möchten.</p>`,
+      fragen: [
+        { id: "stress", typ: "skala", label: "Wie hoch ist Ihr Stress derzeit? 0 = keiner, 10 = maximal" },
+        { id: "belastungen", typ: "checks", label: "Aktuelle Belastungen", optionen: ["Beruf", "Familie oder Partnerschaft", "Finanzen", "Pflege eines Angehörigen", "Umzug oder Veränderung", "Trauer oder Verlust", "Eigene Gesundheit", "keine besonderen"] },
+        { id: "stimmung", typ: "checks", label: "In den letzten zwei Wochen häufiger …", optionen: ["niedergeschlagen oder hoffnungslos", "wenig Interesse oder Freude", "nervös, ängstlich oder angespannt", "reizbar", "Konzentration schlechter", "Gedächtnis schlechter", "nichts davon"] },
+        { id: "entspannung", typ: "textarea", label: "Was hilft Ihnen, zur Ruhe zu kommen? Nehmen Sie sich dafür Zeit?" },
+        { id: "therapie", typ: "radio", label: "Sind Sie aktuell in psychotherapeutischer Begleitung?", optionen: ["nein", "ja", "früher, jetzt nicht mehr"] },
+      ] },
+    { id: "bewegung", titel: "Bewegung und Umwelt",
+      fragen: [
+        { id: "bewegung", typ: "radio", label: "Wie oft bewegen Sie sich so, dass Sie außer Atem kommen?", optionen: ["nie", "1 Mal pro Woche", "2 bis 3 Mal", "4 Mal oder öfter"] },
+        { id: "bewegung_art", typ: "text", label: "Welche Art von Bewegung oder Sport?" },
+        { id: "sitzen", typ: "radio", label: "Wie viele Stunden sitzen Sie am Tag?", optionen: ["unter 4", "4 bis 8", "über 8"] },
+        { id: "rauchen", typ: "radio", label: "Rauchen Sie?", optionen: ["nie", "früher", "gelegentlich", "täglich"] },
+        { id: "beruf", typ: "text", label: "Beruf und typische Arbeitsbelastung", hilfe: "Schichtdienst, Bildschirmarbeit, körperliche Arbeit, Chemikalien, Lärm." },
+        { id: "umwelt", typ: "checks", label: "Trifft etwas davon zu?", optionen: ["Amalgamfüllungen", "Schimmel in der Wohnung (aktuell oder früher)", "Viel Kontakt mit Chemikalien oder Lösungsmitteln", "Regelmäßig Fisch aus Meeresfrüchten oder Thunfisch", "Trinkwasser aus eigenem Brunnen", "Wohnung an stark befahrener Straße", "nichts davon"] },
+        { id: "zaehne", typ: "textarea", label: "Zähne und Zahnfleisch: Beschwerden, Wurzelbehandlungen, Zahnfleischbluten, Zahnschmelz?" },
+      ] },
+    { id: "frauen", titel: "Zyklus und Hormone", nurFuer: "weiblich", intro: `<p>Nur relevant, wenn Sie einen Zyklus haben oder hatten. Sonst einfach weiter.</p>`,
+      fragen: [
+        { id: "zyklus", typ: "radio", label: "Ihr Zyklus", optionen: ["regelmäßig", "unregelmäßig", "bleibt aus", "Wechseljahre", "keine Regel mehr (nach Wechseljahren oder Operation)", "trifft nicht zu"] },
+        { id: "zyklus_laenge", typ: "text", label: "Zykluslänge in Tagen, Dauer der Blutung", hilfe: "Zum Beispiel: 28 Tage, Blutung 5 Tage, stark." },
+        { id: "zyklus_beschwerden", typ: "checks", label: "Beschwerden rund um den Zyklus", optionen: ["starke Schmerzen", "starke Blutung", "Stimmungsschwankungen vor der Regel", "Brustspannen", "Migräne um die Regel", "Zwischenblutungen", "keine"] },
+        { id: "verhuetung", typ: "text", label: "Verhütung oder Hormonpräparate (Pille, Spirale, Hormoncremes, Hormonersatz)", hilfe: "Auch frühere, mit Zeitraum." },
+        { id: "schwangerschaften", typ: "text", label: "Schwangerschaften, Geburten, Fehlgeburten, Stillzeiten (mit Jahr)" },
+        { id: "kinderwunsch", typ: "radio", label: "Besteht ein Kinderwunsch?", optionen: ["nein", "ja", "vielleicht später"] },
+        { id: "letzter_zyklus", typ: "text", label: "Erster Tag der letzten Regel", hilfe: "Wichtig, falls Hormone im Blut gemessen werden." },
+      ] },
+    { id: "symptome", titel: "Symptom-Check", intro: `<p>Kreuzen Sie an, was in den letzten drei Monaten mehrfach aufgetreten ist.</p>`,
+      fragen: [
+        { id: "s_allgemein", typ: "checks", label: "Allgemein", optionen: ["Frieren, kalte Hände oder Füße", "Hitzewallungen oder Schwitzen", "Erschöpfung nach geringer Anstrengung", "Nachmittagstief", "Ungewollte Gewichtsveränderung", "Wassereinlagerungen, Schwellungen"] },
+        { id: "s_kopf", typ: "checks", label: "Kopf und Nerven", optionen: ["Kopfschmerzen", "Schwindel", "Benommenheit, Nebel im Kopf", "Kribbeln oder Taubheit", "Zittern", "Ohrgeräusche"] },
+        { id: "s_haut", typ: "checks", label: "Haut, Haare, Nägel", optionen: ["Haarausfall", "Trockene Haut", "Brüchige Nägel", "Juckreiz", "Ausschlag, Ekzem", "Akne", "Blasse Haut"] },
+        { id: "s_herz", typ: "checks", label: "Herz und Atmung", optionen: ["Herzklopfen, Herzstolpern", "Atemnot bei Belastung", "Niedriger Blutdruck, Schwarzwerden beim Aufstehen", "Hoher Blutdruck"] },
+        { id: "s_muskel", typ: "checks", label: "Muskeln und Gelenke", optionen: ["Muskelschwäche", "Muskelkrämpfe", "Gelenkschmerzen", "Morgensteifigkeit", "Rückenschmerzen"] },
+        { id: "s_immun", typ: "checks", label: "Immunsystem", optionen: ["Häufige Infekte", "Lange Erholung nach Infekten", "Geschwollene Lymphknoten", "Allergien schlimmer als früher", "Herpes häufig"] },
+        { id: "s_hormone", typ: "checks", label: "Hormonell", optionen: ["Libido vermindert", "Stimmung stark schwankend", "Heißhunger auf Süßes", "Zittrig oder gereizt bei Hunger", "Vermehrter Durst oder Harndrang"] },
+        { id: "s_sonst", typ: "textarea", label: "Weitere Symptome, die oben fehlen" },
+      ] },
+    { id: "ziele", titel: "Ihre Ziele und Fragen",
+      fragen: [
+        { id: "ziele", typ: "textarea", label: "Was möchten Sie erreichen? Woran würden Sie merken, dass es besser wird?" },
+        { id: "fragen", typ: "textarea", label: "Welche Fragen haben Sie?" },
+        { id: "sonstiges", typ: "textarea", label: "Gibt es etwas, das ich unbedingt wissen sollte und das hier nicht abgefragt wurde?" },
+        { id: "anrede", typ: "radio", label: "Wie möchten Sie in Ihrem Plan angesprochen werden?", optionen: ["Sie", "Du"] },
+        { id: "grossdruck", typ: "radio", label: "Brauchen Sie große Schrift zum Lesen?", optionen: ["nein", "ja"] },
+      ] },
+    { id: "ende", titel: "Fertig: Bogen speichern und zurücksenden", intro: "", fragen: [] },
+  ];
+
+  /* ---------- Zustand ---------- */
+  const app = document.getElementById("app");
+  const balken = document.getElementById("balken");
+  const schrittText = document.getElementById("schritt-text");
+  const meldungEl = document.getElementById("meldung");
+  let daten = { antworten: {}, unbekannt: {}, gestartet: new Date().toISOString(), bogenVersion: BOGEN_VERSION };
+  let schritt = 0;
+  const SPEICHER = "anamnesebogen-v1";
+
+  try {
+    const alt = localStorage.getItem(SPEICHER);
+    if (alt) { const d = JSON.parse(alt); if (d && d.antworten) daten = d; if (typeof d.schritt === "number") schritt = d.schritt; }
+  } catch (_) { /* kein Speicher verfügbar */ }
+  if (BRIEFKASTEN && BRIEFKASTEN.fall) { daten.antworten.fallnummer = BRIEFKASTEN.fall; daten.unbekannt.fallnummer = false; }
+
+  function speichern() {
+    daten.schritt = schritt;
+    daten.zuletzt = new Date().toISOString();
+    try { localStorage.setItem(SPEICHER, JSON.stringify(daten)); } catch (_) { /* egal */ }
+  }
+
+  let meldungTimer = null;
+  function meldung(text, fehler) {
+    meldungEl.textContent = text; meldungEl.className = "meldung" + (fehler ? " fehler" : ""); meldungEl.hidden = false;
+    clearTimeout(meldungTimer); meldungTimer = setTimeout(() => { meldungEl.hidden = true; }, fehler ? 7000 : 3000);
+  }
+  function esc(s) { return String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c])); }
+
+  function sichtbareAbschnitte() {
+    const g = daten.antworten.geschlecht;
+    return abschnitte.filter((a) => !a.nurFuer || !g || g === a.nurFuer);
+  }
+
+  /* ---------- Rendern ---------- */
+  function feldHtml(f, wert, praefix) {
+    const id = praefix ? `${praefix}__${f.id}` : f.id;
+    const name = esc(id);
+    switch (f.typ) {
+      case "text": return `<input type="text" name="${name}" value="${esc(wert)}" autocomplete="off">`;
+      case "number": return `<input type="number" inputmode="numeric" name="${name}" value="${esc(wert)}">`;
+      case "textarea": return `<textarea name="${name}">${esc(wert)}</textarea>`;
+      case "radio": return `<div class="optionen">${f.optionen.map((o) => `<label><input type="radio" name="${name}" value="${esc(o)}" ${wert === o ? "checked" : ""}>${esc(o)}</label>`).join("")}</div>`;
+      case "checks": { const w = Array.isArray(wert) ? wert : []; return `<div class="optionen">${f.optionen.map((o) => `<label><input type="checkbox" name="${name}" value="${esc(o)}" ${w.includes(o) ? "checked" : ""}>${esc(o)}</label>`).join("")}</div>`; }
+      case "skala": return `<div class="skala">${Array.from({ length: 11 }, (_, i) => `<label><input type="radio" name="${name}" value="${i}" ${String(wert) === String(i) ? "checked" : ""}>${i}</label>`).join("")}</div><div class="skala-legende"><span>0</span><span>10</span></div>`;
+      case "liste": {
+        const zeilen = Array.isArray(wert) ? wert : [];
+        const n = Math.max(2, Math.min(f.anzahl, zeilen.length + 1));
+        return `<div class="liste" data-liste="${name}" data-max="${f.anzahl}">${Array.from({ length: n }, (_, i) => zeileHtml(f, zeilen[i] || {}, i)).join("")}</div>
+          <div class="aktionen"><button type="button" class="knopf zweit klein" data-mehr="${name}">Weitere Zeile</button></div>`;
+      }
+      default: return "";
+    }
+  }
+  function zeileHtml(f, zeile, i) {
+    return `<div class="zeile" data-index="${i}"><div class="titel">${i + 1}</div>${f.felder.map((u) => `<div><label class="klein">${esc(u.label)}</label>${feldHtml(u, zeile[u.id] ?? "", `${f.id}__${i}`)}</div>`).join("")}</div>`;
+  }
+
+  function frageHtml(f) {
+    if (f.id === "fallnummer" && BRIEFKASTEN) {
+      return `<div class="frage"><label class="haupt">Ihre Fallnummer</label><div class="hilfe">Ist über Ihren Link bereits eingetragen: <b>${esc(BRIEFKASTEN.fall)}</b>. Ihr Name ist nicht nötig.</div></div>`;
+    }
+    const wert = daten.antworten[f.id];
+    const unbekannt = Boolean(daten.unbekannt[f.id]);
+    return `<div class="frage ${unbekannt ? "ist-unbekannt" : ""}" data-frage="${esc(f.id)}">
+      <label class="haupt">${esc(f.label)}</label>
+      ${f.hilfe ? `<div class="hilfe">${esc(f.hilfe)}</div>` : ""}
+      ${feldHtml(f, wert ?? "", "")}
+      ${f.ohneUnbekannt ? "" : `<div class="unbekannt"><label><input type="checkbox" data-unbekannt="${esc(f.id)}" ${unbekannt ? "checked" : ""}> weiß ich nicht / möchte ich nicht beantworten</label></div>`}
+    </div>`;
+  }
+
+  function render() {
+    const liste = sichtbareAbschnitte();
+    schritt = Math.max(0, Math.min(schritt, liste.length - 1));
+    const a = liste[schritt];
+    balken.style.width = `${Math.round((schritt / (liste.length - 1)) * 100)}%`;
+    schrittText.textContent = `Schritt ${schritt + 1} von ${liste.length}: ${a.titel}`;
+    if (a.id === "ende") { renderEnde(liste); } else {
+      app.innerHTML = `<h1>${esc(a.titel)}</h1>${a.intro || ""}${a.fragen.map(frageHtml).join("")}`;
+      verdrahte();
+    }
+    document.getElementById("zurueck").disabled = schritt === 0;
+    document.getElementById("weiter").textContent = schritt === liste.length - 1 ? "Fertig" : "Weiter";
+    document.getElementById("weiter").hidden = schritt === liste.length - 1;
+    window.scrollTo({ top: 0 });
+    speichern();
+  }
+
+  function verdrahte() {
+    app.querySelectorAll("input, textarea, select").forEach((el) => {
+      el.addEventListener("change", lies); el.addEventListener("input", lies);
+    });
+    app.querySelectorAll("[data-unbekannt]").forEach((cb) => cb.addEventListener("change", () => {
+      daten.unbekannt[cb.dataset.unbekannt] = cb.checked;
+      cb.closest(".frage").classList.toggle("ist-unbekannt", cb.checked);
+      speichern();
+    }));
+    app.querySelectorAll("[data-mehr]").forEach((b) => b.addEventListener("click", () => {
+      const box = app.querySelector(`.liste[data-liste="${b.dataset.mehr}"]`);
+      const n = box.querySelectorAll(".zeile").length;
+      if (n >= Number(box.dataset.max)) { meldung(`Maximal ${box.dataset.max} Zeilen.`); return; }
+      const f = aktuelleFragen().find((x) => x.id === b.dataset.mehr);
+      box.insertAdjacentHTML("beforeend", zeileHtml(f, {}, n));
+      box.querySelectorAll(".zeile:last-child input, .zeile:last-child textarea").forEach((el) => { el.addEventListener("change", lies); el.addEventListener("input", lies); });
+    }));
+  }
+  function aktuelleFragen() { return sichtbareAbschnitte()[schritt].fragen; }
+
+  function lies() {
+    for (const f of aktuelleFragen()) {
+      if (f.id === "fallnummer" && BRIEFKASTEN) continue; /* kommt aus dem Link, kein Feld auf der Seite */
+      if (f.typ === "liste") {
+        const zeilen = [];
+        app.querySelectorAll(`.liste[data-liste="${f.id}"] .zeile`).forEach((z, i) => {
+          const obj = {}; let leer = true;
+          for (const u of f.felder) {
+            const v = liesFeld(u, `${f.id}__${i}__${u.id}`, z);
+            if (v !== "" && v != null && !(Array.isArray(v) && !v.length)) { obj[u.id] = v; leer = false; }
+          }
+          if (!leer) zeilen.push(obj);
+        });
+        daten.antworten[f.id] = zeilen;
+      } else {
+        const v = liesFeld(f, f.id, app);
+        if (v === "" || v == null || (Array.isArray(v) && !v.length)) delete daten.antworten[f.id]; else daten.antworten[f.id] = v;
+      }
+    }
+    speichern();
+  }
+  function liesFeld(f, name, wurzel) {
+    if (f.typ === "checks") return [...wurzel.querySelectorAll(`input[name="${name}"]:checked`)].map((i) => i.value);
+    if (f.typ === "radio" || f.typ === "skala") { const el = wurzel.querySelector(`input[name="${name}"]:checked`); return el ? (f.typ === "skala" ? Number(el.value) : el.value) : ""; }
+    const el = wurzel.querySelector(`[name="${name}"]`); return el ? el.value.trim() : "";
+  }
+
+  /* ---------- Abschluss: Übersicht, Export, Senden ---------- */
+  function zusammenfassung() {
+    const zeilen = [];
+    for (const a of sichtbareAbschnitte()) {
+      if (a.id === "start" || a.id === "ende") { if (a.id === "start") { for (const f of a.fragen) zeilen.push(...zeileFuer(f)); } continue; }
+      const teil = [];
+      for (const f of a.fragen) teil.push(...zeileFuer(f));
+      if (teil.length) zeilen.push(`\n## ${a.titel}`, ...teil);
+    }
+    return zeilen.join("\n");
+  }
+  function zeileFuer(f) {
+    if (daten.unbekannt[f.id]) return [`- ${f.label}: weiß ich nicht / keine Angabe`];
+    const w = daten.antworten[f.id];
+    if (w == null || w === "" || (Array.isArray(w) && !w.length)) return [];
+    if (f.typ === "liste") return [`- ${f.label}:`, ...w.map((z, i) => `  ${i + 1}. ${f.felder.map((u) => z[u.id] != null && z[u.id] !== "" ? `${u.label.replace(/\s*\(.*$/, "")}: ${z[u.id]}` : null).filter(Boolean).join(" · ")}`)];
+    if (Array.isArray(w)) return [`- ${f.label}: ${w.join(", ")}`];
+    return [`- ${f.label}: ${w}`];
+  }
+  function beantwortet() { let n = 0, gesamt = 0; for (const a of sichtbareAbschnitte()) for (const f of a.fragen) { gesamt++; const w = daten.antworten[f.id]; if (daten.unbekannt[f.id] || (w != null && w !== "" && !(Array.isArray(w) && !w.length))) n++; } return { n, gesamt }; }
+
+  function exportObjekt() {
+    return { bogen: "FM-Anamnesebogen", bogenVersion: BOGEN_VERSION, exportiert: new Date().toISOString(), fallnummer: daten.antworten.fallnummer || "", antworten: daten.antworten, unbekannt: Object.keys(daten.unbekannt).filter((k) => daten.unbekannt[k]), zusammenfassung: zusammenfassung() };
+  }
+  function b64(buf) { return btoa(String.fromCharCode(...new Uint8Array(buf))); }
+  async function verschluessele(text, passwort) {
+    const enc = new TextEncoder();
+    const salt = crypto.getRandomValues(new Uint8Array(16));
+    const iv = crypto.getRandomValues(new Uint8Array(12));
+    const basis = await crypto.subtle.importKey("raw", enc.encode(passwort), "PBKDF2", false, ["deriveKey"]);
+    const key = await crypto.subtle.deriveKey({ name: "PBKDF2", salt, iterations: 200000, hash: "SHA-256" }, basis, { name: "AES-GCM", length: 256 }, false, ["encrypt"]);
+    const chiffre = await crypto.subtle.encrypt({ name: "AES-GCM", iv }, key, enc.encode(text));
+    return { bogen: "FM-Anamnesebogen", bogenVersion: BOGEN_VERSION, verschluesselt: true, verfahren: "AES-GCM-256, PBKDF2-SHA256 200000", salt: b64(salt), iv: b64(iv), daten: b64(chiffre), fallnummer: daten.antworten.fallnummer || "" };
+  }
+  async function erzeugeDatei() {
+    const pw = (document.getElementById("passwort")?.value || "").trim();
+    const obj = pw ? await verschluessele(JSON.stringify(exportObjekt()), pw) : exportObjekt();
+    const fall = (daten.antworten.fallnummer || "ohne-Fallnummer").replace(/[^A-Za-z0-9-]/g, "");
+    const name = `Anamnese_${fall}_${new Date().toISOString().slice(0, 10)}.json`;
+    return new File([JSON.stringify(obj, null, 1)], name, { type: "application/json" });
+  }
+
+  /* ---------- Briefkasten: verschlüsselt an den Server ---------- */
+  function b64urlZuBytes(s) { const b = atob(s.replace(/-/g, "+").replace(/_/g, "/") + "===".slice((s.length + 3) % 4)); return Uint8Array.from(b, (c) => c.charCodeAt(0)); }
+  async function sendeVerschluesselt() {
+    if (!SCHLUESSEL) throw new Error("Der Link ist unvollständig (Schlüssel fehlt). Bitte den Link aus der Nachricht vollständig öffnen.");
+    const rohSchluessel = b64urlZuBytes(SCHLUESSEL);
+    if (rohSchluessel.length !== 32) throw new Error("Der Schlüssel im Link ist ungültig.");
+    const key = await crypto.subtle.importKey("raw", rohSchluessel, { name: "AES-GCM" }, false, ["encrypt"]);
+    const iv = crypto.getRandomValues(new Uint8Array(12));
+    const chiffre = await crypto.subtle.encrypt({ name: "AES-GCM", iv }, key, new TextEncoder().encode(JSON.stringify(exportObjekt())));
+    const antwort = await fetch(abgabeUrl(), { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ token: BRIEFKASTEN.token, iv: b64(iv), chiffre: b64(chiffre) }) });
+    let d = null; try { d = await antwort.json(); } catch (_) {}
+    if (!antwort.ok) throw new Error((d && d.error) || `Senden fehlgeschlagen (${antwort.status}).`);
+  }
+
+  function renderEndeBriefkasten() {
+    const { n, gesamt } = beantwortet();
+    app.innerHTML = `<h1>Fertig</h1>
+      <p>Sie haben ${n} von ${gesamt} Fragen beantwortet. Das reicht, auch wenn Lücken bleiben.</p>
+      <div class="hinweis">Mit „Absenden" werden Ihre Antworten auf diesem Gerät verschlüsselt und übertragen. Nur Ihre Ansprechperson kann sie lesen. Danach werden die Antworten hier gelöscht.</div>
+      <div class="aktionen"><button class="knopf" type="button" id="absenden">Absenden</button></div>
+      <h2>Ihre Antworten in der Übersicht</h2>
+      <div class="uebersicht" id="uebersicht"></div>`;
+    fuelleUebersicht();
+    document.getElementById("absenden").addEventListener("click", async () => {
+      const b = document.getElementById("absenden"); b.disabled = true; b.textContent = "Wird gesendet …";
+      try {
+        await sendeVerschluesselt();
+        try { localStorage.removeItem(SPEICHER); } catch (_) {}
+        app.innerHTML = `<h1>Vielen Dank</h1><p>Ihre Antworten sind angekommen. Sie können dieses Fenster jetzt schließen.</p>`;
+        document.querySelector(".leiste").hidden = true;
+      } catch (e) { meldung(e.message, true); b.disabled = false; b.textContent = "Absenden"; }
+    });
+  }
+  function fuelleUebersicht() {
+    const ueb = document.getElementById("uebersicht");
+    for (const a of sichtbareAbschnitte()) {
+      if (a.id === "ende") continue;
+      const teil = a.fragen.flatMap(zeileFuer);
+      ueb.insertAdjacentHTML("beforeend", `<div class="abschnitt"><b>${esc(a.titel)}</b>${teil.length ? teil.map((t) => `<div>${esc(t.replace(/^- /, ""))}</div>`).join("") : '<span>keine Angaben</span>'}</div>`);
+    }
+  }
+
+  function renderEnde(liste) {
+    if (BRIEFKASTEN) return renderEndeBriefkasten();
+    const { n, gesamt } = beantwortet();
+    app.innerHTML = `<h1>Fertig</h1>
+      <p>Sie haben ${n} von ${gesamt} Fragen beantwortet. Das reicht, auch wenn Lücken bleiben.</p>
+      <div class="frage"><label class="haupt">Passwort für die Datei (empfohlen, optional)</label>
+        <div class="hilfe">Wenn Sie ein Passwort setzen, ist die Datei verschlüsselt. Teilen Sie das Passwort mündlich mit, nicht in derselben Nachricht.</div>
+        <input type="text" id="passwort" autocomplete="off" placeholder="z. B. drei Wörter, die Sie sich merken">
+      </div>
+      <div class="aktionen">
+        <button class="knopf" type="button" id="senden">Bogen speichern und senden</button>
+        <button class="knopf zweit" type="button" id="herunterladen">Nur als Datei speichern</button>
+      </div>
+      <div class="hinweis">Auf dem Handy öffnet sich ein Teilen-Fenster: dort Mail oder die vereinbarte Nachrichten-App wählen. Am Computer wird die Datei heruntergeladen; hängen Sie sie an eine Mail an.</div>
+      <h2>Ihre Antworten in der Übersicht</h2>
+      <div class="uebersicht" id="uebersicht"></div>
+      <div class="aktionen">
+        <button class="knopf zweit klein" type="button" id="kopieren">Antworten als Text kopieren</button>
+        <button class="knopf zweit klein" type="button" id="loeschen">Alle Antworten auf diesem Gerät löschen</button>
+      </div>`;
+    const ueb = document.getElementById("uebersicht");
+    for (const a of liste) {
+      if (a.id === "ende") continue;
+      const teil = a.fragen.flatMap(zeileFuer);
+      ueb.insertAdjacentHTML("beforeend", `<div class="abschnitt"><b>${esc(a.titel)}</b>${teil.length ? teil.map((t) => `<div>${esc(t.replace(/^- /, ""))}</div>`).join("") : '<span>keine Angaben</span>'}</div>`);
+    }
+    document.getElementById("senden").addEventListener("click", async () => {
+      try {
+        const datei = await erzeugeDatei();
+        if (navigator.canShare && navigator.canShare({ files: [datei] })) {
+          await navigator.share({ files: [datei], title: "Anamnesebogen", text: `Anamnesebogen ${daten.antworten.fallnummer || ""}`.trim() });
+          meldung("Gesendet. Vielen Dank.");
+        } else { lade(datei); meldung("Datei gespeichert. Bitte per Mail anhängen."); }
+      } catch (e) { if (e && e.name === "AbortError") return; meldung("Senden nicht möglich: " + e.message, true); }
+    });
+    document.getElementById("herunterladen").addEventListener("click", async () => { try { lade(await erzeugeDatei()); meldung("Datei gespeichert."); } catch (e) { meldung(e.message, true); } });
+    document.getElementById("kopieren").addEventListener("click", async () => { try { await navigator.clipboard.writeText(zusammenfassung()); meldung("Kopiert."); } catch (_) { meldung("Kopieren nicht möglich.", true); } });
+    document.getElementById("loeschen").addEventListener("click", () => {
+      if (!confirm("Alle Antworten auf diesem Gerät löschen? Das lässt sich nicht rückgängig machen.")) return;
+      try { localStorage.removeItem(SPEICHER); } catch (_) {}
+      daten = { antworten: {}, unbekannt: {}, gestartet: new Date().toISOString(), bogenVersion: BOGEN_VERSION }; schritt = 0; render();
+    });
+  }
+  function lade(datei) {
+    const url = URL.createObjectURL(datei); const a = document.createElement("a"); a.href = url; a.download = datei.name; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(url), 2000);
+  }
+
+  document.getElementById("weiter").addEventListener("click", () => { lies(); schritt++; render(); });
+  document.getElementById("zurueck").addEventListener("click", () => { lies(); schritt--; render(); });
+
+  /* Statisch gehostet: Kontext zum Token vom Server holen, dann rendern. */
+  async function start() {
+    if (API && TOKEN_AUS_URL && !BRIEFKASTEN) {
+      app.innerHTML = '<p class="leer">Bogen wird geladen …</p>';
+      try {
+        const r = await fetch(`${API}/kontext?t=${encodeURIComponent(TOKEN_AUS_URL)}`);
+        const d = await r.json().catch(() => ({}));
+        if (!r.ok) { app.innerHTML = `<h1>Hinweis</h1><p>${esc(d.error || "Dieser Link ist nicht mehr gültig.")}</p>`; document.querySelector(".leiste").hidden = true; return; }
+        BRIEFKASTEN = { token: d.token, fall: d.fall };
+        daten.antworten.fallnummer = d.fall; daten.unbekannt.fallnummer = false;
+      } catch (e) {
+        app.innerHTML = `<h1>Hinweis</h1><p>Der Bogen konnte nicht geladen werden (keine Verbindung). Bitte später noch einmal öffnen.</p>`;
+        document.querySelector(".leiste").hidden = true; return;
+      }
+    }
+    render();
+  }
+  start();
+})();
+</script>
+</body>
+</html>
