@@ -86,10 +86,10 @@ window.BRIEFKASTEN = (function () { try { return JSON.parse('__BRIEFKASTEN__'); 
 window.BRIEFKASTEN_API = (function () { var a = 'https://xaevwixicuctfbfxnpfa.supabase.co/functions/v1/anamnese-briefkasten'; return /^https:\/\//.test(a) ? a : null; })();
 </script>
 <script>
-/* Anamnesebogen, Version 1.1 (02.09.2026). Eine Datei, kein Server nötig. Antworten bleiben im Browser
+/* Anamnesebogen, Version 1.2 (02.09.2026). Eine Datei, kein Server nötig. Antworten bleiben im Browser
    gespeichert, bis der Bogen abgeschickt, exportiert oder gelöscht wird. Jede Frage ist freiwillig. */
 (function () {
-  const BOGEN_VERSION = "1.1";
+  const BOGEN_VERSION = "1.2";
   let BRIEFKASTEN = window.BRIEFKASTEN && window.BRIEFKASTEN.token ? window.BRIEFKASTEN : null;
   const API = window.BRIEFKASTEN_API || null;
   const TOKEN_AUS_URL = (new URLSearchParams(location.search).get("t") || "").trim() || null;
@@ -109,13 +109,14 @@ window.BRIEFKASTEN_API = (function () { var a = 'https://xaevwixicuctfbfxnpfa.su
         { id: "geburtsjahr", typ: "number", label: "Geburtsjahr", hilfe: "Vier Ziffern, kein genaues Datum nötig." },
         { id: "groesse", typ: "number", label: "Körpergröße in cm" },
         { id: "gewicht", typ: "number", label: "Aktuelles Gewicht in kg" },
+        { id: "taille", typ: "number", label: "Taillenumfang in cm (auf Nabelhöhe, optional)", hilfe: "Ein Maßband reicht. Der Wert sagt mehr über den Stoffwechsel als das Gewicht allein." },
         { id: "gewicht_verlauf", typ: "textarea", label: "Hat sich Ihr Gewicht in den letzten zwei Jahren verändert?", hilfe: "Zum Beispiel: plus 6 kg seit Frühjahr 2025, ungewollt." },
       ] },
     { id: "sicherheit", titel: "Wichtig für die Sicherheit", intro: `<p>Diese Fragen entscheiden, was in Ihrem Fall empfohlen werden darf und was nicht.</p>`,
       fragen: [
         { id: "schwanger", typ: "radio", label: "Sind Sie schwanger oder stillen Sie?", optionen: ["nein", "ja, schwanger", "ja, ich stille", "möglich, nicht sicher", "trifft nicht zu"] },
         { id: "krebs", typ: "radio", label: "Gibt es aktuell eine Krebserkrankung oder eine Krebsbehandlung in den letzten zwei Jahren?", optionen: JA_NEIN_UNSICHER },
-        { id: "medikamente_kritisch", typ: "checks", label: "Nehmen Sie eines dieser Medikamente?", optionen: ["Blutverdünner", "Immunsuppressiva (z. B. nach Transplantation, bei Rheuma)", "Medikamente gegen Epilepsie", "Antihormonelle Therapie", "Schilddrüsenhormone", "Cortison als Dauertherapie", "Psychopharmaka", "keines davon"] },
+        { id: "medikamente_gruppen", typ: "checks", label: "Nehmen Sie regelmäßig Medikamente aus diesen Gruppen?", hilfe: "Die genauen Namen kommen später in die Tabelle. Hier reicht die Gruppe.", optionen: ["Blutdruckmittel", "Herzmedikamente (z. B. Betablocker, Rhythmusmittel)", "Blutverdünner oder Gerinnungshemmer", "Cholesterinsenker (Statine)", "Diabetesmedikamente oder Insulin", "Abnehmspritzen (GLP-1)", "Schilddrüsenhormone", "Cortison als Dauertherapie", "Magensäureblocker (z. B. Pantoprazol, Omeprazol)", "Schmerzmittel regelmäßig (Ibuprofen, Diclofenac, ASS)", "Antidepressiva, Beruhigungs- oder Schlafmittel", "Hormonpräparate (Pille, Hormonersatz, Testosteron)", "Antihistaminika", "Antibiotika in den letzten 12 Monaten", "Immunsuppressiva oder Biologika", "Medikamente gegen Epilepsie", "Krebstherapie oder antihormonelle Therapie", "keines davon"] },
         { id: "warnzeichen", typ: "checks", label: "Haben Sie aktuell eines dieser Warnzeichen?", hilfe: "Wenn ja, bitte zeitnah ärztlich abklären lassen, unabhängig von diesem Bogen.", optionen: ["Brustschmerz oder Atemnot", "Ungewollter Gewichtsverlust über 5 kg", "Blut im Stuhl oder Urin", "Neu aufgetretene starke Kopfschmerzen oder Sehstörungen", "Herzstolpern, Ohnmacht, Schwindelanfälle", "Nächtliche Schweißausbrüche mit Fieber", "keines davon"] },
         { id: "belastbarkeit", typ: "radio", label: "Wie belastbar sind Sie im Alltag?", optionen: ["normal belastbar", "eingeschränkt, Alltag geht", "stark eingeschränkt", "überwiegend bettlägerig"] },
       ] },
@@ -140,10 +141,24 @@ window.BRIEFKASTEN_API = (function () { var a = 'https://xaevwixicuctfbfxnpfa.su
       ] },
     { id: "vorerkrankungen", titel: "Vorerkrankungen und Diagnosen",
       fragen: [
-        { id: "diagnosen", typ: "checks", label: "Wurde bei Ihnen jemals eines davon festgestellt?", optionen: ["Schilddrüsenerkrankung (z. B. Hashimoto, Unterfunktion, Knoten)", "Andere Autoimmunerkrankung", "Diabetes oder Insulinresistenz", "Bluthochdruck oder Herzerkrankung", "Magen-Darm-Erkrankung (z. B. Reizdarm, Zöliakie, Gastritis)", "Allergien oder Unverträglichkeiten", "Migräne", "Depression, Angststörung oder Burnout", "Essstörung (aktuell oder früher)", "Schlafstörung", "Hormonelle Erkrankung (z. B. PCOS, Endometriose)", "Blutarmut (Anämie)", "Osteoporose", "Nierenerkrankung", "Lebererkrankung", "keines davon"] },
-        { id: "diagnosen_text", typ: "textarea", label: "Details dazu, weitere Diagnosen, Operationen, Krankenhausaufenthalte" },
+        { id: "diag_stoffwechsel", typ: "checks", label: "Stoffwechsel und Hormone", optionen: ["Diabetes Typ 2", "Diabetes Typ 1", "Prädiabetes oder Insulinresistenz", "Fettleber", "Gicht oder erhöhte Harnsäure", "Schilddrüsenunterfunktion", "Schilddrüsenüberfunktion", "Hashimoto", "Morbus Basedow", "Schilddrüsenknoten oder Kropf", "PCOS", "Endometriose", "Osteoporose oder Osteopenie", "keines davon"] },
+        { id: "diag_immun", typ: "checks", label: "Immunsystem, Darm, Allergien", optionen: ["Zöliakie", "Morbus Crohn oder Colitis ulcerosa", "Reizdarm", "Gastritis, Magengeschwür oder Helicobacter", "Refluxkrankheit", "Rheumatoide Arthritis", "Andere Autoimmunerkrankung", "Heuschnupfen oder andere Allergien", "Histaminintoleranz", "Laktose- oder Fruktoseintoleranz", "Glutenunverträglichkeit ohne Zöliakie", "Neurodermitis oder Psoriasis", "Asthma", "keines davon"] },
+        { id: "diag_organe", typ: "checks", label: "Organe und Infektionen", optionen: ["Nierenerkrankung oder Nierensteine", "Lebererkrankung oder Hepatitis", "Gallensteine oder Gallenblase entfernt", "Bauchspeicheldrüsenentzündung", "COPD oder chronische Bronchitis", "Schlafapnoe", "Blutarmut (Anämie)", "Eisenüberladung (Hämochromatose)", "Pfeiffersches Drüsenfieber (EBV)", "Borreliose", "Long Covid", "Häufige Harnwegs- oder Blaseninfekte", "Krebserkrankung (früher oder aktuell)", "keines davon"] },
+        { id: "diag_neuro_psyche", typ: "checks", label: "Nerven, Psyche, Schlaf", optionen: ["Migräne", "Neuropathie (Kribbeln, Taubheit)", "Epilepsie", "Multiple Sklerose", "Gehirnerschütterung oder Kopfverletzung", "Depression", "Angststörung oder Panikattacken", "Burnout", "ADHS", "Essstörung (aktuell oder früher)", "Schlafstörung", "Tinnitus", "keines davon"] },
+        { id: "operationen", typ: "textarea", label: "Operationen, Krankenhausaufenthalte, Unfälle (mit Jahr)", hilfe: "Zum Beispiel: Blinddarm 2010, Schilddrüse teilweise entfernt 2019, Kaiserschnitt 2015." },
+        { id: "diagnosen_text", typ: "textarea", label: "Weitere Diagnosen oder Details zu den angekreuzten Punkten (seit wann, wie behandelt)" },
         { id: "infekte", typ: "textarea", label: "Schwere oder langwierige Infekte?", hilfe: "Zum Beispiel Pfeiffersches Drüsenfieber, Corona mit langem Verlauf, Borreliose, häufige Antibiotika." },
         { id: "aerzte", typ: "textarea", label: "Welche Ärzte oder Therapeuten betreuen Sie aktuell?", hilfe: "Fachrichtung reicht, kein Name nötig." },
+      ] },
+    { id: "herzkreislauf", titel: "Herz und Kreislauf", intro: `<p>Herz und Gefäße bestimmen mit, welche Empfehlungen sicher sind. Bitte auch frühere Ereignisse angeben.</p>`,
+      fragen: [
+        { id: "hk_diagnosen", typ: "checks", label: "Wurde bei Ihnen jemals festgestellt?", optionen: ["Bluthochdruck", "Niedriger Blutdruck", "Herzinfarkt", "Koronare Herzkrankheit, Stent oder Bypass", "Schlaganfall oder kurzzeitige Durchblutungsstörung (TIA)", "Herzrhythmusstörung (z. B. Vorhofflimmern)", "Herzschwäche (Herzinsuffizienz)", "Herzklappenfehler", "Herzmuskelentzündung", "Thrombose oder Lungenembolie", "Durchblutungsstörung der Beine (Schaufensterkrankheit)", "Krampfadern", "Erhöhte Blutfette oder Cholesterin", "Erhöhtes Lipoprotein(a)", "Schilddrüse mit Herzbeteiligung", "keines davon"] },
+        { id: "hk_ereignis", typ: "textarea", label: "Falls Infarkt, Schlaganfall, Thrombose oder Eingriff am Herzen: wann, was, wie behandelt?" },
+        { id: "hk_blutdruck", typ: "text", label: "Ihr Blutdruck, falls bekannt (z. B. 125 zu 80)", hilfe: "Gern der Durchschnitt der letzten Messungen. Bitte auch schreiben, ob unter Medikamenten." },
+        { id: "hk_puls", typ: "text", label: "Ihr Ruhepuls, falls bekannt" },
+        { id: "hk_symptome", typ: "checks", label: "Beschwerden in den letzten Monaten", optionen: ["Druck oder Schmerz in der Brust bei Belastung", "Atemnot beim Treppensteigen", "Herzstolpern oder Herzrasen", "Schwindel oder Schwarzwerden beim Aufstehen", "Geschwollene Beine oder Knöchel", "Kalte Füße oder Schmerzen in den Beinen beim Gehen", "Nächtliches Wasserlassen mehr als zweimal", "keine"] },
+        { id: "hk_kontrolle", typ: "radio", label: "Waren Sie in den letzten zwei Jahren beim Kardiologen oder gab es ein EKG, Belastungs-EKG oder Herzultraschall?", optionen: ["nein", "ja, unauffällig", "ja, mit Befund", "weiß ich nicht"] },
+        { id: "hk_werte", typ: "textarea", label: "Kennen Sie Ihre letzten Werte für Cholesterin (LDL), Blutzucker oder HbA1c?", hilfe: "Nur, wenn Sie sie griffbereit haben. Sonst überspringen." },
       ] },
     { id: "medikation", titel: "Medikamente und Präparate", intro: `<p>Bitte alles aufführen, was Sie regelmäßig einnehmen, auch Nahrungsergänzung, Hormone, Cremes und pflanzliche Mittel. Wenn Sie die Dosis nicht wissen, reicht der Name.</p>`,
       fragen: [
@@ -226,6 +241,12 @@ window.BRIEFKASTEN_API = (function () { var a = 'https://xaevwixicuctfbfxnpfa.su
         { id: "schwangerschaften", typ: "text", label: "Schwangerschaften, Geburten, Fehlgeburten, Stillzeiten (mit Jahr)" },
         { id: "kinderwunsch", typ: "radio", label: "Besteht ein Kinderwunsch?", optionen: ["nein", "ja", "vielleicht später"] },
         { id: "letzter_zyklus", typ: "text", label: "Erster Tag der letzten Regel", hilfe: "Wichtig, falls Hormone im Blut gemessen werden." },
+      ] },
+    { id: "maenner", titel: "Hormone und Prostata", nurFuer: "männlich",
+      fragen: [
+        { id: "m_symptome", typ: "checks", label: "Trifft in den letzten Monaten zu?", optionen: ["Weniger Antrieb oder Leistungsfähigkeit", "Libido vermindert", "Erektionsstörungen", "Muskelabbau trotz Training", "Bauchfett nimmt zu", "Nächtliches Wasserlassen", "Schwacher Harnstrahl oder Restharngefühl", "keines davon"] },
+        { id: "m_prostata", typ: "radio", label: "Gab es eine Prostatauntersuchung oder einen PSA-Wert?", optionen: ["nein", "ja, unauffällig", "ja, mit Befund", "weiß ich nicht"] },
+        { id: "m_hormone", typ: "text", label: "Testosteron oder andere Hormonwerte, falls bekannt (mit Datum)" },
       ] },
     { id: "symptome", titel: "Symptom-Check", intro: `<p>Kreuzen Sie an, was in den letzten drei Monaten mehrfach aufgetreten ist.</p>`,
       fragen: [
