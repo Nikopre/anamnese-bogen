@@ -41,6 +41,15 @@
   .liste .zeile{display:grid;gap:0.5rem;border-top:1px solid var(--linie);padding-top:0.7rem;margin-top:0.7rem}
   .liste .zeile:first-child{border-top:none;padding-top:0;margin-top:0}
   .liste .zeile .titel{font-size:0.85rem;color:var(--grau);text-transform:uppercase;letter-spacing:0.05em}
+  .matrix{display:grid;gap:0.55rem}
+  .matrix .mzeile{border:1px solid var(--linie);border-radius:12px;padding:0.6rem 0.7rem;background:#fff}
+  .matrix .mlabel{font-weight:600;margin-bottom:0.4rem;font-size:0.97rem}
+  .matrix .mopt{display:flex;flex-wrap:wrap;gap:0.35rem}
+  .matrix .mopt label{flex:1 1 auto;min-width:5.5rem;display:flex;align-items:center;justify-content:center;gap:0.3rem;
+    border:1.5px solid var(--linie);border-radius:10px;padding:0.5rem 0.4rem;min-height:46px;text-align:center;font-size:0.9rem;cursor:pointer}
+  .matrix .mopt label:has(input:checked){border-color:var(--akzent);background:var(--akzent-hell);font-weight:600}
+  .matrix .mopt input{position:absolute;opacity:0;pointer-events:none}
+  .score-box{border:1.5px solid var(--akzent);border-radius:12px;padding:0.7rem 0.9rem;background:var(--akzent-hell);margin-top:0.6rem;font-size:0.95rem}
   .knopf{font:inherit;font-weight:600;padding:0.85rem 1.2rem;border-radius:12px;border:1.5px solid var(--akzent);background:var(--akzent);color:#fff;cursor:pointer;min-height:52px}
   .knopf.zweit{background:#fff;color:var(--akzent-text)}
   .knopf.klein{min-height:44px;padding:0.5rem 0.9rem;font-size:0.95rem}
@@ -86,10 +95,10 @@ window.BRIEFKASTEN = (function () { try { return JSON.parse('__BRIEFKASTEN__'); 
 window.BRIEFKASTEN_API = (function () { var a = 'https://xaevwixicuctfbfxnpfa.supabase.co/functions/v1/anamnese-briefkasten'; return /^https:\/\//.test(a) ? a : null; })();
 </script>
 <script>
-/* Anamnesebogen, Version 1.2 (02.09.2026). Eine Datei, kein Server nötig. Antworten bleiben im Browser
+/* Anamnesebogen, Version 2.0 (03.09.2026). Eine Datei, kein Server nötig. Antworten bleiben im Browser
    gespeichert, bis der Bogen abgeschickt, exportiert oder gelöscht wird. Jede Frage ist freiwillig. */
 (function () {
-  const BOGEN_VERSION = "1.2";
+  const BOGEN_VERSION = "2.0";
   let BRIEFKASTEN = window.BRIEFKASTEN && window.BRIEFKASTEN.token ? window.BRIEFKASTEN : null;
   const API = window.BRIEFKASTEN_API || null;
   const TOKEN_AUS_URL = (new URLSearchParams(location.search).get("t") || "").trim() || null;
@@ -98,6 +107,20 @@ window.BRIEFKASTEN_API = (function () { var a = 'https://xaevwixicuctfbfxnpfa.su
   const abgabeUrl = () => (API ? API : location.pathname);
   const JA_NEIN_UNSICHER = ["ja", "nein", "weiß ich nicht"];
   const HAEUFIG = ["nie", "selten", "mehrmals pro Woche", "täglich"];
+  /* Belastungsskala des Symptom-Scores: die Reihenfolge bestimmt die Punkte 0 bis 3. */
+  const BELASTUNG = ["nie oder kaum", "manchmal", "oft", "fast ständig"];
+  const SCORE_SYSTEME = [
+    { id: "sc_energie", label: "Energie, Erschöpfung, Belastbarkeit" },
+    { id: "sc_kopf", label: "Kopf, Konzentration, Nerven" },
+    { id: "sc_schlaf", label: "Schlaf" },
+    { id: "sc_verdauung", label: "Verdauung, Bauch" },
+    { id: "sc_muskel", label: "Muskeln, Gelenke, Rücken" },
+    { id: "sc_haut", label: "Haut, Haare, Nägel" },
+    { id: "sc_herz", label: "Herz, Kreislauf, Atmung" },
+    { id: "sc_stimmung", label: "Stimmung, innere Anspannung" },
+    { id: "sc_hormone", label: "Hormonell (Zyklus, Libido, Gewicht)" },
+    { id: "sc_immun", label: "Infekte, Allergien, Immunsystem" },
+  ];
 
   /* ---------- Fragenkatalog nach der IFM-Matrix ---------- */
   const abschnitte = [
@@ -134,7 +157,9 @@ window.BRIEFKASTEN_API = (function () { var a = 'https://xaevwixicuctfbfxnpfa.su
       ] },
     { id: "verlauf", titel: "Zeitachse", intro: `<p>Wichtige Ereignisse Ihrer Gesundheitsgeschichte, grob in Reihenfolge. Jahreszahl reicht.</p>`,
       fragen: [
-        { id: "ereignisse", typ: "liste", label: "Ereignisse", anzahl: 8, felder: [
+        { id: "besondere_ereignisse", typ: "checks", label: "Gab es eines dieser Ereignisse?", hilfe: "Auch wenn es lange her ist. Datum kommt in die Liste darunter, wenn Sie es wissen.",
+        optionen: ["Zeckenstich, mit oder ohne Ausschlag", "längere Reise in tropische Länder", "Vollnarkose oder größere Operation", "Unfall mit Kopfverletzung oder Schleudertrauma", "schwere oder langwierige Infektion", "Covid-Erkrankung", "belastendes Lebensereignis", "nichts davon"] },
+      { id: "ereignisse", typ: "liste", label: "Ereignisse", anzahl: 8, felder: [
           { id: "wann", typ: "text", label: "Wann (Jahr oder Monat)" },
           { id: "was", typ: "text", label: "Was (Diagnose, Operation, Infekt, Lebensereignis, Therapie)" },
         ] },
@@ -145,7 +170,9 @@ window.BRIEFKASTEN_API = (function () { var a = 'https://xaevwixicuctfbfxnpfa.su
         { id: "diag_immun", typ: "checks", label: "Immunsystem, Darm, Allergien", optionen: ["Zöliakie", "Morbus Crohn oder Colitis ulcerosa", "Reizdarm", "Gastritis, Magengeschwür oder Helicobacter", "Refluxkrankheit", "Rheumatoide Arthritis", "Andere Autoimmunerkrankung", "Heuschnupfen oder andere Allergien", "Histaminintoleranz", "Laktose- oder Fruktoseintoleranz", "Glutenunverträglichkeit ohne Zöliakie", "Neurodermitis oder Psoriasis", "Asthma", "keines davon"] },
         { id: "diag_organe", typ: "checks", label: "Organe und Infektionen", optionen: ["Nierenerkrankung oder Nierensteine", "Lebererkrankung oder Hepatitis", "Gallensteine oder Gallenblase entfernt", "Bauchspeicheldrüsenentzündung", "COPD oder chronische Bronchitis", "Schlafapnoe", "Blutarmut (Anämie)", "Eisenüberladung (Hämochromatose)", "Pfeiffersches Drüsenfieber (EBV)", "Borreliose", "Long Covid", "Häufige Harnwegs- oder Blaseninfekte", "Krebserkrankung (früher oder aktuell)", "keines davon"] },
         { id: "diag_neuro_psyche", typ: "checks", label: "Nerven, Psyche, Schlaf", optionen: ["Migräne", "Neuropathie (Kribbeln, Taubheit)", "Epilepsie", "Multiple Sklerose", "Gehirnerschütterung oder Kopfverletzung", "Depression", "Angststörung oder Panikattacken", "Burnout", "ADHS", "Essstörung (aktuell oder früher)", "Schlafstörung", "Tinnitus", "keines davon"] },
-        { id: "operationen", typ: "textarea", label: "Operationen, Krankenhausaufenthalte, Unfälle (mit Jahr)", hilfe: "Zum Beispiel: Blinddarm 2010, Schilddrüse teilweise entfernt 2019, Kaiserschnitt 2015." },
+        { id: "kindheit", typ: "checks", label: "Was trifft auf Ihre Kindheit zu?", hilfe: "Prägt Immunsystem und Darmflora oft bis ins Erwachsenenalter.",
+        optionen: ["Kaiserschnitt", "gestillt worden", "nicht gestillt", "häufige Antibiotika in der Kindheit", "häufige Infekte in der Kindheit", "Mandeln oder Rachenmandeln entfernt", "nichts davon", "weiß ich nicht"] },
+      { id: "operationen", typ: "textarea", label: "Operationen, Krankenhausaufenthalte, Unfälle (mit Jahr)", hilfe: "Zum Beispiel: Blinddarm 2010, Schilddrüse teilweise entfernt 2019, Kaiserschnitt 2015." },
         { id: "diagnosen_text", typ: "textarea", label: "Weitere Diagnosen oder Details zu den angekreuzten Punkten (seit wann, wie behandelt)" },
         { id: "infekte", typ: "textarea", label: "Schwere oder langwierige Infekte?", hilfe: "Zum Beispiel Pfeiffersches Drüsenfieber, Corona mit langem Verlauf, Borreliose, häufige Antibiotika." },
         { id: "aerzte", typ: "textarea", label: "Welche Ärzte oder Therapeuten betreuen Sie aktuell?", hilfe: "Fachrichtung reicht, kein Name nötig." },
@@ -186,13 +213,19 @@ window.BRIEFKASTEN_API = (function () { var a = 'https://xaevwixicuctfbfxnpfa.su
         { id: "kostform_text", typ: "text", label: "Falls „andere Form“ oder Ergänzung dazu" },
         { id: "mahlzeiten", typ: "radio", label: "Wie viele Mahlzeiten essen Sie an einem normalen Tag?", optionen: ["1", "2", "3", "4 oder mehr", "sehr unregelmäßig"] },
         { id: "fasten", typ: "radio", label: "Lassen Sie bewusst Mahlzeiten aus oder fasten Sie?", optionen: ["nein", "gelegentlich", "regelmäßig (z. B. Intervallfasten)"] },
-        { id: "fisch", typ: "radio", label: "Seefisch", optionen: HAEUFIG },
-        { id: "fleisch", typ: "radio", label: "Fleisch", optionen: HAEUFIG },
-        { id: "milch", typ: "radio", label: "Milchprodukte", optionen: HAEUFIG },
-        { id: "gemuese", typ: "radio", label: "Gemüse", optionen: HAEUFIG },
-        { id: "obst", typ: "radio", label: "Obst", optionen: HAEUFIG },
-        { id: "zucker", typ: "radio", label: "Süßes, Softdrinks, Weißmehl", optionen: HAEUFIG },
-        { id: "salz", typ: "radio", label: "Welches Salz verwenden Sie zu Hause?", optionen: ["jodiertes Speisesalz", "Meersalz oder Steinsalz ohne Jod", "weiß ich nicht", "gemischt"] },
+        { id: "ern_matrix", typ: "matrix", label: "Wie oft essen oder trinken Sie das?", hilfe: "Eine Antwort je Zeile. Grobe Schätzung genügt.",
+        optionen: HAEUFIG,
+        zeilen: [
+          { id: "fisch", label: "Fisch oder Meeresfrüchte" },
+          { id: "fleisch", label: "Fleisch, Wurst, Eier" },
+          { id: "milch", label: "Milchprodukte" },
+          { id: "gemuese", label: "Gemüse" },
+          { id: "obst", label: "Obst" },
+          { id: "zucker", label: "Zucker, Süßes, Gebäck" },
+          { id: "kaffee", label: "Kaffee oder schwarzer Tee" },
+          { id: "alkohol", label: "Alkohol" },
+        ] },
+      { id: "salz", typ: "radio", label: "Welches Salz verwenden Sie zu Hause?", optionen: ["jodiertes Speisesalz", "Meersalz oder Steinsalz ohne Jod", "weiß ich nicht", "gemischt"] },
         { id: "kaffee", typ: "radio", label: "Kaffee oder andere Koffeinquellen", optionen: ["keine", "1 Tasse am Tag", "2 bis 3 Tassen", "mehr als 3 Tassen"] },
         { id: "alkohol", typ: "radio", label: "Alkohol", optionen: ["nie", "selten", "1 bis 3 Mal pro Woche", "fast täglich"] },
         { id: "unvertraeglich", typ: "textarea", label: "Lebensmittel, die Sie nicht vertragen oder meiden? Mit welcher Reaktion?" },
@@ -229,8 +262,8 @@ window.BRIEFKASTEN_API = (function () { var a = 'https://xaevwixicuctfbfxnpfa.su
         { id: "sitzen", typ: "radio", label: "Wie viele Stunden sitzen Sie am Tag?", optionen: ["unter 4", "4 bis 8", "über 8"] },
         { id: "rauchen", typ: "radio", label: "Rauchen Sie?", optionen: ["nie", "früher", "gelegentlich", "täglich"] },
         { id: "beruf", typ: "text", label: "Beruf und typische Arbeitsbelastung", hilfe: "Schichtdienst, Bildschirmarbeit, körperliche Arbeit, Chemikalien, Lärm." },
-        { id: "umwelt", typ: "checks", label: "Trifft etwas davon zu?", optionen: ["Amalgamfüllungen", "Schimmel in der Wohnung (aktuell oder früher)", "Viel Kontakt mit Chemikalien oder Lösungsmitteln", "Regelmäßig Fisch aus Meeresfrüchten oder Thunfisch", "Trinkwasser aus eigenem Brunnen", "Wohnung an stark befahrener Straße", "nichts davon"] },
-        { id: "zaehne", typ: "textarea", label: "Zähne und Zahnfleisch: Beschwerden, Wurzelbehandlungen, Zahnfleischbluten, Zahnschmelz?" },
+        { id: "umwelt", typ: "checks", label: "Trifft etwas davon zu?", optionen: ["Amalgamfüllungen", "Schimmel in der Wohnung (aktuell oder früher)", "Viel Kontakt mit Chemikalien oder Lösungsmitteln", "Regelmäßig Thunfisch oder größere Raubfische", "Trinkwasser aus eigenem Brunnen", "Wohnung an stark befahrener Straße", "Neubau oder Renovierung in den letzten zwei Jahren", "beruflicher Kontakt mit Staub, Farben, Metallen oder Reinigungsmitteln", "täglich mehrere Körperpflege- oder Kosmetikprodukte", "nichts davon"] },
+        { id: "zaehne", typ: "textarea", label: "Zähne, Kiefer, Zahnfleisch", hilfe: "Auch Zähneknirschen, Kieferknacken, Kieferschmerzen, Wurzelbehandlungen, Zahnfleischbluten oder Schäden am Zahnschmelz." },
       ] },
     { id: "frauen", titel: "Zyklus und Hormone", nurFuer: "weiblich", intro: `<p>Nur relevant, wenn Sie einen Zyklus haben oder hatten. Sonst einfach weiter.</p>`,
       fragen: [
@@ -250,7 +283,10 @@ window.BRIEFKASTEN_API = (function () { var a = 'https://xaevwixicuctfbfxnpfa.su
       ] },
     { id: "symptome", titel: "Symptom-Check", intro: `<p>Kreuzen Sie an, was in den letzten drei Monaten mehrfach aufgetreten ist.</p>`,
       fragen: [
-        { id: "s_allgemein", typ: "checks", label: "Allgemein", optionen: ["Frieren, kalte Hände oder Füße", "Hitzewallungen oder Schwitzen", "Erschöpfung nach geringer Anstrengung", "Nachmittagstief", "Ungewollte Gewichtsveränderung", "Wassereinlagerungen, Schwellungen"] },
+        { id: "score_matrix", typ: "matrix", score: true, label: "Wie stark belasten Sie Beschwerden in diesen Bereichen, in den letzten vier Wochen?",
+        hilfe: "Eine Antwort je Zeile. Das ergibt einen Wert, den wir bei der Verlaufskontrolle wiederholen und vergleichen können.",
+        optionen: BELASTUNG, zeilen: SCORE_SYSTEME },
+      { id: "s_allgemein", typ: "checks", label: "Allgemein", optionen: ["Frieren, kalte Hände oder Füße", "Hitzewallungen oder Schwitzen", "Erschöpfung nach geringer Anstrengung", "Nachmittagstief", "Ungewollte Gewichtsveränderung", "Wassereinlagerungen, Schwellungen"] },
         { id: "s_kopf", typ: "checks", label: "Kopf und Nerven", optionen: ["Kopfschmerzen", "Schwindel", "Benommenheit, Nebel im Kopf", "Kribbeln oder Taubheit", "Zittern", "Ohrgeräusche"] },
         { id: "s_haut", typ: "checks", label: "Haut, Haare, Nägel", optionen: ["Haarausfall", "Trockene Haut", "Brüchige Nägel", "Juckreiz", "Ausschlag, Ekzem", "Akne", "Blasse Haut"] },
         { id: "s_herz", typ: "checks", label: "Herz und Atmung", optionen: ["Herzklopfen, Herzstolpern", "Atemnot bei Belastung", "Niedriger Blutdruck, Schwarzwerden beim Aufstehen", "Hoher Blutdruck"] },
@@ -281,7 +317,15 @@ window.BRIEFKASTEN_API = (function () { var a = 'https://xaevwixicuctfbfxnpfa.su
 
   try {
     const alt = localStorage.getItem(SPEICHER);
-    if (alt) { const d = JSON.parse(alt); if (d && d.antworten) daten = d; if (typeof d.schritt === "number") schritt = d.schritt; }
+    if (alt) {
+      const d = JSON.parse(alt);
+      if (d && d.antworten) daten = d;
+      if (typeof d.schritt === "number") schritt = d.schritt;
+      /* Zwischenstand aus einer aelteren Fassung: Antworten behalten, aber die Version richtig stellen.
+         Die Schluessel sind ueber Fassungen hinweg stabil, deshalb geht nichts verloren. */
+      if (d && d.bogenVersion && d.bogenVersion !== BOGEN_VERSION) daten.begonnenMitVersion = d.bogenVersion;
+      daten.bogenVersion = BOGEN_VERSION;
+    }
   } catch (_) { /* kein Speicher verfügbar */ }
   if (BRIEFKASTEN && BRIEFKASTEN.fall) { daten.antworten.fallnummer = BRIEFKASTEN.fall; daten.unbekannt.fallnummer = false; }
 
@@ -314,6 +358,14 @@ window.BRIEFKASTEN_API = (function () { var a = 'https://xaevwixicuctfbfxnpfa.su
       case "radio": return `<div class="optionen">${f.optionen.map((o) => `<label><input type="radio" name="${name}" value="${esc(o)}" ${wert === o ? "checked" : ""}>${esc(o)}</label>`).join("")}</div>`;
       case "checks": { const w = Array.isArray(wert) ? wert : []; return `<div class="optionen">${f.optionen.map((o) => `<label><input type="checkbox" name="${name}" value="${esc(o)}" ${w.includes(o) ? "checked" : ""}>${esc(o)}</label>`).join("")}</div>`; }
       case "skala": return `<div class="skala">${Array.from({ length: 11 }, (_, i) => `<label><input type="radio" name="${name}" value="${i}" ${String(wert) === String(i) ? "checked" : ""}>${i}</label>`).join("")}</div><div class="skala-legende"><span>0</span><span>10</span></div>`;
+      case "matrix": {
+        /* Anzeige-Optimierung: viele gleichartige Fragen in einem Block.
+           Die Werte bleiben flach unter der jeweiligen Zeilen-ID, damit sich die Datenstruktur nicht ändert. */
+        return `<div class="matrix">${f.zeilen.map((z) => `
+          <div class="mzeile"><div class="mlabel">${esc(z.label)}</div>
+            <div class="mopt">${f.optionen.map((o) => `<label><input type="radio" name="${esc(z.id)}" value="${esc(o)}" ${daten.antworten[z.id] === o ? "checked" : ""}>${esc(o)}</label>`).join("")}</div>
+          </div>`).join("")}</div>${f.score ? `<div class="score-box" data-scorebox="${esc(f.id)}"></div>` : ""}`;
+      }
       case "liste": {
         const zeilen = Array.isArray(wert) ? wert : [];
         const n = Math.max(2, Math.min(f.anzahl, zeilen.length + 1));
@@ -376,6 +428,28 @@ window.BRIEFKASTEN_API = (function () { var a = 'https://xaevwixicuctfbfxnpfa.su
       box.querySelectorAll(".zeile:last-child input, .zeile:last-child textarea").forEach((el) => { el.addEventListener("change", lies); el.addEventListener("input", lies); });
     }));
   }
+  /* Symptom-Score: Summe der Systemwerte, 0 Punkte je Zeile für "nie oder kaum" bis 3 für "fast ständig". */
+  function berechneScore() {
+    let summe = 0, beantwortet = 0;
+    const je = {};
+    for (const sys of SCORE_SYSTEME) {
+      const w = daten.antworten[sys.id];
+      const p = BELASTUNG.indexOf(w);
+      if (p >= 0) { summe += p; beantwortet += 1; je[sys.id] = p; }
+    }
+    return { summe, beantwortet, max: SCORE_SYSTEME.length * (BELASTUNG.length - 1), je };
+  }
+  function zeigeScore(f) {
+    const box = app.querySelector(`[data-scorebox="${f.id}"]`);
+    if (!box) return;
+    const r = berechneScore();
+    if (!r.beantwortet) { box.innerHTML = "Sobald Sie die Zeilen ausfüllen, erscheint hier Ihr Wert."; return; }
+    const offen = SCORE_SYSTEME.length - r.beantwortet;
+    box.innerHTML = `<b>Ihr Symptom-Wert: ${r.summe} von ${r.max}</b>` +
+      (offen ? ` <span class="klein">(${offen} Zeile${offen === 1 ? "" : "n"} noch offen)</span>` : "") +
+      `<br><span class="klein">Der Wert ist kein Urteil. Er dient dazu, in einigen Wochen zu sehen, ob sich etwas bewegt hat.</span>`;
+  }
+
   function aktuelleFragen() { return sichtbareAbschnitte()[schritt].fragen; }
 
   function lies() {
@@ -392,6 +466,12 @@ window.BRIEFKASTEN_API = (function () { var a = 'https://xaevwixicuctfbfxnpfa.su
           if (!leer) zeilen.push(obj);
         });
         daten.antworten[f.id] = zeilen;
+      } else if (f.typ === "matrix") {
+        for (const z of f.zeilen) {
+          const el = app.querySelector(`input[name="${z.id}"]:checked`);
+          if (el) daten.antworten[z.id] = el.value; else delete daten.antworten[z.id];
+        }
+        if (f.score) zeigeScore(f);
       } else {
         const v = liesFeld(f, f.id, app);
         if (v === "" || v == null || (Array.isArray(v) && !v.length)) delete daten.antworten[f.id]; else daten.antworten[f.id] = v;
@@ -427,7 +507,8 @@ window.BRIEFKASTEN_API = (function () { var a = 'https://xaevwixicuctfbfxnpfa.su
   function beantwortet() { let n = 0, gesamt = 0; for (const a of sichtbareAbschnitte()) for (const f of a.fragen) { gesamt++; const w = daten.antworten[f.id]; if (daten.unbekannt[f.id] || (w != null && w !== "" && !(Array.isArray(w) && !w.length))) n++; } return { n, gesamt }; }
 
   function exportObjekt() {
-    return { bogen: "FM-Anamnesebogen", bogenVersion: BOGEN_VERSION, exportiert: new Date().toISOString(), fallnummer: daten.antworten.fallnummer || "", antworten: daten.antworten, unbekannt: Object.keys(daten.unbekannt).filter((k) => daten.unbekannt[k]), zusammenfassung: zusammenfassung() };
+    const sc = berechneScore();
+    return { bogen: "FM-Anamnesebogen", bogenVersion: BOGEN_VERSION, exportiert: new Date().toISOString(), fallnummer: daten.antworten.fallnummer || "", antworten: daten.antworten, unbekannt: Object.keys(daten.unbekannt).filter((k) => daten.unbekannt[k]), symptom_score: { summe: sc.summe, max: sc.max, beantwortet: sc.beantwortet, systeme: sc.je, skala: BELASTUNG }, zusammenfassung: zusammenfassung() };
   }
   function b64(buf) { return btoa(String.fromCharCode(...new Uint8Array(buf))); }
   async function verschluessele(text, passwort) {
