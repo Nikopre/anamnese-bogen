@@ -25,7 +25,7 @@
   .frage{background:var(--karte);border:1px solid var(--linie);border-radius:12px;padding:1rem;margin:0.9rem 0}
   .frage label.haupt{display:block;font-weight:600;margin-bottom:0.5rem}
   .frage .hilfe{color:var(--grau);font-size:0.95rem;margin:-0.2rem 0 0.6rem}
-  input[type=text],input[type=number],textarea,select{font:inherit;width:100%;padding:0.75rem 0.8rem;border:1.5px solid var(--linie);border-radius:10px;background:#fff;color:var(--ink);min-height:48px}
+  input[type=text],input[type=number],input[type=date],textarea,select{font:inherit;width:100%;padding:0.75rem 0.8rem;border:1.5px solid var(--linie);border-radius:10px;background:#fff;color:var(--ink);min-height:48px}
   textarea{min-height:6rem;resize:vertical}
   input:focus,textarea:focus,select:focus{outline:3px solid #9fc9cf;border-color:var(--akzent)}
   .optionen{display:flex;flex-wrap:wrap;gap:0.5rem}
@@ -165,7 +165,7 @@ window.BOGEN = (function () {
       fragen: [
         { id: "fallnummer", typ: "fallnummer", label: "Ihre Fallnummer" },
         { id: "geschlecht", typ: "radio", label: "Geschlecht", optionen: ["weiblich", "männlich"] },
-        { id: "geburtsjahr", typ: "number", label: "Geburtsjahr", hilfe: "Vier Ziffern, zum Beispiel 1978." },
+        { id: "geburtsdatum", typ: "datum", label: "Geburtsdatum", hilfe: "Damit ordne ich Ihre Laborbefunde sicher Ihnen zu." },
         { id: "groesse", typ: "number", label: "Körpergröße in cm", hilfe: "Ein ungefährer Wert genügt." },
         { id: "gewicht", typ: "number", label: "Aktuelles Gewicht in kg", hilfe: "Ein ungefährer Wert genügt." },
         { id: "taille", typ: "number", label: "Taillenumfang in cm (auf Nabelhöhe, optional)", hilfe: "Ein Maßband reicht. Der Wert sagt mehr über den Stoffwechsel als das Gewicht allein." },
@@ -330,7 +330,7 @@ window.BOGEN = (function () {
       ] },
     { id: "ende", titel: "Fertig: Anamnesebogen senden", intro: "", fragen: [] },
   ];
-  return { version: "3.0", abschnitte, bereiche: BEREICHE, checkSkala: CHECK_SKALA, phqSkala: PHQ_SKALA, symptomZeilen: SYMPTOM_ZEILEN, phq4Zeilen: PHQ4_ZEILEN, geschlechtZeilen: GESCHLECHT_ZEILEN };
+  return { version: "3.1", abschnitte, bereiche: BEREICHE, checkSkala: CHECK_SKALA, phqSkala: PHQ_SKALA, symptomZeilen: SYMPTOM_ZEILEN, phq4Zeilen: PHQ4_ZEILEN, geschlechtZeilen: GESCHLECHT_ZEILEN };
 })();
 </script>
 <script>
@@ -432,6 +432,7 @@ window.BOGEN = (function () {
     switch (f.typ) {
       case "text": return `<input type="text" name="${name}" value="${esc(wert)}" autocomplete="off">`;
       case "number": return `<input type="number" inputmode="numeric" name="${name}" value="${esc(wert)}">`;
+      case "datum": return `<input type="date" name="${name}" value="${esc(wert)}" min="1900-01-01" max="${new Date().toISOString().slice(0, 10)}" autocomplete="bday">`;
       case "textarea": return `<textarea name="${name}">${esc(wert)}</textarea>`;
       case "radio": return `<div class="optionen">${f.optionen.map((o) => `<label><input type="radio" name="${name}" value="${esc(o)}" ${wert === o ? "checked" : ""}>${esc(o)}</label>`).join("")}</div>`;
       case "checks": { const w = Array.isArray(wert) ? wert : []; return `<div class="optionen">${f.optionen.map((o) => `<label><input type="checkbox" name="${name}" value="${esc(o)}" ${w.includes(o) ? "checked" : ""}>${esc(o)}</label>`).join("")}</div>`; }
@@ -598,6 +599,7 @@ window.BOGEN = (function () {
     if (w == null || w === "" || (Array.isArray(w) && !w.length)) return [];
     if (f.typ === "liste") return [`- ${f.label}:`, ...w.map((z, i) => `  ${i + 1}. ${f.felder.map((u) => z[u.id] != null && z[u.id] !== "" ? `${u.label.replace(/\s*\(.*$/, "")}: ${z[u.id]}` : null).filter(Boolean).join(" · ")}`)];
     if (Array.isArray(w)) return [`- ${f.label}: ${w.join(", ")}`];
+    if (f.typ === "datum" && /^\d{4}-\d{2}-\d{2}$/.test(w)) return [`- ${f.label}: ${w.slice(8, 10)}.${w.slice(5, 7)}.${w.slice(0, 4)}`];
     return [`- ${f.label}: ${w}`];
   }
   function zusammenfassung() {
