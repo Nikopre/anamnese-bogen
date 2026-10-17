@@ -358,25 +358,49 @@ window.BOGEN = (function () {
   const neu = () => ({ antworten: {}, unbekannt: {}, gestartet: new Date().toISOString(), bogenVersion: BOGEN_VERSION });
   let daten = neu();
   let schritt = 0;
-  /* Zwischenstand je Link getrennt, damit sich zwei Personen am selben Gerät nicht vermischen. */
-  const SPEICHER = LINK ? `anamnesebogen-v3-${LINK}` : "anamnesebogen-vorschau";
+  /* Zwischenstand je Link getrennt, damit sich zwei Personen am selben Gerät nicht vermischen. Der Name des
+     Speichers ist ein Fingerabdruck des Links, nicht der Link selbst. Wird in start() gesetzt. */
+  let SPEICHER = null;
+  const ALT_SPEICHER = "anamnesebogen-v1"; /* Zwischenstand der Fassungen 1.x bis 2.1 */
 
-  try {
-    const alt = localStorage.getItem(SPEICHER);
-    if (alt) {
-      const d = JSON.parse(alt);
-      if (d && d.antworten) {
-        daten = d;
-        daten.unbekannt = {};
-        if (typeof d.schritt === "number") schritt = d.schritt;
-        if (d.bogenVersion && d.bogenVersion !== BOGEN_VERSION) daten.begonnenMitVersion = d.bogenVersion;
-        daten.bogenVersion = BOGEN_VERSION;
-      }
+  async function fingerabdruck(text) {
+    try {
+      const h = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(text));
+      return [...new Uint8Array(h)].slice(0, 16).map((b) => b.toString(16).padStart(2, "0")).join("");
+    } catch (_) {
+      let x = 2166136261; for (const c of text) { x ^= c.charCodeAt(0); x = Math.imul(x, 16777619) >>> 0; } return x.toString(16);
     }
-  } catch (_) { /* kein Speicher verfügbar */ }
-  if (BRIEFKASTEN && BRIEFKASTEN.fall) daten.antworten.fallnummer = BRIEFKASTEN.fall;
+  }
+  function uebernimm(d) {
+    if (!d || !d.antworten) return false;
+    daten = d;
+    daten.unbekannt = {};
+    if (typeof d.schritt === "number") schritt = d.schritt;
+    if (d.bogenVersion && d.bogenVersion !== BOGEN_VERSION) daten.begonnenMitVersion = d.bogenVersion;
+    daten.bogenVersion = BOGEN_VERSION;
+    return true;
+  }
+  /* Zwischenstand laden. Ein Altstand aus 2.x wird einmal übernommen, wenn er zur selben Fallnummer gehört;
+     danach wird er in jedem Fall gelöscht, damit keine alten Gesundheitsangaben im Browser liegen bleiben. */
+  async function ladeZwischenstand() {
+    SPEICHER = LINK ? `anamnesebogen-v3-${await fingerabdruck(LINK)}` : "anamnesebogen-vorschau";
+    try {
+      const neuStand = localStorage.getItem(SPEICHER);
+      let geladen = neuStand ? uebernimm(JSON.parse(neuStand)) : false;
+      const alt = localStorage.getItem(ALT_SPEICHER);
+      if (alt) {
+        if (!geladen && BRIEFKASTEN && BRIEFKASTEN.fall) {
+          const d = JSON.parse(alt);
+          if (d && d.antworten && d.antworten.fallnummer === BRIEFKASTEN.fall) geladen = uebernimm(d);
+        }
+        localStorage.removeItem(ALT_SPEICHER);
+      }
+    } catch (_) { /* kein Speicher verfügbar oder kaputter Eintrag */ }
+    if (BRIEFKASTEN && BRIEFKASTEN.fall) daten.antworten.fallnummer = BRIEFKASTEN.fall;
+  }
 
   function speichern() {
+    if (!SPEICHER) return;
     daten.schritt = schritt;
     daten.zuletzt = new Date().toISOString();
     try { localStorage.setItem(SPEICHER, JSON.stringify(daten)); } catch (_) { /* egal */ }
@@ -673,10 +697,10 @@ window.BOGEN = (function () {
         const d = await r.json().catch(() => ({}));
         if (!r.ok) { hinweisSeite("Hinweis", d.error || "Dieser Link ist nicht mehr gültig."); return; }
         BRIEFKASTEN = { token: d.token, fall: d.fall };
-        daten.antworten.fallnummer = d.fall;
       } catch (e) { hinweisSeite("Hinweis", "Der Anamnesebogen konnte nicht geladen werden (keine Verbindung). Bitte später noch einmal öffnen."); return; }
     }
     if (!BRIEFKASTEN && !VORSCHAU) { hinweisSeite("Anamnesebogen", "Bitte öffnen Sie den Anamnesebogen über den persönlichen Link aus Ihrer Nachricht. Nur so kommen Ihre Antworten verschlüsselt bei mir an."); return; }
+    await ladeZwischenstand();
     render();
   }
   start();
