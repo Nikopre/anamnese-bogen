@@ -384,18 +384,17 @@ window.BOGEN = (function () {
      danach wird er in jedem Fall gelöscht, damit keine alten Gesundheitsangaben im Browser liegen bleiben. */
   async function ladeZwischenstand() {
     SPEICHER = LINK ? `anamnesebogen-v3-${await fingerabdruck(LINK)}` : "anamnesebogen-vorschau";
+    const liesSpeicher = (k) => { try { const s = localStorage.getItem(k); return s ? JSON.parse(s) : null; } catch (_) { return null; } };
+    let geladen = uebernimm(liesSpeicher(SPEICHER));
+    if (!geladen && BRIEFKASTEN && BRIEFKASTEN.fall) {
+      const d = liesSpeicher(ALT_SPEICHER);
+      if (d && d.antworten && d.antworten.fallnummer === BRIEFKASTEN.fall) geladen = uebernimm(d);
+    }
+    /* Aufräumen in jedem Fall: Altstand 2.x und Speichernamen ohne Fingerabdruck. */
     try {
-      const neuStand = localStorage.getItem(SPEICHER);
-      let geladen = neuStand ? uebernimm(JSON.parse(neuStand)) : false;
-      const alt = localStorage.getItem(ALT_SPEICHER);
-      if (alt) {
-        if (!geladen && BRIEFKASTEN && BRIEFKASTEN.fall) {
-          const d = JSON.parse(alt);
-          if (d && d.antworten && d.antworten.fallnummer === BRIEFKASTEN.fall) geladen = uebernimm(d);
-        }
-        localStorage.removeItem(ALT_SPEICHER);
-      }
-    } catch (_) { /* kein Speicher verfügbar oder kaputter Eintrag */ }
+      localStorage.removeItem(ALT_SPEICHER);
+      Object.keys(localStorage).filter((k) => k.startsWith("anamnesebogen-v3-") && !/^anamnesebogen-v3-[0-9a-f]{8,32}$/.test(k)).forEach((k) => localStorage.removeItem(k));
+    } catch (_) { /* kein Speicher verfügbar */ }
     if (BRIEFKASTEN && BRIEFKASTEN.fall) daten.antworten.fallnummer = BRIEFKASTEN.fall;
   }
 
