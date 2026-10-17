@@ -22,7 +22,6 @@
   h2{font-size:1.25rem;margin:1.6rem 0 0.5rem;color:var(--akzent-text)}
   p{margin:0.4rem 0}
   .hinweis{background:var(--akzent-hell);border:1px solid #bcd6da;border-radius:10px;padding:0.8rem 1rem;margin:0.8rem 0;font-size:1rem}
-  .warnbox{background:var(--warn-hell);border:1px solid #ecd9a6;border-radius:10px;padding:0.8rem 1rem;margin:0.8rem 0;font-size:1rem}
   .frage{background:var(--karte);border:1px solid var(--linie);border-radius:12px;padding:1rem;margin:0.9rem 0}
   .frage label.haupt{display:block;font-weight:600;margin-bottom:0.5rem}
   .frage .hilfe{color:var(--grau);font-size:0.95rem;margin:-0.2rem 0 0.6rem}
@@ -32,7 +31,7 @@
   .optionen{display:flex;flex-wrap:wrap;gap:0.5rem}
   .optionen label{display:inline-flex;align-items:center;gap:0.45rem;border:1.5px solid var(--linie);border-radius:999px;padding:0.55rem 0.9rem;background:#fff;cursor:pointer;min-height:48px;font-size:1rem}
   .optionen label:has(input:checked){border-color:var(--akzent);background:var(--akzent-hell);color:var(--akzent-text);font-weight:600}
-  .optionen input{width:1.15rem;height:1.15rem;margin:0;accent-color:var(--akzent)}
+  .optionen input{width:1.15rem;height:1.15rem;margin:0;accent-color:var(--akzent);flex:none}
   .skala{display:grid;grid-template-columns:repeat(11,1fr);gap:0.3rem}
   .skala label{display:flex;align-items:center;justify-content:center;border:1.5px solid var(--linie);border-radius:8px;min-height:48px;background:#fff;cursor:pointer;font-weight:600}
   .skala label:has(input:checked){background:var(--akzent);color:#fff;border-color:var(--akzent)}
@@ -42,10 +41,12 @@
   .liste .zeile:first-child{border-top:none;padding-top:0;margin-top:0}
   .liste .zeile .titel{font-size:0.85rem;color:var(--grau);text-transform:uppercase;letter-spacing:0.05em}
   .matrix{display:grid;gap:0.55rem}
+  .matrix .mgruppe{font-weight:700;color:var(--akzent-text);margin-top:0.7rem;font-size:1rem}
+  .matrix .mgruppe:first-child{margin-top:0}
   .matrix .mzeile{border:1px solid var(--linie);border-radius:12px;padding:0.6rem 0.7rem;background:#fff}
   .matrix .mlabel{font-weight:600;margin-bottom:0.4rem;font-size:0.97rem}
-  .matrix .mopt{display:flex;flex-wrap:wrap;gap:0.35rem}
-  .matrix .mopt label{flex:1 1 auto;min-width:5.5rem;display:flex;align-items:center;justify-content:center;gap:0.3rem;
+  .matrix .mopt{display:grid;grid-template-columns:repeat(2,1fr);gap:0.35rem}
+  .matrix .mopt label{display:flex;align-items:center;justify-content:center;gap:0.3rem;line-height:1.25;
     border:1.5px solid var(--linie);border-radius:10px;padding:0.5rem 0.4rem;min-height:46px;text-align:center;font-size:0.9rem;cursor:pointer}
   .matrix .mopt label:has(input:checked){border-color:var(--akzent);background:var(--akzent-hell);font-weight:600}
   .matrix .mopt input{position:absolute;opacity:0;pointer-events:none}
@@ -56,10 +57,7 @@
   .knopf:disabled{opacity:0.5}
   .leiste{position:fixed;left:0;right:0;bottom:0;background:var(--karte);border-top:1px solid var(--linie);padding:0.7rem 1rem;padding-bottom:calc(0.7rem + env(safe-area-inset-bottom));display:flex;gap:0.6rem;justify-content:space-between;z-index:5}
   .leiste .knopf{flex:1}
-  .unbekannt{margin-top:0.6rem}
-  .unbekannt label{display:inline-flex;align-items:center;gap:0.45rem;color:var(--grau);font-size:0.95rem;cursor:pointer;min-height:44px}
-  .unbekannt input{width:1.15rem;height:1.15rem;accent-color:var(--grau)}
-  .frage.ist-unbekannt input[type=text],.frage.ist-unbekannt textarea,.frage.ist-unbekannt select,.frage.ist-unbekannt .optionen,.frage.ist-unbekannt .skala,.frage.ist-unbekannt .liste{opacity:0.4;pointer-events:none}
+  .frage .fall{font-weight:700;color:var(--akzent-text)}
   .uebersicht{background:var(--karte);border:1px solid var(--linie);border-radius:12px;padding:1rem}
   .uebersicht .abschnitt{border-top:1px solid var(--linie);padding:0.6rem 0}
   .uebersicht .abschnitt:first-child{border-top:none}
@@ -69,8 +67,8 @@
   .meldung.fehler{background:#8b1a1a}
   .klein{font-size:0.9rem;color:var(--grau)}
   .aktionen{display:flex;flex-wrap:wrap;gap:0.6rem;margin-top:0.8rem}
-  @media (min-width:700px){body{font-size:17px}}
-  @media print{.kopf,.leiste,.aktionen,.unbekannt{display:none}main{padding:0}.frage{break-inside:avoid}}
+  @media (min-width:700px){body{font-size:17px}.matrix .mopt{grid-template-columns:repeat(4,1fr)}}
+  @media print{.kopf,.leiste,.aktionen{display:none}main{padding:0}.frage{break-inside:avoid}}
 </style>
 </head>
 <body>
@@ -95,55 +93,97 @@ window.BRIEFKASTEN = (function () { try { return JSON.parse('__BRIEFKASTEN__'); 
 window.BRIEFKASTEN_API = (function () { var a = 'https://xaevwixicuctfbfxnpfa.supabase.co/functions/v1/anamnese-briefkasten'; return /^https:\/\//.test(a) ? a : null; })();
 </script>
 <script>
-/* Anamnesebogen, Version 2.0 (03.09.2026). Eine Datei, kein Server nötig. Antworten bleiben im Browser
-   gespeichert, bis der Bogen abgeschickt, exportiert oder gelöscht wird. Jede Frage ist freiwillig. */
-(function () {
-  const BOGEN_VERSION = "2.0";
-  let BRIEFKASTEN = window.BRIEFKASTEN && window.BRIEFKASTEN.token ? window.BRIEFKASTEN : null;
-  const API = window.BRIEFKASTEN_API || null;
-  const TOKEN_AUS_URL = (new URLSearchParams(location.search).get("t") || "").trim() || null;
-  /* Schlüssel für die Verschlüsselung steht nur im Link-Fragment (#k=...), erreicht den Server nie. */
-  let SCHLUESSEL = (location.hash.match(/[#&]k=([A-Za-z0-9_-]{40,})/) || [])[1] || null;
-  const abgabeUrl = () => (API ? API : location.pathname);
-  const JA_NEIN_UNSICHER = ["ja", "nein", "weiß ich nicht"];
+/* BOGEN-DEFINITION: Fragenkatalog als reine Daten, ohne Zugriff auf die Seite.
+   Der Programmteil darunter liest ihn; cockpit/tests/bogen.test.ts prüft ihn gegen die Zuordnung
+   in skills/anamnese-import/zuordnung.json und gegen die Auswertung im Cockpit (bogen-auswertung.ts).
+   3.0 (16./17.10.2026): Warnzeichen zur ärztlichen Abklärung mit Häufigkeit (kein Notfallteil, nur chronische
+   Fallarbeit), Biotin, Lithium getrennt nach Medikament und Nahrungsergänzung, PHQ-4, Symptom-Check nach neun
+   Funktionsbereichen (ersetzt den 10-Zeilen-Score), Covid-Erkrankungen und -Impfungen, Medikamente mit Stärke und
+   Einnahmeschema, Schnarchen mit Atempausen, Rauchen mit Art. Keine Haken für „weiß ich nicht“: Freilassen genügt.
+   Nur noch Versand über den persönlichen Link (automatisch verschlüsselt), ohne Link nur Vorschau (#vorschau).
+   Schlüssel aus 2.x bleiben, wo die Frage bleibt. */
+window.BOGEN = (function () {
   const HAEUFIG = ["nie", "selten", "mehrmals pro Woche", "täglich"];
-  /* Belastungsskala des Symptom-Scores: die Reihenfolge bestimmt die Punkte 0 bis 3. */
-  const BELASTUNG = ["nie oder kaum", "manchmal", "oft", "fast ständig"];
-  const SCORE_SYSTEME = [
-    { id: "sc_energie", label: "Energie, Erschöpfung, Belastbarkeit" },
-    { id: "sc_kopf", label: "Kopf, Konzentration, Nerven" },
-    { id: "sc_schlaf", label: "Schlaf" },
-    { id: "sc_verdauung", label: "Verdauung, Bauch" },
-    { id: "sc_muskel", label: "Muskeln, Gelenke, Rücken" },
-    { id: "sc_haut", label: "Haut, Haare, Nägel" },
-    { id: "sc_herz", label: "Herz, Kreislauf, Atmung" },
-    { id: "sc_stimmung", label: "Stimmung, innere Anspannung" },
-    { id: "sc_hormone", label: "Hormonell (Zyklus, Libido, Gewicht)" },
-    { id: "sc_immun", label: "Infekte, Allergien, Immunsystem" },
+  const CHECK_SKALA = ["gar nicht", "an einzelnen Tagen", "an mehr als der Hälfte der Tage", "fast täglich"];
+  /* PHQ-4 (Kroenke 2009, deutsche Normierung Löwe 2010), frei nutzbar laut phqscreeners.com.
+     Am 17.10.2026 gegen die offiziellen Fassungen auf phqscreeners.com geprüft: Einleitungsfrage, Skala und
+     Fragen 1 und 2 wortgleich mit PHQ-9 (German for Germany), Fragen 3 und 4 wortgleich mit GAD-7 (deutsche
+     Fassung für Österreich, die einzige deutsche GAD-7 auf der Seite). Nicht ändern. */
+  const PHQ_SKALA = ["überhaupt nicht", "an einzelnen Tagen", "an mehr als der Hälfte der Tage", "beinahe jeden Tag"];
+  const PHQ4_ZEILEN = [
+    { id: "phq_1", label: "Wenig Interesse oder Freude an Ihren Tätigkeiten" },
+    { id: "phq_2", label: "Niedergeschlagenheit, Schwermut oder Hoffnungslosigkeit" },
+    { id: "phq_3", label: "Gefühle der Nervosität, Ängstlichkeit oder Anspannung" },
+    { id: "phq_4", label: "Unfähigkeit, Sorgen zu stoppen oder zu kontrollieren" },
   ];
+  const BEREICHE = { B1: "Magen", B2: "Fettverdauung und Dünndarm", B3: "Darm und Stuhlgang", B4: "Reaktionen", B5: "Blutzucker", B6: "Stress und Schlaf", B7: "Schilddrüse und Wärme", B8: "Muskeln, Gelenke, Mineralstoffe", B9: "Kopf und Nerven" };
+  const SYMPTOM_ZEILEN = [
+    { id: "sy_b1_1", bereich: "B1", label: "Völlegefühl nach dem Essen oder schon nach kleinen Mengen satt" },
+    { id: "sy_b1_2", bereich: "B1", label: "Sodbrennen oder saures Aufstoßen" },
+    { id: "sy_b1_3", bereich: "B1", label: "Übelkeit oder Aufstoßen nach Mahlzeiten" },
+    { id: "sy_b2_1", bereich: "B2", label: "Aufgeblähter Bauch nach Brot, Nudeln, Hülsenfrüchten oder Rohkost" },
+    { id: "sy_b2_2", bereich: "B2", label: "Druck im Oberbauch nach fettem Essen" },
+    { id: "sy_b2_3", bereich: "B2", label: "Fettiger, glänzender oder schwer wegzuspülender Stuhl" },
+    { id: "sy_b3_1", bereich: "B3", label: "Verstopfung oder harter Stuhl" },
+    { id: "sy_b3_2", bereich: "B3", label: "Durchfall oder sehr weicher Stuhl" },
+    { id: "sy_b3_3", bereich: "B3", label: "Bauchschmerzen, die nach dem Stuhlgang nachlassen" },
+    { id: "sy_b4_1", bereich: "B4", label: "Beschwerden nach Lebensmitteln, die Sie früher gut vertragen haben" },
+    { id: "sy_b4_2", bereich: "B4", label: "Reaktion auf Duftstoffe, Reinigungsmittel oder Modeschmuck" },
+    { id: "sy_b4_3", bereich: "B4", label: "Hautausschlag, Juckreiz oder Ekzem" },
+    { id: "sy_b5_1", bereich: "B5", label: "Zittrig, gereizt oder unkonzentriert, wenn eine Mahlzeit ausfällt" },
+    { id: "sy_b5_2", bereich: "B5", label: "Müde oder schläfrig nach dem Essen" },
+    { id: "sy_b5_3", bereich: "B5", label: "Starkes Verlangen nach Süßem" },
+    { id: "sy_b6_1", bereich: "B6", label: "Abends innerlich aufgedreht, das Einschlafen dauert lange" },
+    { id: "sy_b6_2", bereich: "B6", label: "Nachts wach und danach schwer wieder eingeschlafen" },
+    { id: "sy_b6_3", bereich: "B6", label: "Morgens unausgeschlafen, obwohl genug Zeit im Bett war" },
+    { id: "sy_b7_1", bereich: "B7", label: "Frieren oder kalte Hände und Füße" },
+    { id: "sy_b7_2", bereich: "B7", label: "Gewichtszunahme, ohne mehr zu essen" },
+    { id: "sy_b7_3", bereich: "B7", label: "Trockene Haut oder dünner werdendes Haar" },
+    { id: "sy_b8_1", bereich: "B8", label: "Muskelkrämpfe oder Muskelzucken" },
+    { id: "sy_b8_2", bereich: "B8", label: "Gelenkschmerzen oder Steifigkeit am Morgen" },
+    { id: "sy_b8_3", bereich: "B8", label: "Schwindel, wenn Sie schnell aufstehen" },
+    { id: "sy_b9_1", bereich: "B9", label: "Kopfschmerzen" },
+    { id: "sy_b9_2", bereich: "B9", label: "Konzentration oder Gedächtnis lassen nach" },
+    { id: "sy_b9_3", bereich: "B9", label: "Kribbeln oder Taubheitsgefühle" },
+  ];
+  const GESCHLECHT_ZEILEN = {
+    weiblich: [
+      { id: "sy_f_1", label: "Beschwerden in den Tagen vor der Periode (Stimmung, Brustspannen, Wassereinlagerung)" },
+      { id: "sy_f_2", label: "Starke oder sehr schmerzhafte Periode" },
+      { id: "sy_f_3", label: "Hitzewallungen oder trockene Schleimhäute" },
+    ],
+    männlich: [
+      { id: "sy_m_1", label: "Weniger Lust auf Sex oder Erektionsprobleme" },
+      { id: "sy_m_2", label: "Muskeln bauen ab, oder an der Brust lagert sich Fett an" },
+      { id: "sy_m_3", label: "Schwacher Harnstrahl oder Nachtröpfeln" },
+    ],
+  };
 
-  /* ---------- Fragenkatalog nach der IFM-Matrix ---------- */
   const abschnitte = [
-    { id: "start", titel: "Bevor es losgeht", intro: `<p>Dieser Bogen hilft, Ihre Situation gründlich zu verstehen, bevor wir sprechen. Je mehr Sie beantworten, desto genauer wird die Einordnung.</p>
-      <div class="hinweis"><b>Alles ist freiwillig.</b> Überspringen Sie Fragen, die Sie nicht beantworten möchten, oder tippen Sie „weiß ich nicht“. Ihre Antworten bleiben auf diesem Gerät, bis Sie den Bogen am Ende speichern und zurücksenden. Dauer: etwa 20 bis 30 Minuten, gern in mehreren Etappen.</div>`,
+    { id: "start", titel: "Bevor es losgeht", intro: `<p>Dieser Anamnesebogen hilft mir, Ihre Situation gründlich zu verstehen, bevor wir sprechen. Je mehr Sie beantworten, desto genauer wird die Einordnung.</p>
+      <div class="hinweis"><b>Alles ist freiwillig.</b> Was Sie nicht beantworten können, lassen Sie einfach frei. Ihre Antworten bleiben auf diesem Gerät, bis Sie den Anamnesebogen am Ende senden. Dauer: etwa 30 Minuten, gern in mehreren Etappen.</div>`,
       fragen: [
-        { id: "fallnummer", typ: "text", label: "Ihre Fallnummer", hilfe: "Steht in der Nachricht, mit der Sie den Bogen bekommen haben (Form PPR-2026-0000). Ihr Name ist nicht nötig.", ohneUnbekannt: true },
-        { id: "geschlecht", typ: "radio", label: "Geschlecht", optionen: ["weiblich", "männlich"], ohneUnbekannt: true },
-        { id: "geburtsjahr", typ: "number", label: "Geburtsjahr", hilfe: "Vier Ziffern, kein genaues Datum nötig." },
-        { id: "groesse", typ: "number", label: "Körpergröße in cm" },
-        { id: "gewicht", typ: "number", label: "Aktuelles Gewicht in kg" },
+        { id: "fallnummer", typ: "fallnummer", label: "Ihre Fallnummer" },
+        { id: "geschlecht", typ: "radio", label: "Geschlecht", optionen: ["weiblich", "männlich"] },
+        { id: "geburtsjahr", typ: "number", label: "Geburtsjahr", hilfe: "Vier Ziffern, zum Beispiel 1978." },
+        { id: "groesse", typ: "number", label: "Körpergröße in cm", hilfe: "Ein ungefährer Wert genügt." },
+        { id: "gewicht", typ: "number", label: "Aktuelles Gewicht in kg", hilfe: "Ein ungefährer Wert genügt." },
         { id: "taille", typ: "number", label: "Taillenumfang in cm (auf Nabelhöhe, optional)", hilfe: "Ein Maßband reicht. Der Wert sagt mehr über den Stoffwechsel als das Gewicht allein." },
-        { id: "gewicht_verlauf", typ: "textarea", label: "Hat sich Ihr Gewicht in den letzten zwei Jahren verändert?", hilfe: "Zum Beispiel: plus 6 kg seit Frühjahr 2025, ungewollt." },
+        { id: "gewicht_verlauf", typ: "radio", label: "Wie hat sich Ihr Gewicht in den letzten zwölf Monaten entwickelt?", optionen: ["etwa gleich geblieben", "zugenommen, gewollt", "zugenommen, ungewollt", "abgenommen, gewollt", "abgenommen, ungewollt"] },
       ] },
-    { id: "sicherheit", titel: "Wichtig für die Sicherheit", intro: `<p>Diese Fragen entscheiden, was in Ihrem Fall empfohlen werden darf und was nicht.</p>`,
+    { id: "sicherheit", titel: "Wichtig für Ihre Sicherheit", intro: `<p>Diese Fragen entscheiden, was in Ihrem Fall empfohlen werden darf und was nicht.</p>`,
       fragen: [
-        { id: "schwanger", typ: "radio", label: "Sind Sie schwanger oder stillen Sie?", optionen: ["nein", "ja, schwanger", "ja, ich stille", "möglich, nicht sicher", "trifft nicht zu"] },
-        { id: "krebs", typ: "radio", label: "Gibt es aktuell eine Krebserkrankung oder eine Krebsbehandlung in den letzten zwei Jahren?", optionen: JA_NEIN_UNSICHER },
-        { id: "medikamente_gruppen", typ: "checks", label: "Nehmen Sie regelmäßig Medikamente aus diesen Gruppen?", hilfe: "Die genauen Namen kommen später in die Tabelle. Hier reicht die Gruppe.", optionen: ["Blutdruckmittel", "Herzmedikamente (z. B. Betablocker, Rhythmusmittel)", "Blutverdünner oder Gerinnungshemmer", "Cholesterinsenker (Statine)", "Diabetesmedikamente oder Insulin", "Abnehmspritzen (GLP-1)", "Schilddrüsenhormone", "Cortison als Dauertherapie", "Magensäureblocker (z. B. Pantoprazol, Omeprazol)", "Schmerzmittel regelmäßig (Ibuprofen, Diclofenac, ASS)", "Antidepressiva, Beruhigungs- oder Schlafmittel", "Hormonpräparate (Pille, Hormonersatz, Testosteron)", "Antihistaminika", "Antibiotika in den letzten 12 Monaten", "Immunsuppressiva oder Biologika", "Medikamente gegen Epilepsie", "Krebstherapie oder antihormonelle Therapie", "keines davon"] },
-        { id: "warnzeichen", typ: "checks", label: "Haben Sie aktuell eines dieser Warnzeichen?", hilfe: "Wenn ja, bitte zeitnah ärztlich abklären lassen, unabhängig von diesem Bogen.", optionen: ["Brustschmerz oder Atemnot", "Ungewollter Gewichtsverlust über 5 kg", "Blut im Stuhl oder Urin", "Neu aufgetretene starke Kopfschmerzen oder Sehstörungen", "Herzstolpern, Ohnmacht, Schwindelanfälle", "Nächtliche Schweißausbrüche mit Fieber", "keines davon"] },
+        { id: "warnzeichen", typ: "checks", label: "Gab es in den letzten Wochen eines dieser Zeichen?", hilfe: "Wenn ja: Bitte zeitnah ärztlich abklären lassen, möglichst noch vor unserem Gespräch.",
+          optionen: ["ungewollter Gewichtsverlust von mehr als 5 Prozent in sechs Monaten (bei 70 kg etwa 3,5 kg)", "Blut im Stuhl oder Urin, schwarzer Stuhl", "Gelbfärbung von Haut oder Augen, sehr heller Stuhl oder dunkler Urin", "starker Durst mit häufigem Wasserlassen", "Schluckbeschwerden oder wiederholtes Erbrechen", "Brustdruck oder Atemnot bei Belastung", "Herzrasen in Ruhe, Herzstolpern oder Neigung zu Ohnmacht", "Wadenschmerz beim Gehen, der im Stehen vergeht", "neu geschwollene Beine", "Fieber oder Nachtschweiß über mehr als zwei Wochen", "neue, starke Kopfschmerzen oder Sehstörungen", "tastbare Knoten oder Lymphknoten, die länger als zwei Wochen bleiben", "Blutung nach den Wechseljahren oder zwischen den Perioden", "anhaltende Schmerzen im linken Oberbauch", "nichts davon"] },
+        { id: "warnzeichen_details", typ: "textarea", wenn: { id: "warnzeichen", ausser: ["nichts davon"] }, label: "Wie oft treten diese Zeichen auf, und seit wann?", hilfe: "Zum Beispiel: Blut im Stuhl etwa einmal pro Woche, seit März." },
+        { id: "schwanger", typ: "radio", nurFuer: "weiblich", label: "Sind Sie schwanger oder stillen Sie?", optionen: ["nein", "ja, schwanger", "ja, ich stille", "möglich, nicht sicher"] },
+        { id: "kinderwunsch", typ: "radio", label: "Besteht bei Ihnen ein Kinderwunsch?", optionen: ["nein", "ja, in den nächsten zwölf Monaten", "vielleicht später"] },
+        { id: "krebs", typ: "radio", label: "Gibt es aktuell eine Krebserkrankung oder eine Krebsbehandlung in den letzten zwei Jahren?", optionen: ["nein", "ja"] },
+        { id: "medikamente_gruppen", typ: "checks", label: "Nehmen Sie regelmäßig Medikamente aus diesen Gruppen?", hilfe: "Die genauen Namen kommen später in die Tabelle. Hier reicht die Gruppe.", optionen: ["Blutdruckmittel", "Herzmedikamente (z. B. Betablocker, Rhythmusmittel)", "Blutverdünner oder Gerinnungshemmer", "Cholesterinsenker (Statine)", "Diabetesmedikamente oder Insulin", "Abnehmspritzen (GLP-1)", "Schilddrüsenhormone", "Cortison als Dauertherapie", "Magensäureblocker (z. B. Pantoprazol, Omeprazol)", "Schmerzmittel regelmäßig (Ibuprofen, Diclofenac, ASS)", "Antidepressiva, Beruhigungs- oder Schlafmittel", "Lithium als verordnetes Medikament (z. B. Lithiumcarbonat)", "Lithiumorotat als Nahrungsergänzung", "Hormonpräparate (Pille, Hormonersatz, Testosteron)", "Antihistaminika", "Antibiotika in den letzten 12 Monaten", "Immunsuppressiva oder Biologika (z. B. Methotrexat)", "Medikamente gegen Epilepsie", "Krebstherapie oder antihormonelle Therapie", "Abführmittel regelmäßig", "keines davon"] },
+        { id: "biotin", typ: "radio", label: "Nehmen Sie Biotin ein, auch versteckt in Präparaten für Haare, Haut und Nägel oder in Multivitaminen?", hilfe: "Biotin kann Blutwerte verfälschen, besonders die Schilddrüsenwerte. Vor einer Blutabnahme sprechen wir eine Pause ab.", optionen: ["nein", "ja", "weiß ich nicht"] },
         { id: "belastbarkeit", typ: "radio", label: "Wie belastbar sind Sie im Alltag?", optionen: ["normal belastbar", "eingeschränkt, Alltag geht", "stark eingeschränkt", "überwiegend bettlägerig"] },
       ] },
-    { id: "beschwerden", titel: "Ihre Hauptbeschwerden", intro: `<p>Was beschäftigt Sie am meisten? Bis zu fünf Punkte, die wichtigsten zuerst.</p>`,
+    { id: "beschwerden", titel: "Ihre Hauptbeschwerden und Ziele", intro: `<p>Was beschäftigt Sie am meisten? Bis zu fünf Punkte, die wichtigsten zuerst.</p>`,
       fragen: [
         { id: "beschwerden", typ: "liste", label: "Beschwerden", anzahl: 5, felder: [
           { id: "was", typ: "text", label: "Beschwerde" },
@@ -152,182 +192,189 @@ window.BRIEFKASTEN_API = (function () { var a = 'https://xaevwixicuctfbfxnpfa.su
           { id: "verlauf", typ: "radio", label: "Verlauf", optionen: ["besser", "gleich", "schlechter", "schwankend"] },
         ] },
         { id: "beginn", typ: "textarea", label: "Wie hat alles angefangen? Gab es einen Auslöser?", hilfe: "Zum Beispiel ein Infekt, eine Geburt, ein Umzug, eine belastende Zeit, eine Diät, ein neues Medikament." },
-        { id: "tagesverlauf", typ: "textarea", label: "Wann am Tag geht es Ihnen am schlechtesten, wann am besten?" },
-        { id: "besser_schlechter", typ: "textarea", label: "Was macht es besser, was macht es schlechter?" },
+        { id: "ziele", typ: "textarea", label: "Was möchten Sie erreichen? Woran würden Sie merken, dass es besser geworden ist?" },
       ] },
-    { id: "verlauf", titel: "Zeitachse", intro: `<p>Wichtige Ereignisse Ihrer Gesundheitsgeschichte, grob in Reihenfolge. Jahreszahl reicht.</p>`,
+    { id: "befinden", titel: "Ihr Befinden in den letzten zwei Wochen", intro: `<p>Diese Fragen sind persönlich. Sie helfen, das Nervensystem einzuordnen, und werden bei der Verlaufskontrolle wiederholt.</p>`,
       fragen: [
-        { id: "besondere_ereignisse", typ: "checks", label: "Gab es eines dieser Ereignisse?", hilfe: "Auch wenn es lange her ist. Datum kommt in die Liste darunter, wenn Sie es wissen.",
-        optionen: ["Zeckenstich, mit oder ohne Ausschlag", "längere Reise in tropische Länder", "Vollnarkose oder größere Operation", "Unfall mit Kopfverletzung oder Schleudertrauma", "schwere oder langwierige Infektion", "Covid-Erkrankung", "belastendes Lebensereignis", "nichts davon"] },
-      { id: "ereignisse", typ: "liste", label: "Ereignisse", anzahl: 8, felder: [
-          { id: "wann", typ: "text", label: "Wann (Jahr oder Monat)" },
-          { id: "was", typ: "text", label: "Was (Diagnose, Operation, Infekt, Lebensereignis, Therapie)" },
-        ] },
+        { id: "energie", typ: "skala", label: "Ihre Energie an einem normalen Tag: 0 = keine, 10 = voll" },
+        { id: "stress", typ: "skala", label: "Wie hoch ist Ihr Stress derzeit? 0 = keiner, 10 = maximal" },
+        { id: "phq4", typ: "matrix", auswertung: "phq4", label: "Wie oft fühlten Sie sich im Verlauf der letzten 2 Wochen durch die folgenden Beschwerden beeinträchtigt?", hilfe: "Eine Antwort je Zeile.", optionen: PHQ_SKALA, zeilen: PHQ4_ZEILEN },
       ] },
-    { id: "vorerkrankungen", titel: "Vorerkrankungen und Diagnosen",
+    { id: "symptome", titel: "Symptom-Check, Teil 1: Verdauung und Stoffwechsel", intro: `<p>Wie oft ist das in den letzten <b>vier Wochen</b> vorgekommen? Eine Antwort je Zeile, eine grobe Schätzung genügt. Den Check wiederholen wir bei der Verlaufskontrolle, deshalb ist jede ausgefüllte Zeile wertvoll.</p>`,
       fragen: [
-        { id: "diag_stoffwechsel", typ: "checks", label: "Stoffwechsel und Hormone", optionen: ["Diabetes Typ 2", "Diabetes Typ 1", "Prädiabetes oder Insulinresistenz", "Fettleber", "Gicht oder erhöhte Harnsäure", "Schilddrüsenunterfunktion", "Schilddrüsenüberfunktion", "Hashimoto", "Morbus Basedow", "Schilddrüsenknoten oder Kropf", "PCOS", "Endometriose", "Osteoporose oder Osteopenie", "keines davon"] },
-        { id: "diag_immun", typ: "checks", label: "Immunsystem, Darm, Allergien", optionen: ["Zöliakie", "Morbus Crohn oder Colitis ulcerosa", "Reizdarm", "Gastritis, Magengeschwür oder Helicobacter", "Refluxkrankheit", "Rheumatoide Arthritis", "Andere Autoimmunerkrankung", "Heuschnupfen oder andere Allergien", "Histaminintoleranz", "Laktose- oder Fruktoseintoleranz", "Glutenunverträglichkeit ohne Zöliakie", "Neurodermitis oder Psoriasis", "Asthma", "keines davon"] },
-        { id: "diag_organe", typ: "checks", label: "Organe und Infektionen", optionen: ["Nierenerkrankung oder Nierensteine", "Lebererkrankung oder Hepatitis", "Gallensteine oder Gallenblase entfernt", "Bauchspeicheldrüsenentzündung", "COPD oder chronische Bronchitis", "Schlafapnoe", "Blutarmut (Anämie)", "Eisenüberladung (Hämochromatose)", "Pfeiffersches Drüsenfieber (EBV)", "Borreliose", "Long Covid", "Häufige Harnwegs- oder Blaseninfekte", "Krebserkrankung (früher oder aktuell)", "keines davon"] },
-        { id: "diag_neuro_psyche", typ: "checks", label: "Nerven, Psyche, Schlaf", optionen: ["Migräne", "Neuropathie (Kribbeln, Taubheit)", "Epilepsie", "Multiple Sklerose", "Gehirnerschütterung oder Kopfverletzung", "Depression", "Angststörung oder Panikattacken", "Burnout", "ADHS", "Essstörung (aktuell oder früher)", "Schlafstörung", "Tinnitus", "keines davon"] },
-        { id: "kindheit", typ: "checks", label: "Was trifft auf Ihre Kindheit zu?", hilfe: "Prägt Immunsystem und Darmflora oft bis ins Erwachsenenalter.",
-        optionen: ["Kaiserschnitt", "gestillt worden", "nicht gestillt", "häufige Antibiotika in der Kindheit", "häufige Infekte in der Kindheit", "Mandeln oder Rachenmandeln entfernt", "nichts davon", "weiß ich nicht"] },
-      { id: "operationen", typ: "textarea", label: "Operationen, Krankenhausaufenthalte, Unfälle (mit Jahr)", hilfe: "Zum Beispiel: Blinddarm 2010, Schilddrüse teilweise entfernt 2019, Kaiserschnitt 2015." },
-        { id: "diagnosen_text", typ: "textarea", label: "Weitere Diagnosen oder Details zu den angekreuzten Punkten (seit wann, wie behandelt)" },
-        { id: "infekte", typ: "textarea", label: "Schwere oder langwierige Infekte?", hilfe: "Zum Beispiel Pfeiffersches Drüsenfieber, Corona mit langem Verlauf, Borreliose, häufige Antibiotika." },
-        { id: "aerzte", typ: "textarea", label: "Welche Ärzte oder Therapeuten betreuen Sie aktuell?", hilfe: "Fachrichtung reicht, kein Name nötig." },
+        { id: "symptom_check", typ: "matrix", label: "Wie oft in den letzten vier Wochen?", optionen: CHECK_SKALA, zeilen: SYMPTOM_ZEILEN.slice(0, 15) },
       ] },
-    { id: "herzkreislauf", titel: "Herz und Kreislauf", intro: `<p>Herz und Gefäße bestimmen mit, welche Empfehlungen sicher sind. Bitte auch frühere Ereignisse angeben.</p>`,
+    { id: "symptome2", titel: "Symptom-Check, Teil 2: Schlaf, Hormone, Muskeln, Nerven", intro: `<p>Weiter wie im ersten Teil: Wie oft in den letzten <b>vier Wochen</b>?</p>`,
       fragen: [
-        { id: "hk_diagnosen", typ: "checks", label: "Wurde bei Ihnen jemals festgestellt?", optionen: ["Bluthochdruck", "Niedriger Blutdruck", "Herzinfarkt", "Koronare Herzkrankheit, Stent oder Bypass", "Schlaganfall oder kurzzeitige Durchblutungsstörung (TIA)", "Herzrhythmusstörung (z. B. Vorhofflimmern)", "Herzschwäche (Herzinsuffizienz)", "Herzklappenfehler", "Herzmuskelentzündung", "Thrombose oder Lungenembolie", "Durchblutungsstörung der Beine (Schaufensterkrankheit)", "Krampfadern", "Erhöhte Blutfette oder Cholesterin", "Erhöhtes Lipoprotein(a)", "Schilddrüse mit Herzbeteiligung", "keines davon"] },
-        { id: "hk_ereignis", typ: "textarea", label: "Falls Infarkt, Schlaganfall, Thrombose oder Eingriff am Herzen: wann, was, wie behandelt?" },
-        { id: "hk_blutdruck", typ: "text", label: "Ihr Blutdruck, falls bekannt (z. B. 125 zu 80)", hilfe: "Gern der Durchschnitt der letzten Messungen. Bitte auch schreiben, ob unter Medikamenten." },
-        { id: "hk_puls", typ: "text", label: "Ihr Ruhepuls, falls bekannt" },
-        { id: "hk_symptome", typ: "checks", label: "Beschwerden in den letzten Monaten", optionen: ["Druck oder Schmerz in der Brust bei Belastung", "Atemnot beim Treppensteigen", "Herzstolpern oder Herzrasen", "Schwindel oder Schwarzwerden beim Aufstehen", "Geschwollene Beine oder Knöchel", "Kalte Füße oder Schmerzen in den Beinen beim Gehen", "Nächtliches Wasserlassen mehr als zweimal", "keine"] },
-        { id: "hk_kontrolle", typ: "radio", label: "Waren Sie in den letzten zwei Jahren beim Kardiologen oder gab es ein EKG, Belastungs-EKG oder Herzultraschall?", optionen: ["nein", "ja, unauffällig", "ja, mit Befund", "weiß ich nicht"] },
-        { id: "hk_werte", typ: "textarea", label: "Kennen Sie Ihre letzten Werte für Cholesterin (LDL), Blutzucker oder HbA1c?", hilfe: "Nur, wenn Sie sie griffbereit haben. Sonst überspringen." },
+        { id: "symptom_check2", typ: "matrix", auswertung: "symptom", label: "Wie oft in den letzten vier Wochen?", optionen: CHECK_SKALA, zeilen: SYMPTOM_ZEILEN.slice(15) },
+        { id: "symptom_frau", typ: "matrix", nurFuer: "weiblich", label: "Speziell für Frauen", optionen: CHECK_SKALA, zeilen: GESCHLECHT_ZEILEN.weiblich },
+        { id: "symptom_mann", typ: "matrix", nurFuer: "männlich", label: "Speziell für Männer", optionen: CHECK_SKALA, zeilen: GESCHLECHT_ZEILEN.männlich },
+        { id: "s_sonst", typ: "textarea", label: "Zusätzliche Anmerkungen (optional)" },
       ] },
-    { id: "medikation", titel: "Medikamente und Präparate", intro: `<p>Bitte alles aufführen, was Sie regelmäßig einnehmen, auch Nahrungsergänzung, Hormone, Cremes und pflanzliche Mittel. Wenn Sie die Dosis nicht wissen, reicht der Name.</p>`,
+    { id: "medikation", titel: "Medikamente und Präparate", intro: `<p>Bitte alles aufführen, was Sie regelmäßig oder bei Bedarf einnehmen, auch Nahrungsergänzung, Hormone, Cremes und pflanzliche Mittel. Wenn Sie die Stärke nicht wissen, reicht der Name.</p>
+      <div class="hinweis">Am einfachsten: Fotografieren Sie Ihren Medikationsplan oder die Packungen und schicken Sie die Fotos mit, oder bringen Sie sie zum Gespräch mit.</div>`,
       fragen: [
-        { id: "medikamente", typ: "liste", label: "Medikamente (vom Arzt verordnet)", anzahl: 8, felder: [
-          { id: "name", typ: "text", label: "Name" },
-          { id: "dosis", typ: "text", label: "Dosis und wie oft" },
-          { id: "seit", typ: "text", label: "Seit wann, wofür" },
+        { id: "medikamente", typ: "liste", label: "Medikamente (vom Arzt verordnet)", anzahl: 10, felder: [
+          { id: "name", typ: "text", label: "Name oder Wirkstoff" },
+          { id: "staerke", typ: "text", label: "Stärke (z. B. 50 mg, 75 µg)" },
+          { id: "schema", typ: "text", label: "Wie oft und wann (z. B. morgens 1, nur bei Bedarf)" },
+          { id: "seit", typ: "text", label: "Seit wann und wofür" },
         ] },
         { id: "supplemente", typ: "liste", label: "Nahrungsergänzung, Hormone, pflanzliche Mittel", anzahl: 12, felder: [
-          { id: "name", typ: "text", label: "Name (bei Kombiprodukten bitte Inhaltsstoffe vom Etikett)" },
-          { id: "dosis", typ: "text", label: "Dosis und wie oft" },
+          { id: "name", typ: "text", label: "Name (bei Kombiprodukten bitte die Inhaltsstoffe vom Etikett)" },
+          { id: "dosis", typ: "text", label: "Menge und wie oft" },
           { id: "seit", typ: "text", label: "Seit wann, warum, wer hat es empfohlen" },
         ] },
         { id: "frueher_abgesetzt", typ: "textarea", label: "Was haben Sie in den letzten zwei Jahren eingenommen und wieder abgesetzt? Warum?" },
         { id: "vertraeglichkeit", typ: "textarea", label: "Unverträglichkeiten oder Nebenwirkungen bei Medikamenten oder Präparaten?" },
       ] },
+    { id: "vorerkrankungen", titel: "Vorerkrankungen und Diagnosen",
+      fragen: [
+        { id: "diag_stoffwechsel", typ: "checks", label: "Stoffwechsel und Hormone", optionen: ["Diabetes Typ 2", "Diabetes Typ 1", "Prädiabetes oder Insulinresistenz", "Fettleber", "Gicht oder erhöhte Harnsäure", "Schilddrüsenunterfunktion", "Schilddrüsenüberfunktion", "Hashimoto", "Morbus Basedow", "Schilddrüsenknoten oder Kropf", "PCOS", "Endometriose", "Osteoporose oder Osteopenie", "keines davon"] },
+        { id: "diag_immun", typ: "checks", label: "Immunsystem, Darm, Allergien", optionen: ["Zöliakie", "Morbus Crohn oder Colitis ulcerosa", "Reizdarm", "Gastritis, Magengeschwür oder Helicobacter", "Refluxkrankheit", "Rheumatoide Arthritis", "Andere Autoimmunerkrankung", "Heuschnupfen oder andere Allergien", "Histaminintoleranz", "Laktose- oder Fruktoseintoleranz", "Glutenunverträglichkeit ohne Zöliakie", "Neurodermitis oder Psoriasis", "Asthma", "häufige Infekte", "keines davon"] },
+        { id: "diag_organe", typ: "checks", label: "Organe und Infektionen", optionen: ["Nierenerkrankung oder Nierensteine", "Lebererkrankung oder Hepatitis", "Gallensteine oder Gallenblase entfernt", "Bauchspeicheldrüsenentzündung", "COPD oder chronische Bronchitis", "Schlafapnoe", "Blutarmut (Anämie)", "Eisenüberladung (Hämochromatose)", "Pfeiffersches Drüsenfieber (EBV)", "Borreliose", "Long Covid", "Häufige Harnwegs- oder Blaseninfekte", "Krebserkrankung (früher oder aktuell)", "keines davon"] },
+        { id: "diag_neuro_psyche", typ: "checks", label: "Nerven, Psyche, Schlaf", optionen: ["Migräne", "Neuropathie (Kribbeln, Taubheit)", "Epilepsie", "Multiple Sklerose", "Gehirnerschütterung oder Kopfverletzung", "Depression", "Angststörung oder Panikattacken", "Burnout", "ADHS", "Essstörung (aktuell oder früher)", "Schlafstörung", "Tinnitus", "keines davon"] },
+        { id: "diagnosen_text", typ: "textarea", label: "Weitere Diagnosen oder Details zu den angekreuzten Punkten (seit wann, wie behandelt)" },
+        { id: "kindheit", typ: "checks", label: "Was trifft auf Ihre Kindheit zu?", hilfe: "Prägt Immunsystem und Darmflora oft bis ins Erwachsenenalter.",
+          optionen: ["Kaiserschnitt", "gestillt worden", "nicht gestillt worden", "häufige Antibiotika in der Kindheit", "häufige Infekte in der Kindheit", "Mandeln oder Rachenmandeln entfernt", "nichts davon"] },
+      ] },
+    { id: "herzkreislauf", titel: "Herz, Kreislauf und vorhandene Befunde", intro: `<p>Herz und Gefäße bestimmen mit, welche Empfehlungen sicher sind. Bitte auch frühere Ereignisse angeben.</p>`,
+      fragen: [
+        { id: "hk_diagnosen", typ: "checks", label: "Wurde bei Ihnen jemals festgestellt?", optionen: ["Bluthochdruck", "Niedriger Blutdruck", "Herzinfarkt", "Koronare Herzkrankheit, Stent oder Bypass", "Schlaganfall oder kurzzeitige Durchblutungsstörung (TIA)", "Herzrhythmusstörung (z. B. Vorhofflimmern)", "Herzschwäche (Herzinsuffizienz)", "Herzklappenfehler", "Herzmuskelentzündung", "Thrombose oder Lungenembolie", "Durchblutungsstörung der Beine (Schaufensterkrankheit)", "Krampfadern", "Erhöhte Blutfette oder Cholesterin", "Erhöhtes Lipoprotein(a)", "keines davon"] },
+        { id: "hk_messwerte", typ: "text", label: "Ihr Blutdruck und Ruhepuls, falls bekannt", hilfe: "Zum Beispiel: 125 zu 80, Puls 64. Gern der Durchschnitt der letzten Messungen, und ob unter Medikamenten." },
+        { id: "hk_kontrolle", typ: "radio", label: "Waren Sie in den letzten zwei Jahren beim Kardiologen, oder gab es ein EKG, Belastungs-EKG oder Herzultraschall?", optionen: ["nein", "ja, unauffällig", "ja, mit Befund"] },
+        { id: "vorbefunde", typ: "textarea", label: "Welche Befunde liegen Ihnen schon vor?", hilfe: "Zum Beispiel Laborwerte, Gentest, Stuhltest, Hormonwerte, Bildgebung, jeweils mit Datum. Die Befunde selbst gern mitschicken oder zum Gespräch mitbringen." },
+      ] },
+    { id: "verlauf", titel: "Zeitachse", intro: `<p>Wichtige Ereignisse Ihrer Gesundheitsgeschichte, grob in Reihenfolge. Jahreszahl reicht.</p>`,
+      fragen: [
+        { id: "besondere_ereignisse", typ: "checks", label: "Gab es eines dieser Ereignisse?", hilfe: "Auch wenn es lange her ist. Das Jahr kommt in die Liste darunter, wenn Sie es wissen.",
+          optionen: ["Zeckenstich, mit oder ohne Ausschlag", "längere Reise in tropische Länder", "Vollnarkose oder größere Operation", "Unfall mit Kopfverletzung oder Schleudertrauma", "schwere oder langwierige Infektion", "belastendes Lebensereignis", "nichts davon"] },
+        { id: "ereignisse", typ: "liste", label: "Ereignisse mit Jahr", anzahl: 10, felder: [
+          { id: "wann", typ: "text", label: "Wann (Jahr oder Monat)" },
+          { id: "was", typ: "text", label: "Was (Diagnose, Operation, Unfall, Infekt, Herz-Ereignis, Lebensereignis, Therapie)" },
+        ] },
+      ] },
+    { id: "covid", titel: "Covid-Erkrankungen und Covid-Impfungen", intro: `<p>Bitte so genau, wie Sie es noch wissen. Der Impfpass hilft bei den Daten.</p>`,
+      fragen: [
+        { id: "covid_erkrankungen", typ: "liste", label: "Covid-Erkrankungen", anzahl: 5, felder: [
+          { id: "wann", typ: "text", label: "Wann (Monat und Jahr)" },
+          { id: "verlauf", typ: "radio", label: "Verlauf", optionen: ["leicht", "mittel", "schwer", "im Krankenhaus"] },
+          { id: "folgen", typ: "text", label: "Beschwerden, die länger als vier Wochen blieben" },
+        ] },
+        { id: "covid_impfungen", typ: "liste", label: "Covid-Impfungen", anzahl: 6, felder: [
+          { id: "wann", typ: "text", label: "Wann (Monat und Jahr)" },
+          { id: "impfstoff", typ: "text", label: "Impfstoff (z. B. BioNTech, Moderna, AstraZeneca, Johnson & Johnson, Novavax)" },
+        ] },
+        { id: "covid_impf_beschwerden", typ: "textarea", label: "Hatten Sie nach einer Covid-Impfung Beschwerden, die länger als vier Wochen anhielten? Wenn ja: welche, und nach welcher Impfung?" },
+      ] },
     { id: "familie", titel: "Familie",
       fragen: [
         { id: "familie", typ: "checks", label: "Gibt es bei Eltern, Geschwistern oder Großeltern eines davon?", optionen: ["Schilddrüsenerkrankung", "Autoimmunerkrankung", "Diabetes", "Herzinfarkt oder Schlaganfall vor dem 60. Lebensjahr", "Krebs", "Depression oder andere psychische Erkrankung", "Demenz", "Osteoporose", "Zöliakie oder Darmerkrankung", "nichts davon bekannt"] },
-        { id: "familie_text", typ: "textarea", label: "Details, falls bekannt (wer, was, in welchem Alter)" },
       ] },
     { id: "ernaehrung", titel: "Ernährung", intro: `<p>Es gibt hier kein richtig oder falsch. Beschreiben Sie, wie es tatsächlich ist.</p>`,
       fragen: [
         { id: "kostform", typ: "radio", label: "Wie würden Sie Ihre Ernährung beschreiben?", optionen: ["gemischt, ohne besondere Regeln", "überwiegend pflanzlich", "vegetarisch", "vegan", "kohlenhydratarm oder ketogen", "tierisch betont (viel Fleisch, Eier, Fisch)", "glutenfrei", "eine andere Form"] },
-        { id: "kostform_text", typ: "text", label: "Falls „andere Form“ oder Ergänzung dazu" },
         { id: "mahlzeiten", typ: "radio", label: "Wie viele Mahlzeiten essen Sie an einem normalen Tag?", optionen: ["1", "2", "3", "4 oder mehr", "sehr unregelmäßig"] },
         { id: "fasten", typ: "radio", label: "Lassen Sie bewusst Mahlzeiten aus oder fasten Sie?", optionen: ["nein", "gelegentlich", "regelmäßig (z. B. Intervallfasten)"] },
-        { id: "ern_matrix", typ: "matrix", label: "Wie oft essen oder trinken Sie das?", hilfe: "Eine Antwort je Zeile. Grobe Schätzung genügt.",
-        optionen: HAEUFIG,
-        zeilen: [
-          { id: "fisch", label: "Fisch oder Meeresfrüchte" },
-          { id: "fleisch", label: "Fleisch, Wurst, Eier" },
-          { id: "milch", label: "Milchprodukte" },
-          { id: "gemuese", label: "Gemüse" },
-          { id: "obst", label: "Obst" },
-          { id: "zucker", label: "Zucker, Süßes, Gebäck" },
-          { id: "kaffee", label: "Kaffee oder schwarzer Tee" },
-          { id: "alkohol", label: "Alkohol" },
-        ] },
-      { id: "salz", typ: "radio", label: "Welches Salz verwenden Sie zu Hause?", optionen: ["jodiertes Speisesalz", "Meersalz oder Steinsalz ohne Jod", "weiß ich nicht", "gemischt"] },
-        { id: "kaffee", typ: "radio", label: "Kaffee oder andere Koffeinquellen", optionen: ["keine", "1 Tasse am Tag", "2 bis 3 Tassen", "mehr als 3 Tassen"] },
-        { id: "alkohol", typ: "radio", label: "Alkohol", optionen: ["nie", "selten", "1 bis 3 Mal pro Woche", "fast täglich"] },
+        { id: "ern_matrix", typ: "matrix", label: "Wie oft essen oder trinken Sie das?", hilfe: "Eine Antwort je Zeile. Grobe Schätzung genügt.", optionen: HAEUFIG,
+          zeilen: [
+            { id: "fisch", label: "Fisch oder Meeresfrüchte" },
+            { id: "fleisch", label: "Fleisch, Wurst oder Eier" },
+            { id: "milch", label: "Milchprodukte" },
+            { id: "gemuese", label: "Gemüse" },
+            { id: "obst", label: "Obst, auch Trockenobst" },
+            { id: "zucker", label: "Süßes, Gebäck, Saft oder Limonade" },
+            { id: "kaffee_haeufig", label: "Kaffee oder schwarzer Tee" },
+            { id: "alkohol_haeufig", label: "Alkohol" },
+          ] },
+        { id: "salz", typ: "radio", label: "Welches Salz verwenden Sie zu Hause?", optionen: ["jodiertes Speisesalz", "Meersalz oder Steinsalz ohne Jod", "weiß ich nicht", "gemischt"] },
         { id: "unvertraeglich", typ: "textarea", label: "Lebensmittel, die Sie nicht vertragen oder meiden? Mit welcher Reaktion?" },
-        { id: "essverhalten", typ: "checks", label: "Trifft etwas davon auf Sie zu?", hilfe: "Die Antwort hilft, Empfehlungen sicher zu gestalten. Sie dürfen die Frage auslassen.", optionen: ["Heißhungerattacken", "Ich habe schon viele Diäten gemacht", "Ich esse aus Stress oder Kummer", "Es gab Phasen mit Erbrechen oder Abführmitteln", "Ich fühle mich beim Essen unter Druck oder kontrolliert", "nichts davon", "möchte ich nicht beantworten"] },
+        { id: "essverhalten", typ: "checks", label: "Trifft etwas davon auf Sie zu?", hilfe: "Die Antwort hilft, Empfehlungen sicher zu gestalten.", optionen: ["Heißhungerattacken", "Ich habe schon viele Diäten gemacht", "Ich esse aus Stress oder Kummer", "Es gab Phasen mit Erbrechen oder Abführmitteln", "Ich fühle mich beim Essen unter Druck oder kontrolliert", "nichts davon"] },
         { id: "wasser", typ: "radio", label: "Wie viel trinken Sie am Tag (Wasser, Tee)?", optionen: ["unter 1 Liter", "1 bis 2 Liter", "über 2 Liter"] },
       ] },
-    { id: "verdauung", titel: "Verdauung",
+    { id: "alltag", titel: "Verdauung, Schlaf und Belastungen",
       fragen: [
         { id: "stuhl_frequenz", typ: "radio", label: "Wie oft haben Sie Stuhlgang?", optionen: ["seltener als jeden zweiten Tag", "jeden zweiten Tag", "täglich", "2 bis 3 Mal am Tag", "häufiger"] },
-        { id: "stuhl_form", typ: "radio", label: "Wie ist der Stuhl meistens?", optionen: ["hart, klumpig", "geformt, weich", "breiig", "wässrig", "wechselnd"] },
-        { id: "verdauung_symptome", typ: "checks", label: "Beschwerden?", optionen: ["Blähungen", "Völlegefühl nach dem Essen", "Sodbrennen", "Übelkeit", "Bauchschmerzen", "Schleim oder Blut im Stuhl", "Fettglänzender Stuhl", "keine"] },
-      ] },
-    { id: "schlaf", titel: "Schlaf und Energie",
-      fragen: [
+        { id: "stuhl_form", typ: "radio", label: "Wie sieht Ihr Stuhl meistens aus?", hilfe: "Die Einteilung folgt der Bristol-Stuhlformen-Skala, einem gängigen Hilfsmittel in der Medizin.", optionen: ["Typ 1: einzelne, harte Kügelchen", "Typ 2: wurstförmig, aber klumpig und hart", "Typ 3: wurstförmig mit Rissen an der Oberfläche", "Typ 4: glatt und weich, wie eine Wurst", "Typ 5: weiche Stücke mit klaren Rändern", "Typ 6: breiig, mit ausgefransten Rändern", "Typ 7: wässrig, ohne feste Stücke", "wechselt stark"] },
         { id: "schlafdauer", typ: "radio", label: "Wie lange schlafen Sie normalerweise?", optionen: ["unter 5 Stunden", "5 bis 6 Stunden", "6 bis 7 Stunden", "7 bis 8 Stunden", "über 8 Stunden"] },
-        { id: "einschlafen", typ: "radio", label: "Einschlafen", optionen: ["schnell", "dauert über 30 Minuten", "sehr schwer"] },
-        { id: "durchschlafen", typ: "radio", label: "Durchschlafen", optionen: ["ohne Unterbrechung", "1 bis 2 Mal wach", "häufig wach", "zwischen 2 und 4 Uhr regelmäßig wach"] },
-        { id: "erholt", typ: "radio", label: "Fühlen Sie sich morgens erholt?", optionen: ["ja", "manchmal", "selten", "nie"] },
-        { id: "energie", typ: "skala", label: "Ihre Energie an einem normalen Tag: 0 = keine, 10 = voll" },
-        { id: "schnarchen", typ: "radio", label: "Schnarchen Sie oder wurde eine Atempause im Schlaf beobachtet?", optionen: JA_NEIN_UNSICHER },
-      ] },
-    { id: "stress", titel: "Stress, Stimmung, Belastung", intro: `<p>Diese Fragen sind persönlich. Sie helfen, das Nervensystem einzuordnen. Beantworten Sie nur, was Sie möchten.</p>`,
-      fragen: [
-        { id: "stress", typ: "skala", label: "Wie hoch ist Ihr Stress derzeit? 0 = keiner, 10 = maximal" },
-        { id: "belastungen", typ: "checks", label: "Aktuelle Belastungen", optionen: ["Beruf", "Familie oder Partnerschaft", "Finanzen", "Pflege eines Angehörigen", "Umzug oder Veränderung", "Trauer oder Verlust", "Eigene Gesundheit", "keine besonderen"] },
-        { id: "stimmung", typ: "checks", label: "In den letzten zwei Wochen häufiger …", optionen: ["niedergeschlagen oder hoffnungslos", "wenig Interesse oder Freude", "nervös, ängstlich oder angespannt", "reizbar", "Konzentration schlechter", "Gedächtnis schlechter", "nichts davon"] },
-        { id: "entspannung", typ: "textarea", label: "Was hilft Ihnen, zur Ruhe zu kommen? Nehmen Sie sich dafür Zeit?" },
+        { id: "schnarchen", typ: "radio", label: "Schnarchen Sie?", optionen: ["nein", "ja, ohne beobachtete Atempausen", "ja, mit beobachteten Atempausen", "weiß ich nicht, niemand kann es beobachten"] },
+        { id: "belastungen", typ: "checks", label: "Aktuelle Belastungen", optionen: ["Beruf", "Familie oder Partnerschaft", "Finanzen", "Pflege eines Angehörigen", "Umzug oder Veränderung", "Trauer oder Verlust", "Eigene Gesundheit", "Einsamkeit", "keine besonderen"] },
         { id: "therapie", typ: "radio", label: "Sind Sie aktuell in psychotherapeutischer Begleitung?", optionen: ["nein", "ja", "früher, jetzt nicht mehr"] },
       ] },
     { id: "bewegung", titel: "Bewegung und Umwelt",
       fragen: [
         { id: "bewegung", typ: "radio", label: "Wie oft bewegen Sie sich so, dass Sie außer Atem kommen?", optionen: ["nie", "1 Mal pro Woche", "2 bis 3 Mal", "4 Mal oder öfter"] },
-        { id: "bewegung_art", typ: "text", label: "Welche Art von Bewegung oder Sport?" },
-        { id: "sitzen", typ: "radio", label: "Wie viele Stunden sitzen Sie am Tag?", optionen: ["unter 4", "4 bis 8", "über 8"] },
-        { id: "rauchen", typ: "radio", label: "Rauchen Sie?", optionen: ["nie", "früher", "gelegentlich", "täglich"] },
+        { id: "kraft", typ: "radio", label: "Wie oft trainieren Sie Ihre Muskelkraft (Geräte, Gewichte, Übungen mit dem eigenen Körpergewicht)?", optionen: ["nie", "1 Mal pro Woche", "2 bis 3 Mal", "4 Mal oder öfter"] },
+        { id: "rauchen", typ: "radio", label: "Rauchen oder dampfen Sie?", optionen: ["nie", "früher", "gelegentlich", "täglich"] },
+        { id: "rauchen_art", typ: "checks", wenn: { id: "rauchen", ausser: ["nie"] }, label: "Was rauchen oder dampfen Sie (oder haben Sie früher)?", optionen: ["Zigaretten", "E-Zigarette", "Tabakerhitzer", "Zigarren oder Zigarillos", "Pfeife", "Shisha"] },
         { id: "beruf", typ: "text", label: "Beruf und typische Arbeitsbelastung", hilfe: "Schichtdienst, Bildschirmarbeit, körperliche Arbeit, Chemikalien, Lärm." },
-        { id: "umwelt", typ: "checks", label: "Trifft etwas davon zu?", optionen: ["Amalgamfüllungen", "Schimmel in der Wohnung (aktuell oder früher)", "Viel Kontakt mit Chemikalien oder Lösungsmitteln", "Regelmäßig Thunfisch oder größere Raubfische", "Trinkwasser aus eigenem Brunnen", "Wohnung an stark befahrener Straße", "Neubau oder Renovierung in den letzten zwei Jahren", "beruflicher Kontakt mit Staub, Farben, Metallen oder Reinigungsmitteln", "täglich mehrere Körperpflege- oder Kosmetikprodukte", "nichts davon"] },
-        { id: "zaehne", typ: "textarea", label: "Zähne, Kiefer, Zahnfleisch", hilfe: "Auch Zähneknirschen, Kieferknacken, Kieferschmerzen, Wurzelbehandlungen, Zahnfleischbluten oder Schäden am Zahnschmelz." },
+        { id: "umwelt", typ: "checks", label: "Trifft etwas davon zu?", optionen: ["Amalgamfüllungen", "Wurzelbehandlungen", "Zähneknirschen oder Kieferschmerzen", "Schimmel in der Wohnung (aktuell oder früher)", "Viel Kontakt mit Chemikalien oder Lösungsmitteln", "Regelmäßig Thunfisch oder größere Raubfische", "Trinkwasser aus eigenem Brunnen", "Wohnung an stark befahrener Straße", "Neubau oder Renovierung in den letzten zwei Jahren", "beruflicher Kontakt mit Staub, Farben, Metallen oder Reinigungsmitteln", "täglich mehrere Körperpflege- oder Kosmetikprodukte", "nichts davon"] },
       ] },
     { id: "frauen", titel: "Zyklus und Hormone", nurFuer: "weiblich", intro: `<p>Nur relevant, wenn Sie einen Zyklus haben oder hatten. Sonst einfach weiter.</p>`,
       fragen: [
         { id: "zyklus", typ: "radio", label: "Ihr Zyklus", optionen: ["regelmäßig", "unregelmäßig", "bleibt aus", "Wechseljahre", "keine Regel mehr (nach Wechseljahren oder Operation)", "trifft nicht zu"] },
-        { id: "zyklus_laenge", typ: "text", label: "Zykluslänge in Tagen, Dauer der Blutung", hilfe: "Zum Beispiel: 28 Tage, Blutung 5 Tage, stark." },
-        { id: "zyklus_beschwerden", typ: "checks", label: "Beschwerden rund um den Zyklus", optionen: ["starke Schmerzen", "starke Blutung", "Stimmungsschwankungen vor der Regel", "Brustspannen", "Migräne um die Regel", "Zwischenblutungen", "keine"] },
+        { id: "zyklus_laenge", typ: "text", label: "Zykluslänge in Tagen, Dauer und Stärke der Blutung", hilfe: "Zum Beispiel: 28 Tage, Blutung 5 Tage, stark." },
         { id: "verhuetung", typ: "text", label: "Verhütung oder Hormonpräparate (Pille, Spirale, Hormoncremes, Hormonersatz)", hilfe: "Auch frühere, mit Zeitraum." },
         { id: "schwangerschaften", typ: "text", label: "Schwangerschaften, Geburten, Fehlgeburten, Stillzeiten (mit Jahr)" },
-        { id: "kinderwunsch", typ: "radio", label: "Besteht ein Kinderwunsch?", optionen: ["nein", "ja", "vielleicht später"] },
         { id: "letzter_zyklus", typ: "text", label: "Erster Tag der letzten Regel", hilfe: "Wichtig, falls Hormone im Blut gemessen werden." },
       ] },
-    { id: "maenner", titel: "Hormone und Prostata", nurFuer: "männlich",
+    { id: "maenner", titel: "Prostata", nurFuer: "männlich",
       fragen: [
-        { id: "m_symptome", typ: "checks", label: "Trifft in den letzten Monaten zu?", optionen: ["Weniger Antrieb oder Leistungsfähigkeit", "Libido vermindert", "Erektionsstörungen", "Muskelabbau trotz Training", "Bauchfett nimmt zu", "Nächtliches Wasserlassen", "Schwacher Harnstrahl oder Restharngefühl", "keines davon"] },
-        { id: "m_prostata", typ: "radio", label: "Gab es eine Prostatauntersuchung oder einen PSA-Wert?", optionen: ["nein", "ja, unauffällig", "ja, mit Befund", "weiß ich nicht"] },
-        { id: "m_hormone", typ: "text", label: "Testosteron oder andere Hormonwerte, falls bekannt (mit Datum)" },
+        { id: "m_prostata", typ: "radio", label: "Gab es eine Prostatauntersuchung oder einen PSA-Wert?", optionen: ["nein", "ja, unauffällig", "ja, mit Befund"] },
       ] },
-    { id: "symptome", titel: "Symptom-Check", intro: `<p>Kreuzen Sie an, was in den letzten drei Monaten mehrfach aufgetreten ist.</p>`,
+    { id: "schluss", titel: "Zum Schluss",
       fragen: [
-        { id: "score_matrix", typ: "matrix", score: true, label: "Wie stark belasten Sie Beschwerden in diesen Bereichen, in den letzten vier Wochen?",
-        hilfe: "Eine Antwort je Zeile. Das ergibt einen Wert, den wir bei der Verlaufskontrolle wiederholen und vergleichen können.",
-        optionen: BELASTUNG, zeilen: SCORE_SYSTEME },
-      { id: "s_allgemein", typ: "checks", label: "Allgemein", optionen: ["Frieren, kalte Hände oder Füße", "Hitzewallungen oder Schwitzen", "Erschöpfung nach geringer Anstrengung", "Nachmittagstief", "Ungewollte Gewichtsveränderung", "Wassereinlagerungen, Schwellungen"] },
-        { id: "s_kopf", typ: "checks", label: "Kopf und Nerven", optionen: ["Kopfschmerzen", "Schwindel", "Benommenheit, Nebel im Kopf", "Kribbeln oder Taubheit", "Zittern", "Ohrgeräusche"] },
-        { id: "s_haut", typ: "checks", label: "Haut, Haare, Nägel", optionen: ["Haarausfall", "Trockene Haut", "Brüchige Nägel", "Juckreiz", "Ausschlag, Ekzem", "Akne", "Blasse Haut"] },
-        { id: "s_herz", typ: "checks", label: "Herz und Atmung", optionen: ["Herzklopfen, Herzstolpern", "Atemnot bei Belastung", "Niedriger Blutdruck, Schwarzwerden beim Aufstehen", "Hoher Blutdruck"] },
-        { id: "s_muskel", typ: "checks", label: "Muskeln und Gelenke", optionen: ["Muskelschwäche", "Muskelkrämpfe", "Gelenkschmerzen", "Morgensteifigkeit", "Rückenschmerzen"] },
-        { id: "s_immun", typ: "checks", label: "Immunsystem", optionen: ["Häufige Infekte", "Lange Erholung nach Infekten", "Geschwollene Lymphknoten", "Allergien schlimmer als früher", "Herpes häufig"] },
-        { id: "s_hormone", typ: "checks", label: "Hormonell", optionen: ["Libido vermindert", "Stimmung stark schwankend", "Heißhunger auf Süßes", "Zittrig oder gereizt bei Hunger", "Vermehrter Durst oder Harndrang"] },
-        { id: "s_sonst", typ: "textarea", label: "Weitere Symptome, die oben fehlen" },
-      ] },
-    { id: "ziele", titel: "Ihre Ziele und Fragen",
-      fragen: [
-        { id: "ziele", typ: "textarea", label: "Was möchten Sie erreichen? Woran würden Sie merken, dass es besser wird?" },
-        { id: "fragen", typ: "textarea", label: "Welche Fragen haben Sie?" },
-        { id: "sonstiges", typ: "textarea", label: "Gibt es etwas, das ich unbedingt wissen sollte und das hier nicht abgefragt wurde?" },
+        { id: "fragen", typ: "textarea", label: "Welche Fragen haben Sie? Gibt es etwas, das ich unbedingt wissen sollte?" },
         { id: "anrede", typ: "radio", label: "Wie möchten Sie in Ihrem Plan angesprochen werden?", optionen: ["Sie", "Du"] },
         { id: "grossdruck", typ: "radio", label: "Brauchen Sie große Schrift zum Lesen?", optionen: ["nein", "ja"] },
       ] },
-    { id: "ende", titel: "Fertig: Bogen speichern und zurücksenden", intro: "", fragen: [] },
+    { id: "ende", titel: "Fertig: Anamnesebogen senden", intro: "", fragen: [] },
   ];
+  return { version: "3.0", abschnitte, bereiche: BEREICHE, checkSkala: CHECK_SKALA, phqSkala: PHQ_SKALA, symptomZeilen: SYMPTOM_ZEILEN, phq4Zeilen: PHQ4_ZEILEN, geschlechtZeilen: GESCHLECHT_ZEILEN };
+})();
+</script>
+<script>
+/* Anamnesebogen, Programmteil. Eine Datei, kein Server nötig. Antworten bleiben im Browser gespeichert,
+   bis der Anamnesebogen gesendet wird. Gesendet wird nur über den persönlichen Link, automatisch verschlüsselt.
+   Ohne Link zeigt die Seite nur einen Hinweis, mit #vorschau eine Vorschau ohne Senden. Jede Frage ist freiwillig. */
+(function () {
+  const D = window.BOGEN;
+  const BOGEN_VERSION = D.version;
+  const abschnitte = D.abschnitte;
+  let BRIEFKASTEN = window.BRIEFKASTEN && window.BRIEFKASTEN.token ? window.BRIEFKASTEN : null;
+  const API = window.BRIEFKASTEN_API || null;
+  const TOKEN_AUS_URL = (new URLSearchParams(location.search).get("t") || "").trim() || null;
+  /* Schlüssel für die Verschlüsselung steht nur im Link-Fragment (#k=...), erreicht den Server nie. */
+  let SCHLUESSEL = (location.hash.match(/[#&]k=([A-Za-z0-9_-]{40,})/) || [])[1] || null;
+  const abgabeUrl = () => (API ? API : location.pathname);
+  const LINK = (BRIEFKASTEN && BRIEFKASTEN.token) || TOKEN_AUS_URL;
+  const VORSCHAU = !LINK && /vorschau/.test(location.hash);
 
   /* ---------- Zustand ---------- */
   const app = document.getElementById("app");
   const balken = document.getElementById("balken");
   const schrittText = document.getElementById("schritt-text");
   const meldungEl = document.getElementById("meldung");
-  let daten = { antworten: {}, unbekannt: {}, gestartet: new Date().toISOString(), bogenVersion: BOGEN_VERSION };
+  const neu = () => ({ antworten: {}, unbekannt: {}, gestartet: new Date().toISOString(), bogenVersion: BOGEN_VERSION });
+  let daten = neu();
   let schritt = 0;
-  const SPEICHER = "anamnesebogen-v1";
+  /* Zwischenstand je Link getrennt, damit sich zwei Personen am selben Gerät nicht vermischen. */
+  const SPEICHER = LINK ? `anamnesebogen-v3-${LINK}` : "anamnesebogen-vorschau";
 
   try {
     const alt = localStorage.getItem(SPEICHER);
     if (alt) {
       const d = JSON.parse(alt);
-      if (d && d.antworten) daten = d;
-      if (typeof d.schritt === "number") schritt = d.schritt;
-      /* Zwischenstand aus einer aelteren Fassung: Antworten behalten, aber die Version richtig stellen.
-         Die Schluessel sind ueber Fassungen hinweg stabil, deshalb geht nichts verloren. */
-      if (d && d.bogenVersion && d.bogenVersion !== BOGEN_VERSION) daten.begonnenMitVersion = d.bogenVersion;
-      daten.bogenVersion = BOGEN_VERSION;
+      if (d && d.antworten) {
+        daten = d;
+        daten.unbekannt = {};
+        if (typeof d.schritt === "number") schritt = d.schritt;
+        if (d.bogenVersion && d.bogenVersion !== BOGEN_VERSION) daten.begonnenMitVersion = d.bogenVersion;
+        daten.bogenVersion = BOGEN_VERSION;
+      }
     }
   } catch (_) { /* kein Speicher verfügbar */ }
-  if (BRIEFKASTEN && BRIEFKASTEN.fall) { daten.antworten.fallnummer = BRIEFKASTEN.fall; daten.unbekannt.fallnummer = false; }
+  if (BRIEFKASTEN && BRIEFKASTEN.fall) daten.antworten.fallnummer = BRIEFKASTEN.fall;
 
   function speichern() {
     daten.schritt = schritt;
@@ -342,10 +389,18 @@ window.BRIEFKASTEN_API = (function () { var a = 'https://xaevwixicuctfbfxnpfa.su
   }
   function esc(s) { return String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c])); }
 
-  function sichtbareAbschnitte() {
-    const g = daten.antworten.geschlecht;
-    return abschnitte.filter((a) => !a.nurFuer || !g || g === a.nurFuer);
+  const passtZu = (x) => { const g = daten.antworten.geschlecht; return !x.nurFuer || !g || g === x.nurFuer; };
+  /* Bedingte Fragen (wenn): nur sichtbar, wenn die Bezugsfrage etwas anderes als die ausgenommenen Antworten hat. */
+  function bedingungErfuellt(f) {
+    if (!f.wenn) return true;
+    const w = daten.antworten[f.wenn.id];
+    const ausser = f.wenn.ausser || [];
+    if (Array.isArray(w)) return w.some((x) => !ausser.includes(x));
+    return w != null && w !== "" && !ausser.includes(w);
   }
+  function sichtbareAbschnitte() { return abschnitte.filter(passtZu); }
+  function fragenVon(a) { return a.fragen.filter(passtZu); }
+  function aktiveFragenVon(a) { return fragenVon(a).filter(bedingungErfuellt); }
 
   /* ---------- Rendern ---------- */
   function feldHtml(f, wert, praefix) {
@@ -359,12 +414,17 @@ window.BRIEFKASTEN_API = (function () { var a = 'https://xaevwixicuctfbfxnpfa.su
       case "checks": { const w = Array.isArray(wert) ? wert : []; return `<div class="optionen">${f.optionen.map((o) => `<label><input type="checkbox" name="${name}" value="${esc(o)}" ${w.includes(o) ? "checked" : ""}>${esc(o)}</label>`).join("")}</div>`; }
       case "skala": return `<div class="skala">${Array.from({ length: 11 }, (_, i) => `<label><input type="radio" name="${name}" value="${i}" ${String(wert) === String(i) ? "checked" : ""}>${i}</label>`).join("")}</div><div class="skala-legende"><span>0</span><span>10</span></div>`;
       case "matrix": {
-        /* Anzeige-Optimierung: viele gleichartige Fragen in einem Block.
-           Die Werte bleiben flach unter der jeweiligen Zeilen-ID, damit sich die Datenstruktur nicht ändert. */
-        return `<div class="matrix">${f.zeilen.map((z) => `
-          <div class="mzeile"><div class="mlabel">${esc(z.label)}</div>
+        /* Viele gleichartige Fragen in einem Block. Die Werte bleiben flach unter der jeweiligen Zeilen-ID.
+           Zeilen mit Bereich bekommen eine Zwischenüberschrift, sobald der Bereich wechselt. */
+        let bereich = null;
+        const zeilen = f.zeilen.map((z) => {
+          const kopf = z.bereich && z.bereich !== bereich ? `<div class="mgruppe">${esc(D.bereiche[z.bereich] || z.bereich)}</div>` : "";
+          bereich = z.bereich || bereich;
+          return `${kopf}<div class="mzeile"><div class="mlabel">${esc(z.label)}</div>
             <div class="mopt">${f.optionen.map((o) => `<label><input type="radio" name="${esc(z.id)}" value="${esc(o)}" ${daten.antworten[z.id] === o ? "checked" : ""}>${esc(o)}</label>`).join("")}</div>
-          </div>`).join("")}</div>${f.score ? `<div class="score-box" data-scorebox="${esc(f.id)}"></div>` : ""}`;
+          </div>`;
+        }).join("");
+        return `<div class="matrix">${zeilen}</div>${f.auswertung === "symptom" ? `<div class="score-box" data-scorebox="${esc(f.id)}"></div>` : ""}`;
       }
       case "liste": {
         const zeilen = Array.isArray(wert) ? wert : [];
@@ -380,16 +440,15 @@ window.BRIEFKASTEN_API = (function () { var a = 'https://xaevwixicuctfbfxnpfa.su
   }
 
   function frageHtml(f) {
-    if (f.id === "fallnummer" && BRIEFKASTEN) {
-      return `<div class="frage"><label class="haupt">Ihre Fallnummer</label><div class="hilfe">Ist über Ihren Link bereits eingetragen: <b>${esc(BRIEFKASTEN.fall)}</b>. Ihr Name ist nicht nötig.</div></div>`;
+    if (f.typ === "fallnummer") {
+      const fall = BRIEFKASTEN && BRIEFKASTEN.fall ? esc(BRIEFKASTEN.fall) : "Vorschau, ohne persönlichen Link";
+      return `<div class="frage" data-frage="fallnummer"><label class="haupt">${esc(f.label)}: <span class="fall">${fall}</span></label><div class="hilfe">Ist über Ihren persönlichen Link bereits eingetragen. Ihr Name ist nicht nötig.</div></div>`;
     }
     const wert = daten.antworten[f.id];
-    const unbekannt = Boolean(daten.unbekannt[f.id]);
-    return `<div class="frage ${unbekannt ? "ist-unbekannt" : ""}" data-frage="${esc(f.id)}">
+    return `<div class="frage" data-frage="${esc(f.id)}"${bedingungErfuellt(f) ? "" : " hidden"}>
       <label class="haupt">${esc(f.label)}</label>
       ${f.hilfe ? `<div class="hilfe">${esc(f.hilfe)}</div>` : ""}
       ${feldHtml(f, wert ?? "", "")}
-      ${f.ohneUnbekannt ? "" : `<div class="unbekannt"><label><input type="checkbox" data-unbekannt="${esc(f.id)}" ${unbekannt ? "checked" : ""}> weiß ich nicht / möchte ich nicht beantworten</label></div>`}
     </div>`;
   }
 
@@ -399,26 +458,19 @@ window.BRIEFKASTEN_API = (function () { var a = 'https://xaevwixicuctfbfxnpfa.su
     const a = liste[schritt];
     balken.style.width = `${Math.round((schritt / (liste.length - 1)) * 100)}%`;
     schrittText.textContent = `Schritt ${schritt + 1} von ${liste.length}: ${a.titel}`;
-    if (a.id === "ende") { renderEnde(liste); } else {
-      app.innerHTML = `<h1>${esc(a.titel)}</h1>${a.intro || ""}${a.fragen.map(frageHtml).join("")}`;
+    if (a.id === "ende") { renderEnde(); } else {
+      app.innerHTML = `<h1>${esc(a.titel)}</h1>${a.intro || ""}${fragenVon(a).map(frageHtml).join("")}`;
       verdrahte();
+      aktualisiereAnzeigen();
     }
     document.getElementById("zurueck").disabled = schritt === 0;
-    document.getElementById("weiter").textContent = schritt === liste.length - 1 ? "Fertig" : "Weiter";
     document.getElementById("weiter").hidden = schritt === liste.length - 1;
     window.scrollTo({ top: 0 });
     speichern();
   }
 
   function verdrahte() {
-    app.querySelectorAll("input, textarea, select").forEach((el) => {
-      el.addEventListener("change", lies); el.addEventListener("input", lies);
-    });
-    app.querySelectorAll("[data-unbekannt]").forEach((cb) => cb.addEventListener("change", () => {
-      daten.unbekannt[cb.dataset.unbekannt] = cb.checked;
-      cb.closest(".frage").classList.toggle("ist-unbekannt", cb.checked);
-      speichern();
-    }));
+    app.querySelectorAll("input, textarea, select").forEach((el) => { el.addEventListener("change", lies); el.addEventListener("input", lies); });
     app.querySelectorAll("[data-mehr]").forEach((b) => b.addEventListener("click", () => {
       const box = app.querySelector(`.liste[data-liste="${b.dataset.mehr}"]`);
       const n = box.querySelectorAll(".zeile").length;
@@ -428,33 +480,60 @@ window.BRIEFKASTEN_API = (function () { var a = 'https://xaevwixicuctfbfxnpfa.su
       box.querySelectorAll(".zeile:last-child input, .zeile:last-child textarea").forEach((el) => { el.addEventListener("change", lies); el.addEventListener("input", lies); });
     }));
   }
-  /* Symptom-Score: Summe der Systemwerte, 0 Punkte je Zeile für "nie oder kaum" bis 3 für "fast ständig". */
-  function berechneScore() {
-    let summe = 0, beantwortet = 0;
-    const je = {};
-    for (const sys of SCORE_SYSTEME) {
-      const w = daten.antworten[sys.id];
-      const p = BELASTUNG.indexOf(w);
-      if (p >= 0) { summe += p; beantwortet += 1; je[sys.id] = p; }
-    }
-    return { summe, beantwortet, max: SCORE_SYSTEME.length * (BELASTUNG.length - 1), je };
+
+  /* ---------- Auswertung (gleiche Regeln wie cockpit/src/bogen-auswertung.ts) ---------- */
+  function teilsumme(ids, skala) {
+    let s = 0;
+    for (const id of ids) { const p = skala.indexOf(daten.antworten[id]); if (p < 0) return { wert: null, vollstaendig: false }; s += p; }
+    return { wert: s, vollstaendig: true };
   }
-  function zeigeScore(f) {
-    const box = app.querySelector(`[data-scorebox="${f.id}"]`);
-    if (!box) return;
-    const r = berechneScore();
-    if (!r.beantwortet) { box.innerHTML = "Sobald Sie die Zeilen ausfüllen, erscheint hier Ihr Wert."; return; }
-    const offen = SCORE_SYSTEME.length - r.beantwortet;
-    box.innerHTML = `<b>Ihr Symptom-Wert: ${r.summe} von ${r.max}</b>` +
-      (offen ? ` <span class="klein">(${offen} Zeile${offen === 1 ? "" : "n"} noch offen)</span>` : "") +
-      `<br><span class="klein">Der Wert ist kein Urteil. Er dient dazu, in einigen Wochen zu sehen, ob sich etwas bewegt hat.</span>`;
+  function berechneSymptomCheck() {
+    const bereiche = {};
+    for (const b of Object.keys(D.bereiche)) bereiche[b] = teilsumme(D.symptomZeilen.filter((z) => z.bereich === b).map((z) => z.id), D.checkSkala);
+    const punkte = D.symptomZeilen.map((z) => D.checkSkala.indexOf(daten.antworten[z.id]));
+    const beantwortet = punkte.filter((p) => p >= 0).length;
+    const g = daten.antworten.geschlecht;
+    const geschlechtsteil = D.geschlechtZeilen[g] ? teilsumme(D.geschlechtZeilen[g].map((z) => z.id), D.checkSkala) : { wert: null, vollstaendig: false };
+    return {
+      version: "3.0", zeitraum: "letzte 4 Wochen", skala: D.checkSkala, bereiche,
+      gesamt: beantwortet === D.symptomZeilen.length ? punkte.reduce((a, b) => a + b, 0) : null, max: 81,
+      beantwortet, zeilen_mit_wert: punkte.filter((p) => p >= 1).length, geschlechtsteil,
+    };
+  }
+  function berechnePhq4() {
+    const ids = D.phq4Zeilen.map((z) => z.id);
+    const phq2 = teilsumme(ids.slice(0, 2), D.phqSkala);
+    const gad2 = teilsumme(ids.slice(2), D.phqSkala);
+    const vollstaendig = phq2.vollstaendig && gad2.vollstaendig;
+    return { zeitraum: "letzte 2 Wochen", gesamt: vollstaendig ? phq2.wert + gad2.wert : null, phq2: phq2.wert, gad2: gad2.wert, vollstaendig };
+  }
+  function aktualisiereAnzeigen() {
+    const box = app.querySelector("[data-scorebox]");
+    if (box) {
+      const r = berechneSymptomCheck();
+      box.innerHTML = !r.beantwortet ? "Sobald Sie die Zeilen ausfüllen, erscheint hier Ihr Wert."
+        : (r.gesamt == null ? `<b>${r.beantwortet} von ${D.symptomZeilen.length} Zeilen ausgefüllt.</b> Der Gesamtwert erscheint, sobald alle Zeilen beantwortet sind.`
+          : `<b>Ihr Symptom-Wert: ${r.gesamt} von 81</b>`) +
+          `<br><span class="klein">Der Wert ist kein Urteil. Er dient dazu, in einigen Wochen zu sehen, ob sich etwas bewegt hat.</span>`;
+    }
+    /* Bedingte Fragen ein- oder ausblenden; ausgeblendete verlieren ihre Antwort. */
+    for (const f of aktuelleFragen()) {
+      if (!f.wenn) continue;
+      const el = app.querySelector(`[data-frage="${f.id}"]`);
+      const an = bedingungErfuellt(f);
+      if (el) el.hidden = !an;
+      if (!an && f.id in daten.antworten) {
+        delete daten.antworten[f.id];
+        if (el) el.querySelectorAll("input, textarea").forEach((x) => { if (x.type === "checkbox" || x.type === "radio") x.checked = false; else x.value = ""; });
+      }
+    }
   }
 
-  function aktuelleFragen() { return sichtbareAbschnitte()[schritt].fragen; }
+  function aktuelleFragen() { return fragenVon(sichtbareAbschnitte()[schritt]); }
 
   function lies() {
     for (const f of aktuelleFragen()) {
-      if (f.id === "fallnummer" && BRIEFKASTEN) continue; /* kommt aus dem Link, kein Feld auf der Seite */
+      if (f.typ === "fallnummer") continue; /* kommt aus dem Link, kein Feld auf der Seite */
       if (f.typ === "liste") {
         const zeilen = [];
         app.querySelectorAll(`.liste[data-liste="${f.id}"] .zeile`).forEach((z, i) => {
@@ -471,12 +550,12 @@ window.BRIEFKASTEN_API = (function () { var a = 'https://xaevwixicuctfbfxnpfa.su
           const el = app.querySelector(`input[name="${z.id}"]:checked`);
           if (el) daten.antworten[z.id] = el.value; else delete daten.antworten[z.id];
         }
-        if (f.score) zeigeScore(f);
       } else {
         const v = liesFeld(f, f.id, app);
         if (v === "" || v == null || (Array.isArray(v) && !v.length)) delete daten.antworten[f.id]; else daten.antworten[f.id] = v;
       }
     }
+    aktualisiereAnzeigen();
     speichern();
   }
   function liesFeld(f, name, wurzel) {
@@ -485,50 +564,47 @@ window.BRIEFKASTEN_API = (function () { var a = 'https://xaevwixicuctfbfxnpfa.su
     const el = wurzel.querySelector(`[name="${name}"]`); return el ? el.value.trim() : "";
   }
 
-  /* ---------- Abschluss: Übersicht, Export, Senden ---------- */
-  function zusammenfassung() {
-    const zeilen = [];
-    for (const a of sichtbareAbschnitte()) {
-      if (a.id === "start" || a.id === "ende") { if (a.id === "start") { for (const f of a.fragen) zeilen.push(...zeileFuer(f)); } continue; }
-      const teil = [];
-      for (const f of a.fragen) teil.push(...zeileFuer(f));
-      if (teil.length) zeilen.push(`\n## ${a.titel}`, ...teil);
-    }
-    return zeilen.join("\n");
-  }
+  /* ---------- Abschluss: Übersicht und Senden ---------- */
   function zeileFuer(f) {
-    if (daten.unbekannt[f.id]) return [`- ${f.label}: weiß ich nicht / keine Angabe`];
+    if (f.typ === "fallnummer") return daten.antworten.fallnummer ? [`- ${f.label}: ${daten.antworten.fallnummer}`] : [];
+    if (f.typ === "matrix") {
+      const r = f.zeilen.filter((z) => daten.antworten[z.id]).map((z) => `  ${z.label}: ${daten.antworten[z.id]}`);
+      return r.length ? [`- ${f.label}`, ...r] : [];
+    }
     const w = daten.antworten[f.id];
     if (w == null || w === "" || (Array.isArray(w) && !w.length)) return [];
     if (f.typ === "liste") return [`- ${f.label}:`, ...w.map((z, i) => `  ${i + 1}. ${f.felder.map((u) => z[u.id] != null && z[u.id] !== "" ? `${u.label.replace(/\s*\(.*$/, "")}: ${z[u.id]}` : null).filter(Boolean).join(" · ")}`)];
     if (Array.isArray(w)) return [`- ${f.label}: ${w.join(", ")}`];
     return [`- ${f.label}: ${w}`];
   }
-  function beantwortet() { let n = 0, gesamt = 0; for (const a of sichtbareAbschnitte()) for (const f of a.fragen) { gesamt++; const w = daten.antworten[f.id]; if (daten.unbekannt[f.id] || (w != null && w !== "" && !(Array.isArray(w) && !w.length))) n++; } return { n, gesamt }; }
-
+  function zusammenfassung() {
+    const zeilen = [];
+    for (const a of sichtbareAbschnitte()) {
+      if (a.id === "ende") continue;
+      const teil = aktiveFragenVon(a).flatMap(zeileFuer);
+      if (!teil.length) continue;
+      if (a.id === "start") zeilen.push(...teil); else zeilen.push(`\n## ${a.titel}`, ...teil);
+    }
+    return zeilen.join("\n");
+  }
+  function istBeantwortet(f) {
+    if (f.typ === "matrix") return f.zeilen.some((z) => daten.antworten[z.id]);
+    const w = daten.antworten[f.id];
+    return w != null && w !== "" && !(Array.isArray(w) && !w.length);
+  }
+  function beantwortet() {
+    let n = 0, gesamt = 0;
+    for (const a of sichtbareAbschnitte()) for (const f of aktiveFragenVon(a)) { if (f.typ === "fallnummer") continue; gesamt++; if (istBeantwortet(f)) n++; }
+    return { n, gesamt };
+  }
   function exportObjekt() {
-    const sc = berechneScore();
-    return { bogen: "FM-Anamnesebogen", bogenVersion: BOGEN_VERSION, exportiert: new Date().toISOString(), fallnummer: daten.antworten.fallnummer || "", antworten: daten.antworten, unbekannt: Object.keys(daten.unbekannt).filter((k) => daten.unbekannt[k]), symptom_score: { summe: sc.summe, max: sc.max, beantwortet: sc.beantwortet, systeme: sc.je, skala: BELASTUNG }, zusammenfassung: zusammenfassung() };
+    return {
+      bogen: "FM-Anamnesebogen", bogenVersion: BOGEN_VERSION, exportiert: new Date().toISOString(), fallnummer: daten.antworten.fallnummer || "",
+      antworten: daten.antworten, unbekannt: [],
+      symptom_check: berechneSymptomCheck(), phq4: berechnePhq4(), zusammenfassung: zusammenfassung(),
+    };
   }
   function b64(buf) { return btoa(String.fromCharCode(...new Uint8Array(buf))); }
-  async function verschluessele(text, passwort) {
-    const enc = new TextEncoder();
-    const salt = crypto.getRandomValues(new Uint8Array(16));
-    const iv = crypto.getRandomValues(new Uint8Array(12));
-    const basis = await crypto.subtle.importKey("raw", enc.encode(passwort), "PBKDF2", false, ["deriveKey"]);
-    const key = await crypto.subtle.deriveKey({ name: "PBKDF2", salt, iterations: 200000, hash: "SHA-256" }, basis, { name: "AES-GCM", length: 256 }, false, ["encrypt"]);
-    const chiffre = await crypto.subtle.encrypt({ name: "AES-GCM", iv }, key, enc.encode(text));
-    return { bogen: "FM-Anamnesebogen", bogenVersion: BOGEN_VERSION, verschluesselt: true, verfahren: "AES-GCM-256, PBKDF2-SHA256 200000", salt: b64(salt), iv: b64(iv), daten: b64(chiffre), fallnummer: daten.antworten.fallnummer || "" };
-  }
-  async function erzeugeDatei() {
-    const pw = (document.getElementById("passwort")?.value || "").trim();
-    const obj = pw ? await verschluessele(JSON.stringify(exportObjekt()), pw) : exportObjekt();
-    const fall = (daten.antworten.fallnummer || "ohne-Fallnummer").replace(/[^A-Za-z0-9-]/g, "");
-    const name = `Anamnese_${fall}_${new Date().toISOString().slice(0, 10)}.json`;
-    return new File([JSON.stringify(obj, null, 1)], name, { type: "application/json" });
-  }
-
-  /* ---------- Briefkasten: verschlüsselt an den Server ---------- */
   function b64urlZuBytes(s) { const b = atob(s.replace(/-/g, "+").replace(/_/g, "/") + "===".slice((s.length + 3) % 4)); return Uint8Array.from(b, (c) => c.charCodeAt(0)); }
   async function sendeVerschluesselt() {
     if (!SCHLUESSEL) throw new Error("Der Link ist unvollständig (Schlüssel fehlt). Bitte den Link aus der Nachricht vollständig öffnen.");
@@ -541,100 +617,66 @@ window.BRIEFKASTEN_API = (function () { var a = 'https://xaevwixicuctfbfxnpfa.su
     let d = null; try { d = await antwort.json(); } catch (_) {}
     if (!antwort.ok) throw new Error((d && d.error) || `Senden fehlgeschlagen (${antwort.status}).`);
   }
+  function uebersichtHtml() {
+    return sichtbareAbschnitte().filter((a) => a.id !== "ende").map((a) => {
+      const teil = aktiveFragenVon(a).flatMap(zeileFuer);
+      return `<div class="abschnitt"><b>${esc(a.titel)}</b>${teil.length ? teil.map((t) => `<div>${esc(t.replace(/^- /, ""))}</div>`).join("") : '<span>keine Angaben</span>'}</div>`;
+    }).join("");
+  }
 
-  function renderEndeBriefkasten() {
+  function renderEnde() {
     const { n, gesamt } = beantwortet();
+    if (!BRIEFKASTEN) {
+      app.innerHTML = `<h1>Ende der Vorschau</h1>
+        <p>${n} von ${gesamt} Fragen beantwortet.</p>
+        <div class="hinweis">Das ist eine Vorschau ohne persönlichen Link. Senden ist nur über den Link aus der Einladung möglich.</div>
+        <h2>Antworten in der Übersicht</h2>
+        <div class="uebersicht">${uebersichtHtml()}</div>
+        <div class="aktionen"><button class="knopf zweit klein" type="button" id="loeschen">Antworten dieser Vorschau löschen</button></div>`;
+      document.getElementById("loeschen").addEventListener("click", () => {
+        try { localStorage.removeItem(SPEICHER); } catch (_) {}
+        daten = neu(); schritt = 0; render();
+      });
+      return;
+    }
     app.innerHTML = `<h1>Fertig</h1>
       <p>Sie haben ${n} von ${gesamt} Fragen beantwortet. Das reicht, auch wenn Lücken bleiben.</p>
-      <div class="hinweis">Mit „Absenden" werden Ihre Antworten auf diesem Gerät verschlüsselt und übertragen. Nur Ihre Ansprechperson kann sie lesen. Danach werden die Antworten hier gelöscht.</div>
-      <div class="aktionen"><button class="knopf" type="button" id="absenden">Absenden</button></div>
+      <div class="hinweis">Mit dem Knopf werden Ihre Antworten auf diesem Gerät verschlüsselt und an mich übertragen. Nur ich kann sie lesen. Nach dem Senden werden die Antworten auf diesem Gerät automatisch gelöscht.</div>
+      <div class="aktionen"><button class="knopf" type="button" id="absenden">Anamnesebogen speichern und senden</button></div>
       <h2>Ihre Antworten in der Übersicht</h2>
-      <div class="uebersicht" id="uebersicht"></div>`;
-    fuelleUebersicht();
+      <div class="uebersicht">${uebersichtHtml()}</div>`;
     document.getElementById("absenden").addEventListener("click", async () => {
       const b = document.getElementById("absenden"); b.disabled = true; b.textContent = "Wird gesendet …";
       try {
         await sendeVerschluesselt();
         try { localStorage.removeItem(SPEICHER); } catch (_) {}
-        app.innerHTML = `<h1>Vielen Dank</h1><p>Ihre Antworten sind angekommen. Sie können dieses Fenster jetzt schließen.</p>`;
+        app.innerHTML = `<h1>Vielen Dank</h1><p>Ihr Anamnesebogen ist bei mir angekommen. Die Antworten sind auf diesem Gerät gelöscht. Sie können dieses Fenster jetzt schließen.</p>`;
         document.querySelector(".leiste").hidden = true;
-      } catch (e) { meldung(e.message, true); b.disabled = false; b.textContent = "Absenden"; }
+      } catch (e) { meldung(e.message, true); b.disabled = false; b.textContent = "Anamnesebogen speichern und senden"; }
     });
-  }
-  function fuelleUebersicht() {
-    const ueb = document.getElementById("uebersicht");
-    for (const a of sichtbareAbschnitte()) {
-      if (a.id === "ende") continue;
-      const teil = a.fragen.flatMap(zeileFuer);
-      ueb.insertAdjacentHTML("beforeend", `<div class="abschnitt"><b>${esc(a.titel)}</b>${teil.length ? teil.map((t) => `<div>${esc(t.replace(/^- /, ""))}</div>`).join("") : '<span>keine Angaben</span>'}</div>`);
-    }
-  }
-
-  function renderEnde(liste) {
-    if (BRIEFKASTEN) return renderEndeBriefkasten();
-    const { n, gesamt } = beantwortet();
-    app.innerHTML = `<h1>Fertig</h1>
-      <p>Sie haben ${n} von ${gesamt} Fragen beantwortet. Das reicht, auch wenn Lücken bleiben.</p>
-      <div class="frage"><label class="haupt">Passwort für die Datei (empfohlen, optional)</label>
-        <div class="hilfe">Wenn Sie ein Passwort setzen, ist die Datei verschlüsselt. Teilen Sie das Passwort mündlich mit, nicht in derselben Nachricht.</div>
-        <input type="text" id="passwort" autocomplete="off" placeholder="z. B. drei Wörter, die Sie sich merken">
-      </div>
-      <div class="aktionen">
-        <button class="knopf" type="button" id="senden">Bogen speichern und senden</button>
-        <button class="knopf zweit" type="button" id="herunterladen">Nur als Datei speichern</button>
-      </div>
-      <div class="hinweis">Auf dem Handy öffnet sich ein Teilen-Fenster: dort Mail oder die vereinbarte Nachrichten-App wählen. Am Computer wird die Datei heruntergeladen; hängen Sie sie an eine Mail an.</div>
-      <h2>Ihre Antworten in der Übersicht</h2>
-      <div class="uebersicht" id="uebersicht"></div>
-      <div class="aktionen">
-        <button class="knopf zweit klein" type="button" id="kopieren">Antworten als Text kopieren</button>
-        <button class="knopf zweit klein" type="button" id="loeschen">Alle Antworten auf diesem Gerät löschen</button>
-      </div>`;
-    const ueb = document.getElementById("uebersicht");
-    for (const a of liste) {
-      if (a.id === "ende") continue;
-      const teil = a.fragen.flatMap(zeileFuer);
-      ueb.insertAdjacentHTML("beforeend", `<div class="abschnitt"><b>${esc(a.titel)}</b>${teil.length ? teil.map((t) => `<div>${esc(t.replace(/^- /, ""))}</div>`).join("") : '<span>keine Angaben</span>'}</div>`);
-    }
-    document.getElementById("senden").addEventListener("click", async () => {
-      try {
-        const datei = await erzeugeDatei();
-        if (navigator.canShare && navigator.canShare({ files: [datei] })) {
-          await navigator.share({ files: [datei], title: "Anamnesebogen", text: `Anamnesebogen ${daten.antworten.fallnummer || ""}`.trim() });
-          meldung("Gesendet. Vielen Dank.");
-        } else { lade(datei); meldung("Datei gespeichert. Bitte per Mail anhängen."); }
-      } catch (e) { if (e && e.name === "AbortError") return; meldung("Senden nicht möglich: " + e.message, true); }
-    });
-    document.getElementById("herunterladen").addEventListener("click", async () => { try { lade(await erzeugeDatei()); meldung("Datei gespeichert."); } catch (e) { meldung(e.message, true); } });
-    document.getElementById("kopieren").addEventListener("click", async () => { try { await navigator.clipboard.writeText(zusammenfassung()); meldung("Kopiert."); } catch (_) { meldung("Kopieren nicht möglich.", true); } });
-    document.getElementById("loeschen").addEventListener("click", () => {
-      if (!confirm("Alle Antworten auf diesem Gerät löschen? Das lässt sich nicht rückgängig machen.")) return;
-      try { localStorage.removeItem(SPEICHER); } catch (_) {}
-      daten = { antworten: {}, unbekannt: {}, gestartet: new Date().toISOString(), bogenVersion: BOGEN_VERSION }; schritt = 0; render();
-    });
-  }
-  function lade(datei) {
-    const url = URL.createObjectURL(datei); const a = document.createElement("a"); a.href = url; a.download = datei.name; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(url), 2000);
   }
 
   document.getElementById("weiter").addEventListener("click", () => { lies(); schritt++; render(); });
   document.getElementById("zurueck").addEventListener("click", () => { lies(); schritt--; render(); });
 
-  /* Statisch gehostet: Kontext zum Token vom Server holen, dann rendern. */
+  function hinweisSeite(titel, text) {
+    app.innerHTML = `<h1>${esc(titel)}</h1><p>${esc(text)}</p>`;
+    document.querySelector(".leiste").hidden = true;
+    schrittText.textContent = "";
+  }
+  /* Statisch gehostet: Kontext zum Token vom Server holen, dann rendern. Ohne Link nur Hinweis oder Vorschau. */
   async function start() {
     if (API && TOKEN_AUS_URL && !BRIEFKASTEN) {
-      app.innerHTML = '<p class="leer">Bogen wird geladen …</p>';
+      app.innerHTML = '<p class="leer">Anamnesebogen wird geladen …</p>';
       try {
         const r = await fetch(`${API}/kontext?t=${encodeURIComponent(TOKEN_AUS_URL)}`);
         const d = await r.json().catch(() => ({}));
-        if (!r.ok) { app.innerHTML = `<h1>Hinweis</h1><p>${esc(d.error || "Dieser Link ist nicht mehr gültig.")}</p>`; document.querySelector(".leiste").hidden = true; return; }
+        if (!r.ok) { hinweisSeite("Hinweis", d.error || "Dieser Link ist nicht mehr gültig."); return; }
         BRIEFKASTEN = { token: d.token, fall: d.fall };
-        daten.antworten.fallnummer = d.fall; daten.unbekannt.fallnummer = false;
-      } catch (e) {
-        app.innerHTML = `<h1>Hinweis</h1><p>Der Bogen konnte nicht geladen werden (keine Verbindung). Bitte später noch einmal öffnen.</p>`;
-        document.querySelector(".leiste").hidden = true; return;
-      }
+        daten.antworten.fallnummer = d.fall;
+      } catch (e) { hinweisSeite("Hinweis", "Der Anamnesebogen konnte nicht geladen werden (keine Verbindung). Bitte später noch einmal öffnen."); return; }
     }
+    if (!BRIEFKASTEN && !VORSCHAU) { hinweisSeite("Anamnesebogen", "Bitte öffnen Sie den Anamnesebogen über den persönlichen Link aus Ihrer Nachricht. Nur so kommen Ihre Antworten verschlüsselt bei mir an."); return; }
     render();
   }
   start();
