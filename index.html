@@ -101,7 +101,10 @@ window.BRIEFKASTEN_API = (function () { var a = 'https://xaevwixicuctfbfxnpfa.su
    Funktionsbereichen (ersetzt den 10-Zeilen-Score), Covid-Erkrankungen und -Impfungen, Medikamente mit Stärke und
    Einnahmeschema, Schnarchen mit Atempausen, Rauchen mit Art. Keine Haken für „weiß ich nicht“: Freilassen genügt.
    Nur noch Versand über den persönlichen Link (automatisch verschlüsselt), ohne Link nur Vorschau (#vorschau).
-   Schlüssel aus 2.x bleiben, wo die Frage bleibt. */
+   Schlüssel aus 2.x bleiben, wo die Frage bleibt.
+   3.2 (22.10.2026, Plan 5.1): Verlaufsbogen über art=verlauf im Link (Abschnitte in verlaufAbschnitte, gemeinsame
+   Fragen aus dem Anamnesebogen übernommen); im Anamnesebogen neu pem (Verschlechterung nach Anstrengung), esshygiene,
+   der Hinweis auf B12 in Multivitaminen und die Taillenmessung zwischen Rippe und Becken. */
 window.BOGEN = (function () {
   const HAEUFIG = ["nie", "selten", "mehrmals pro Woche", "täglich"];
   const CHECK_SKALA = ["gar nicht", "an einzelnen Tagen", "an mehr als der Hälfte der Tage", "fast täglich"];
@@ -168,7 +171,7 @@ window.BOGEN = (function () {
         { id: "geburtsdatum", typ: "datum", label: "Geburtsdatum", hilfe: "Damit ordne ich Ihre Laborbefunde sicher Ihnen zu." },
         { id: "groesse", typ: "number", label: "Körpergröße in cm", hilfe: "Ein ungefährer Wert genügt." },
         { id: "gewicht", typ: "number", label: "Aktuelles Gewicht in kg", hilfe: "Ein ungefährer Wert genügt." },
-        { id: "taille", typ: "number", label: "Taillenumfang in cm (auf Nabelhöhe, optional)", hilfe: "Ein Maßband reicht. Der Wert sagt mehr über den Stoffwechsel als das Gewicht allein." },
+        { id: "taille", typ: "number", label: "Taillenumfang in cm (optional)", hilfe: "Ein Maßband reicht. Gemessen in der Mitte zwischen unterster Rippe und Oberkante des Beckens. Der Wert sagt mehr über den Stoffwechsel als das Gewicht allein." },
         { id: "gewicht_verlauf", typ: "radio", label: "Wie hat sich Ihr Gewicht in den letzten zwölf Monaten entwickelt?", optionen: ["etwa gleich geblieben", "zugenommen, gewollt", "zugenommen, ungewollt", "abgenommen, gewollt", "abgenommen, ungewollt"] },
       ] },
     { id: "sicherheit", titel: "Wichtig für Ihre Sicherheit", intro: `<p>Diese Fragen entscheiden, was in Ihrem Fall empfohlen werden darf und was nicht.</p>`,
@@ -182,6 +185,7 @@ window.BOGEN = (function () {
         { id: "medikamente_gruppen", typ: "checks", label: "Nehmen Sie regelmäßig Medikamente aus diesen Gruppen?", hilfe: "Die genauen Namen kommen später in die Tabelle. Hier reicht die Gruppe.", optionen: ["Blutdruckmittel", "Herzmedikamente (z. B. Betablocker, Rhythmusmittel)", "Blutverdünner oder Gerinnungshemmer", "Cholesterinsenker (Statine)", "Diabetesmedikamente oder Insulin", "Abnehmspritzen (GLP-1)", "Schilddrüsenhormone", "Cortison als Dauertherapie", "Magensäureblocker (z. B. Pantoprazol, Omeprazol)", "Schmerzmittel regelmäßig (Ibuprofen, Diclofenac, ASS)", "Antidepressiva, Beruhigungs- oder Schlafmittel", "Lithium als verordnetes Medikament (z. B. Lithiumcarbonat)", "Lithiumorotat als Nahrungsergänzung", "Hormonpräparate (Pille, Hormonersatz, Testosteron)", "Antihistaminika", "Antibiotika in den letzten 12 Monaten", "Immunsuppressiva oder Biologika (z. B. Methotrexat)", "Medikamente gegen Epilepsie", "Krebstherapie oder antihormonelle Therapie", "Abführmittel regelmäßig", "keines davon"] },
         { id: "biotin", typ: "radio", label: "Nehmen Sie Biotin ein, auch versteckt in Präparaten für Haare, Haut und Nägel oder in Multivitaminen?", hilfe: "Biotin kann Blutwerte verfälschen, besonders die Schilddrüsenwerte. Vor einer Blutabnahme sprechen wir eine Pause ab.", optionen: ["nein", "ja", "weiß ich nicht"] },
         { id: "belastbarkeit", typ: "radio", label: "Wie belastbar sind Sie im Alltag?", optionen: ["normal belastbar", "eingeschränkt, Alltag geht", "stark eingeschränkt", "überwiegend bettlägerig"] },
+        { id: "pem", typ: "radio", label: "Geht es Ihnen nach körperlicher oder geistiger Anstrengung mit Verzögerung deutlich schlechter, etwa am nächsten Tag?", hilfe: "Zum Beispiel nach einem Spaziergang, einem langen Arbeitstag oder einem Besuch.", optionen: ["nein", "manchmal", "ja, regelmäßig"] },
       ] },
     { id: "beschwerden", titel: "Ihre Hauptbeschwerden und Ziele", intro: `<p>Was beschäftigt Sie am meisten? Bis zu fünf Punkte, die wichtigsten zuerst.</p>`,
       fragen: [
@@ -220,7 +224,7 @@ window.BOGEN = (function () {
           { id: "schema", typ: "text", label: "Wie oft und wann (z. B. morgens 1, nur bei Bedarf)" },
           { id: "seit", typ: "text", label: "Seit wann und wofür" },
         ] },
-        { id: "supplemente", typ: "liste", label: "Nahrungsergänzung, Hormone, pflanzliche Mittel", anzahl: 12, felder: [
+        { id: "supplemente", typ: "liste", label: "Nahrungsergänzung, Hormone, pflanzliche Mittel", hilfe: "Auch Multivitamine und angereicherte Drinks oder Riegel; sie enthalten oft Vitamin B12.", anzahl: 12, felder: [
           { id: "name", typ: "text", label: "Name (bei Kombiprodukten bitte die Inhaltsstoffe vom Etikett)" },
           { id: "dosis", typ: "text", label: "Menge und wie oft" },
           { id: "seit", typ: "text", label: "Seit wann, warum, wer hat es empfohlen" },
@@ -276,6 +280,7 @@ window.BOGEN = (function () {
         { id: "kostform", typ: "radio", label: "Wie würden Sie Ihre Ernährung beschreiben?", optionen: ["gemischt, ohne besondere Regeln", "überwiegend pflanzlich", "vegetarisch", "vegan", "kohlenhydratarm oder ketogen", "tierisch betont (viel Fleisch, Eier, Fisch)", "glutenfrei", "eine andere Form"] },
         { id: "mahlzeiten", typ: "radio", label: "Wie viele Mahlzeiten essen Sie an einem normalen Tag?", optionen: ["1", "2", "3", "4 oder mehr", "sehr unregelmäßig"] },
         { id: "fasten", typ: "radio", label: "Lassen Sie bewusst Mahlzeiten aus oder fasten Sie?", optionen: ["nein", "gelegentlich", "regelmäßig (z. B. Intervallfasten)"] },
+        { id: "esshygiene", typ: "radio", label: "Wie essen Sie meistens?", optionen: ["in Ruhe, am Tisch", "oft nebenbei (Bildschirm, Arbeit, unterwegs)", "meist sehr schnell"] },
         { id: "ern_matrix", typ: "matrix", label: "Wie oft essen oder trinken Sie das?", hilfe: "Eine Antwort je Zeile. Grobe Schätzung genügt.", optionen: HAEUFIG,
           zeilen: [
             { id: "fisch", label: "Fisch oder Meeresfrüchte" },
@@ -330,7 +335,34 @@ window.BOGEN = (function () {
       ] },
     { id: "ende", titel: "Fertig: Anamnesebogen senden", intro: "", fragen: [] },
   ];
-  return { version: "3.1", abschnitte, bereiche: BEREICHE, checkSkala: CHECK_SKALA, phqSkala: PHQ_SKALA, symptomZeilen: SYMPTOM_ZEILEN, phq4Zeilen: PHQ4_ZEILEN, geschlechtZeilen: GESCHLECHT_ZEILEN };
+  /* Verlaufsbogen (seit 3.2, Plan 5.1): derselbe Bogen mit dem Zusatz art=verlauf im Link. Er zeigt nur, was sich
+     seit der Auswertung verändert hat; gemeinsame Fragen werden aus dem Erstbogen übernommen, nicht kopiert. */
+  const abschnitt = (id) => abschnitte.find((a) => a.id === id);
+  const frage = (id) => abschnitte.flatMap((a) => a.fragen).find((f) => f.id === id);
+  const verlaufAbschnitte = [
+    { id: "vstart", titel: "Bevor es losgeht", intro: `<p>Dieser kurze Verlaufsbogen zeigt, was sich seit unserem letzten Stand verändert hat. Er wiederholt einige Fragen aus dem Anamnesebogen, damit wir vergleichen können.</p>
+      <div class="hinweis"><b>Alles ist freiwillig.</b> Was Sie nicht beantworten können, lassen Sie einfach frei. Dauer: etwa zehn Minuten.</div>`,
+      fragen: [frage("fallnummer"), frage("geschlecht"), frage("gewicht"), frage("taille")] },
+    { id: "vsicherheit", titel: "Wichtig für Ihre Sicherheit",
+      fragen: [frage("warnzeichen"), frage("warnzeichen_details"), frage("schwanger"), frage("kinderwunsch"),
+        { id: "neue_medikamente", typ: "radio", label: "Nehmen Sie seit unserem letzten Stand neue Medikamente, oder hat sich eine Dosis geändert?", optionen: ["nein", "ja"] },
+        { id: "neue_medikamente_text", typ: "textarea", wenn: { id: "neue_medikamente", ausser: ["nein"] }, label: "Welche, in welcher Stärke, seit wann und wofür?" },
+        { id: "neue_diagnosen", typ: "textarea", label: "Gab es seitdem neue Diagnosen, Operationen oder Krankenhausaufenthalte?" },
+        frage("belastbarkeit"), frage("pem")] },
+    { id: "vbeschwerden", titel: "Ihre Hauptbeschwerden heute", intro: `<p>Bitte dieselben Beschwerden wie im Anamnesebogen, jeweils mit der Stärke heute. Neue Beschwerden gern dazu.</p>`,
+      fragen: [frage("beschwerden")] },
+    { id: "vumsetzung", titel: "Was Sie umgesetzt haben", intro: `<p>Es gibt kein richtig oder falsch. Ehrliche Angaben helfen, den Plan an Ihren Alltag anzupassen.</p>`,
+      fragen: [
+        { id: "umsetzung", typ: "radio", label: "Wie viel von Ihrem Plan konnten Sie umsetzen?", optionen: ["fast alles", "das meiste", "etwa die Hälfte", "wenig", "noch nichts"] },
+        { id: "umsetzung_text", typ: "textarea", label: "Was hat gut geklappt, was war schwierig?" },
+        { id: "praeparate_einnahme", typ: "textarea", label: "Welche Präparate nehmen Sie, seit wann und wie regelmäßig?", hilfe: "Zum Beispiel: Vitamin D seit 1. März, fast täglich." },
+        { id: "vertraeglichkeit_verlauf", typ: "textarea", label: "Gab es Beschwerden oder Unverträglichkeiten mit einer Empfehlung oder einem Präparat?" },
+      ] },
+    abschnitt("befinden"), abschnitt("symptome"), abschnitt("symptome2"),
+    { id: "vschluss", titel: "Zum Schluss", fragen: [frage("fragen")] },
+    { ...abschnitt("ende"), titel: "Fertig: Verlaufsbogen senden" },
+  ];
+  return { version: "3.2", abschnitte, verlaufAbschnitte, bereiche: BEREICHE, checkSkala: CHECK_SKALA, phqSkala: PHQ_SKALA, symptomZeilen: SYMPTOM_ZEILEN, phq4Zeilen: PHQ4_ZEILEN, geschlechtZeilen: GESCHLECHT_ZEILEN };
 })();
 </script>
 <script>
@@ -340,7 +372,10 @@ window.BOGEN = (function () {
 (function () {
   const D = window.BOGEN;
   const BOGEN_VERSION = D.version;
-  const abschnitte = D.abschnitte;
+  /* Verlaufsbogen über art=verlauf im Link (Vorschau: #vorschau-verlauf); sonst der Anamnesebogen. */
+  const ART = new URLSearchParams(location.search).get("art") === "verlauf" || /vorschau-verlauf/.test(location.hash) ? "verlauf" : "erst";
+  const NAME = ART === "verlauf" ? "Verlaufsbogen" : "Anamnesebogen";
+  const abschnitte = ART === "verlauf" ? D.verlaufAbschnitte : D.abschnitte;
   let BRIEFKASTEN = window.BRIEFKASTEN && window.BRIEFKASTEN.token ? window.BRIEFKASTEN : null;
   const API = window.BRIEFKASTEN_API || null;
   const TOKEN_AUS_URL = (new URLSearchParams(location.search).get("t") || "").trim() || null;
@@ -383,7 +418,7 @@ window.BOGEN = (function () {
   /* Zwischenstand laden. Ein Altstand aus 2.x wird einmal übernommen, wenn er zur selben Fallnummer gehört;
      danach wird er in jedem Fall gelöscht, damit keine alten Gesundheitsangaben im Browser liegen bleiben. */
   async function ladeZwischenstand() {
-    SPEICHER = LINK ? `anamnesebogen-v3-${await fingerabdruck(LINK)}` : "anamnesebogen-vorschau";
+    SPEICHER = LINK ? `anamnesebogen-v3-${await fingerabdruck(LINK)}` : `anamnesebogen-vorschau${ART === "verlauf" ? "-verlauf" : ""}`;
     const liesSpeicher = (k) => { try { const s = localStorage.getItem(k); return s ? JSON.parse(s) : null; } catch (_) { return null; } };
     let geladen = uebernimm(liesSpeicher(SPEICHER));
     if (!geladen && BRIEFKASTEN && BRIEFKASTEN.fall) {
@@ -624,7 +659,7 @@ window.BOGEN = (function () {
   }
   function exportObjekt() {
     return {
-      bogen: "FM-Anamnesebogen", bogenVersion: BOGEN_VERSION, exportiert: new Date().toISOString(), fallnummer: daten.antworten.fallnummer || "",
+      bogen: "FM-Anamnesebogen", art: ART, bogenVersion: BOGEN_VERSION, exportiert: new Date().toISOString(), fallnummer: daten.antworten.fallnummer || "",
       antworten: daten.antworten, unbekannt: [],
       symptom_check: berechneSymptomCheck(), phq4: berechnePhq4(), zusammenfassung: zusammenfassung(),
     };
@@ -667,7 +702,7 @@ window.BOGEN = (function () {
     app.innerHTML = `<h1>Fertig</h1>
       <p>Sie haben ${n} von ${gesamt} Fragen beantwortet. Das reicht, auch wenn Lücken bleiben.</p>
       <div class="hinweis">Mit dem Knopf werden Ihre Antworten auf diesem Gerät verschlüsselt und an mich übertragen. Nur ich kann sie lesen. Nach dem Senden werden die Antworten auf diesem Gerät automatisch gelöscht.</div>
-      <div class="aktionen"><button class="knopf" type="button" id="absenden">Anamnesebogen speichern und senden</button></div>
+      <div class="aktionen"><button class="knopf" type="button" id="absenden">${NAME} speichern und senden</button></div>
       <h2>Ihre Antworten in der Übersicht</h2>
       <div class="uebersicht">${uebersichtHtml()}</div>`;
     document.getElementById("absenden").addEventListener("click", async () => {
@@ -675,9 +710,9 @@ window.BOGEN = (function () {
       try {
         await sendeVerschluesselt();
         try { localStorage.removeItem(SPEICHER); } catch (_) {}
-        app.innerHTML = `<h1>Vielen Dank</h1><p>Ihr Anamnesebogen ist bei mir angekommen. Die Antworten sind auf diesem Gerät gelöscht. Sie können dieses Fenster jetzt schließen.</p>`;
+        app.innerHTML = `<h1>Vielen Dank</h1><p>Ihr ${NAME} ist bei mir angekommen. Die Antworten sind auf diesem Gerät gelöscht. Sie können dieses Fenster jetzt schließen.</p>`;
         document.querySelector(".leiste").hidden = true;
-      } catch (e) { meldung(e.message, true); b.disabled = false; b.textContent = "Anamnesebogen speichern und senden"; }
+      } catch (e) { meldung(e.message, true); b.disabled = false; b.textContent = `${NAME} speichern und senden`; }
     });
   }
 
@@ -691,16 +726,19 @@ window.BOGEN = (function () {
   }
   /* Statisch gehostet: Kontext zum Token vom Server holen, dann rendern. Ohne Link nur Hinweis oder Vorschau. */
   async function start() {
+    document.title = NAME;
+    const kopfTitel = document.querySelector(".kopf .titel");
+    if (kopfTitel) kopfTitel.textContent = `${NAME} · vertraulich`;
     if (API && TOKEN_AUS_URL && !BRIEFKASTEN) {
-      app.innerHTML = '<p class="leer">Anamnesebogen wird geladen …</p>';
+      app.innerHTML = `<p class="leer">${NAME} wird geladen …</p>`;
       try {
         const r = await fetch(`${API}/kontext?t=${encodeURIComponent(TOKEN_AUS_URL)}`);
         const d = await r.json().catch(() => ({}));
         if (!r.ok) { hinweisSeite("Hinweis", d.error || "Dieser Link ist nicht mehr gültig."); return; }
         BRIEFKASTEN = { token: d.token, fall: d.fall };
-      } catch (e) { hinweisSeite("Hinweis", "Der Anamnesebogen konnte nicht geladen werden (keine Verbindung). Bitte später noch einmal öffnen."); return; }
+      } catch (e) { hinweisSeite("Hinweis", `Der ${NAME} konnte nicht geladen werden (keine Verbindung). Bitte später noch einmal öffnen.`); return; }
     }
-    if (!BRIEFKASTEN && !VORSCHAU) { hinweisSeite("Anamnesebogen", "Bitte öffnen Sie den Anamnesebogen über den persönlichen Link aus Ihrer Nachricht. Nur so kommen Ihre Antworten verschlüsselt bei mir an."); return; }
+    if (!BRIEFKASTEN && !VORSCHAU) { hinweisSeite(NAME, `Bitte öffnen Sie den ${NAME} über den persönlichen Link aus Ihrer Nachricht. Nur so kommen Ihre Antworten verschlüsselt bei mir an.`); return; }
     await ladeZwischenstand();
     render();
   }
