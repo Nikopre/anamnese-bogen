@@ -106,10 +106,16 @@ window.BRIEFKASTEN_API = (function () { var a = 'https://xaevwixicuctfbfxnpfa.su
    Fragen aus dem Anamnesebogen übernommen); im Anamnesebogen neu pem (Verschlechterung nach Anstrengung), esshygiene,
    der Hinweis auf B12 in Multivitaminen und die Taillenmessung zwischen Rippe und Becken.
    Ergänzung 05.11.2026 (Lückenliste Advanced A1.24): Paracetamol in der Option Schmerzmittel regelmäßig, damit der
-   Organ-Prüfmodus Leber die regelmäßige Einnahme sieht; Schlüssel und Version bleiben (wie bei SP-4 und Z4). */
+   Organ-Prüfmodus Leber die regelmäßige Einnahme sieht; Schlüssel und Version bleiben (wie bei SP-4 und Z4).
+   3.3 (06.11.2026, Klärliste GP-3 und GP-4, Entscheidung Niko): Die Blöcke speziell für Frauen und Männer fragen
+   nach der Stärke in den letzten Monaten (GESCHLECHT_SKALA, weiter 0 bis 3 Punkte je Zeile); die alte Zeile sy_m_2
+   ist geteilt in sy_m_4 (Muskelabbau) und sy_m_5 (Fett an der Brust). Die Kindheitsfrage hat das Gegenstück
+   natürliche Geburt, und die Hilfe sagt, dass man Unbekanntes freilässt. */
 window.BOGEN = (function () {
   const HAEUFIG = ["nie", "selten", "mehrmals pro Woche", "täglich"];
   const CHECK_SKALA = ["gar nicht", "an einzelnen Tagen", "an mehr als der Hälfte der Tage", "fast täglich"];
+  /* Ab 3.3 für die Blöcke speziell für Frauen und Männer: Zustände lassen sich nicht nach Tagen zählen (GP-3). */
+  const GESCHLECHT_SKALA = ["nein", "etwas", "deutlich", "stark"];
   /* PHQ-4 (Kroenke 2009, deutsche Normierung Löwe 2010), frei nutzbar laut phqscreeners.com.
      Am 17.10.2026 gegen die offiziellen Fassungen auf phqscreeners.com geprüft: Einleitungsfrage, Skala und
      Fragen 1 und 2 wortgleich mit PHQ-9 (German for Germany), Fragen 3 und 4 wortgleich mit GAD-7 (deutsche
@@ -159,7 +165,8 @@ window.BOGEN = (function () {
     ],
     männlich: [
       { id: "sy_m_1", label: "Weniger Lust auf Sex oder Erektionsprobleme" },
-      { id: "sy_m_2", label: "Muskeln bauen ab, oder an der Brust lagert sich Fett an" },
+      { id: "sy_m_4", label: "Muskeln bauen ab" },
+      { id: "sy_m_5", label: "An der Brust lagert sich Fett an" },
       { id: "sy_m_3", label: "Schwacher Harnstrahl oder Nachtröpfeln" },
     ],
   };
@@ -213,8 +220,8 @@ window.BOGEN = (function () {
     { id: "symptome2", titel: "Symptom-Check, Teil 2: Schlaf, Hormone, Muskeln, Nerven", intro: `<p>Weiter wie im ersten Teil: Wie oft in den letzten <b>vier Wochen</b>?</p>`,
       fragen: [
         { id: "symptom_check2", typ: "matrix", auswertung: "symptom", label: "Wie oft in den letzten vier Wochen?", optionen: CHECK_SKALA, zeilen: SYMPTOM_ZEILEN.slice(15) },
-        { id: "symptom_frau", typ: "matrix", nurFuer: "weiblich", label: "Speziell für Frauen", optionen: CHECK_SKALA, zeilen: GESCHLECHT_ZEILEN.weiblich },
-        { id: "symptom_mann", typ: "matrix", nurFuer: "männlich", label: "Speziell für Männer", optionen: CHECK_SKALA, zeilen: GESCHLECHT_ZEILEN.männlich },
+        { id: "symptom_frau", typ: "matrix", nurFuer: "weiblich", label: "Speziell für Frauen: Wie stark in den letzten Monaten?", optionen: GESCHLECHT_SKALA, zeilen: GESCHLECHT_ZEILEN.weiblich },
+        { id: "symptom_mann", typ: "matrix", nurFuer: "männlich", label: "Speziell für Männer: Wie stark in den letzten Monaten?", optionen: GESCHLECHT_SKALA, zeilen: GESCHLECHT_ZEILEN.männlich },
         { id: "s_sonst", typ: "textarea", label: "Zusätzliche Anmerkungen (optional)" },
       ] },
     { id: "medikation", titel: "Medikamente und Präparate", intro: `<p>Bitte alles aufführen, was Sie regelmäßig oder bei Bedarf einnehmen, auch Nahrungsergänzung, Hormone, Cremes und pflanzliche Mittel. Wenn Sie die Stärke nicht wissen, reicht der Name.</p>
@@ -241,8 +248,8 @@ window.BOGEN = (function () {
         { id: "diag_organe", typ: "checks", label: "Organe und Infektionen", optionen: ["Nierenerkrankung oder Nierensteine", "Lebererkrankung oder Hepatitis", "Gallensteine oder Gallenblase entfernt", "Bauchspeicheldrüsenentzündung", "COPD oder chronische Bronchitis", "Schlafapnoe", "Blutarmut (Anämie)", "Eisenüberladung (Hämochromatose)", "Pfeiffersches Drüsenfieber (EBV)", "Borreliose", "Long Covid", "Häufige Harnwegs- oder Blaseninfekte", "Krebserkrankung (früher oder aktuell)", "keines davon"] },
         { id: "diag_neuro_psyche", typ: "checks", label: "Nerven, Psyche, Schlaf", optionen: ["Migräne", "Neuropathie (Kribbeln, Taubheit)", "Epilepsie", "Multiple Sklerose", "Gehirnerschütterung oder Kopfverletzung", "Depression", "Angststörung oder Panikattacken", "Burnout", "ADHS", "Essstörung (aktuell oder früher)", "Schlafstörung", "Tinnitus", "keines davon"] },
         { id: "diagnosen_text", typ: "textarea", label: "Weitere Diagnosen oder Details zu den angekreuzten Punkten (seit wann, wie behandelt)" },
-        { id: "kindheit", typ: "checks", label: "Was trifft auf Ihre Kindheit zu?", hilfe: "Prägt Immunsystem und Darmflora oft bis ins Erwachsenenalter.",
-          optionen: ["Kaiserschnitt", "gestillt worden", "nicht gestillt worden", "häufige Antibiotika in der Kindheit", "häufige Infekte in der Kindheit", "Mandeln oder Rachenmandeln entfernt", "nichts davon"] },
+        { id: "kindheit", typ: "checks", label: "Was trifft auf Ihre Kindheit zu?", hilfe: "Prägt Immunsystem und Darmflora oft bis ins Erwachsenenalter. Was Sie nicht wissen, zum Beispiel weil Sie adoptiert sind, lassen Sie frei.",
+          optionen: ["natürliche Geburt", "Kaiserschnitt", "gestillt worden", "nicht gestillt worden", "häufige Antibiotika in der Kindheit", "häufige Infekte in der Kindheit", "Mandeln oder Rachenmandeln entfernt", "nichts davon"] },
       ] },
     { id: "herzkreislauf", titel: "Herz, Kreislauf und vorhandene Befunde", intro: `<p>Herz und Gefäße bestimmen mit, welche Empfehlungen sicher sind. Bitte auch frühere Ereignisse angeben.</p>`,
       fragen: [
@@ -364,7 +371,7 @@ window.BOGEN = (function () {
     { id: "vschluss", titel: "Zum Schluss", fragen: [frage("fragen")] },
     { ...abschnitt("ende"), titel: "Fertig: Verlaufsbogen senden" },
   ];
-  return { version: "3.2", abschnitte, verlaufAbschnitte, bereiche: BEREICHE, checkSkala: CHECK_SKALA, phqSkala: PHQ_SKALA, symptomZeilen: SYMPTOM_ZEILEN, phq4Zeilen: PHQ4_ZEILEN, geschlechtZeilen: GESCHLECHT_ZEILEN };
+  return { version: "3.3", abschnitte, verlaufAbschnitte, bereiche: BEREICHE, checkSkala: CHECK_SKALA, geschlechtSkala: GESCHLECHT_SKALA, phqSkala: PHQ_SKALA, symptomZeilen: SYMPTOM_ZEILEN, phq4Zeilen: PHQ4_ZEILEN, geschlechtZeilen: GESCHLECHT_ZEILEN };
 })();
 </script>
 <script>
@@ -554,9 +561,9 @@ window.BOGEN = (function () {
     const punkte = D.symptomZeilen.map((z) => D.checkSkala.indexOf(daten.antworten[z.id]));
     const beantwortet = punkte.filter((p) => p >= 0).length;
     const g = daten.antworten.geschlecht;
-    const geschlechtsteil = D.geschlechtZeilen[g] ? teilsumme(D.geschlechtZeilen[g].map((z) => z.id), D.checkSkala) : { wert: null, vollstaendig: false };
+    const geschlechtsteil = D.geschlechtZeilen[g] ? teilsumme(D.geschlechtZeilen[g].map((z) => z.id), D.geschlechtSkala) : { wert: null, vollstaendig: false };
     return {
-      version: "3.0", zeitraum: "letzte 4 Wochen", skala: D.checkSkala, bereiche,
+      version: "3.0", zeitraum: "letzte 4 Wochen", skala: D.checkSkala, geschlechtSkala: D.geschlechtSkala, bereiche,
       gesamt: beantwortet === D.symptomZeilen.length ? punkte.reduce((a, b) => a + b, 0) : null, max: 81,
       beantwortet, zeilen_mit_wert: punkte.filter((p) => p >= 1).length, geschlechtsteil,
     };
