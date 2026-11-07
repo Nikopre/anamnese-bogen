@@ -110,12 +110,22 @@ window.BRIEFKASTEN_API = (function () { var a = 'https://xaevwixicuctfbfxnpfa.su
    3.3 (06.11.2026, Klärliste GP-3 und GP-4, Entscheidung Niko): Die Blöcke speziell für Frauen und Männer fragen
    nach der Stärke in den letzten Monaten (GESCHLECHT_SKALA, weiter 0 bis 3 Punkte je Zeile); die alte Zeile sy_m_2
    ist geteilt in sy_m_4 (Muskelabbau) und sy_m_5 (Fett an der Brust). Die Kindheitsfrage hat das Gegenstück
-   natürliche Geburt, und die Hilfe sagt, dass man Unbekanntes freilässt. */
+   natürliche Geburt, und die Hilfe sagt, dass man Unbekanntes freilässt.
+   3.4 (06.11.2026, Durchsicht Niko): Fallnummer nicht mehr sichtbar (kommt aus dem Link); kein Abklärungssatz unter den
+   Warnzeichen (fragt Niko im Gespräch); Schwangerschaft ohne möglich, Kinderwunsch nur ja oder nein; Pille, Verhütung
+   und Hormone nur noch bei den Medikamenten (Frage verhuetung entfällt), Lithiumorotat als eigene Frage bei der
+   Nahrungsergänzung; Belastbarkeit als Skala 1 bis 10; Verlauf der Beschwerden ohne besser; Ziel und Energie einfacher
+   gefragt; Symptom-Check ohne die Stuhlzeilen sy_b3_1 und sy_b3_2 (Häufigkeit und Bristol-Form stehen jetzt direkt
+   dahinter) und ohne die Hautzeile sy_b4_3 (eigene Frage haut), neu sy_b7_4 Schweißausbrüche oder Hitzegefühl;
+   Rauchen mit Menge bei täglich; erster Tag der letzten Regel entfällt; Brille statt Frage nach großer Schrift.
+   Wortlaut 07.11.2026 (Durchsicht Niko, gleiche Version): durchgehend medizinische Fachsprache, Laienerklärung in
+   Klammern; Stärke für Frauen und Männer nein, leicht, mäßig, stark; Verlauf gleichbleibend, zunehmend, wechselnd.
+   Unverändert: PHQ-4 (validierter Wortlaut), Bristol-Stuhlformen, Häufigkeitsskala des Symptom-Checks. */
 window.BOGEN = (function () {
   const HAEUFIG = ["nie", "selten", "mehrmals pro Woche", "täglich"];
   const CHECK_SKALA = ["gar nicht", "an einzelnen Tagen", "an mehr als der Hälfte der Tage", "fast täglich"];
   /* Ab 3.3 für die Blöcke speziell für Frauen und Männer: Zustände lassen sich nicht nach Tagen zählen (GP-3). */
-  const GESCHLECHT_SKALA = ["nein", "etwas", "deutlich", "stark"];
+  const GESCHLECHT_SKALA = ["nein", "leicht", "mäßig", "stark"];
   /* PHQ-4 (Kroenke 2009, deutsche Normierung Löwe 2010), frei nutzbar laut phqscreeners.com.
      Am 17.10.2026 gegen die offiziellen Fassungen auf phqscreeners.com geprüft: Einleitungsfrage, Skala und
      Fragen 1 und 2 wortgleich mit PHQ-9 (German for Germany), Fragen 3 und 4 wortgleich mit GAD-7 (deutsche
@@ -127,152 +137,157 @@ window.BOGEN = (function () {
     { id: "phq_3", label: "Gefühle der Nervosität, Ängstlichkeit oder Anspannung" },
     { id: "phq_4", label: "Unfähigkeit, Sorgen zu stoppen oder zu kontrollieren" },
   ];
-  const BEREICHE = { B1: "Magen", B2: "Fettverdauung und Dünndarm", B3: "Darm und Stuhlgang", B4: "Reaktionen", B5: "Blutzucker", B6: "Stress und Schlaf", B7: "Schilddrüse und Wärme", B8: "Muskeln, Gelenke, Mineralstoffe", B9: "Kopf und Nerven" };
+  const BEREICHE = { B1: "Magen", B2: "Verdauung und Fettverträglichkeit", B3: "Darm", B4: "Unverträglichkeiten und Empfindlichkeiten", B5: "Blutzuckerregulation", B6: "Schlaf", B7: "Wärmehaushalt, Gewicht, Haut und Haare", B8: "Muskeln, Gelenke und Kreislauf", B9: "Kopf und Nervensystem" };
   const SYMPTOM_ZEILEN = [
-    { id: "sy_b1_1", bereich: "B1", label: "Völlegefühl nach dem Essen oder schon nach kleinen Mengen satt" },
-    { id: "sy_b1_2", bereich: "B1", label: "Sodbrennen oder saures Aufstoßen" },
-    { id: "sy_b1_3", bereich: "B1", label: "Übelkeit oder Aufstoßen nach Mahlzeiten" },
-    { id: "sy_b2_1", bereich: "B2", label: "Aufgeblähter Bauch nach Brot, Nudeln, Hülsenfrüchten oder Rohkost" },
-    { id: "sy_b2_2", bereich: "B2", label: "Druck im Oberbauch nach fettem Essen" },
-    { id: "sy_b2_3", bereich: "B2", label: "Fettiger, glänzender oder schwer wegzuspülender Stuhl" },
-    { id: "sy_b3_1", bereich: "B3", label: "Verstopfung oder harter Stuhl" },
-    { id: "sy_b3_2", bereich: "B3", label: "Durchfall oder sehr weicher Stuhl" },
-    { id: "sy_b3_3", bereich: "B3", label: "Bauchschmerzen, die nach dem Stuhlgang nachlassen" },
-    { id: "sy_b4_1", bereich: "B4", label: "Beschwerden nach Lebensmitteln, die Sie früher gut vertragen haben" },
-    { id: "sy_b4_2", bereich: "B4", label: "Reaktion auf Duftstoffe, Reinigungsmittel oder Modeschmuck" },
-    { id: "sy_b4_3", bereich: "B4", label: "Hautausschlag, Juckreiz oder Ekzem" },
-    { id: "sy_b5_1", bereich: "B5", label: "Zittrig, gereizt oder unkonzentriert, wenn eine Mahlzeit ausfällt" },
-    { id: "sy_b5_2", bereich: "B5", label: "Müde oder schläfrig nach dem Essen" },
-    { id: "sy_b5_3", bereich: "B5", label: "Starkes Verlangen nach Süßem" },
-    { id: "sy_b6_1", bereich: "B6", label: "Abends innerlich aufgedreht, das Einschlafen dauert lange" },
-    { id: "sy_b6_2", bereich: "B6", label: "Nachts wach und danach schwer wieder eingeschlafen" },
-    { id: "sy_b6_3", bereich: "B6", label: "Morgens unausgeschlafen, obwohl genug Zeit im Bett war" },
-    { id: "sy_b7_1", bereich: "B7", label: "Frieren oder kalte Hände und Füße" },
-    { id: "sy_b7_2", bereich: "B7", label: "Gewichtszunahme, ohne mehr zu essen" },
-    { id: "sy_b7_3", bereich: "B7", label: "Trockene Haut oder dünner werdendes Haar" },
+    { id: "sy_b1_1", bereich: "B1", label: "Völlegefühl oder frühes Sättigungsgefühl nach dem Essen" },
+    { id: "sy_b1_2", bereich: "B1", label: "Sodbrennen oder saures Aufstoßen (Reflux)" },
+    { id: "sy_b1_3", bereich: "B1", label: "Übelkeit oder Aufstoßen nach den Mahlzeiten" },
+    { id: "sy_b2_1", bereich: "B2", label: "Blähungen oder Blähbauch nach Brot, Nudeln, Hülsenfrüchten oder Rohkost" },
+    { id: "sy_b2_2", bereich: "B2", label: "Druckgefühl im Oberbauch nach fettreichen Mahlzeiten" },
+    { id: "sy_b2_3", bereich: "B2", label: "Fettglänzender Stuhl" },
+    { id: "sy_b3_3", bereich: "B3", label: "Bauchschmerzen, die sich nach dem Stuhlgang bessern" },
+    { id: "sy_b4_1", bereich: "B4", label: "Unverträglichkeitsreaktionen auf Lebensmittel, die Sie früher gut vertragen haben" },
+    { id: "sy_b4_2", bereich: "B4", label: "Empfindlichkeit gegenüber Duftstoffen, Reinigungsmitteln oder Modeschmuck" },
+    { id: "sy_b5_1", bereich: "B5", label: "Zittern, Reizbarkeit oder Konzentrationsstörungen, wenn eine Mahlzeit ausfällt" },
+    { id: "sy_b5_2", bereich: "B5", label: "Müdigkeit nach dem Essen" },
+    { id: "sy_b5_3", bereich: "B5", label: "Heißhunger auf Süßes" },
+    { id: "sy_b6_1", bereich: "B6", label: "Einschlafstörungen, weil Sie abends nicht abschalten können (Gedankenkreisen)" },
+    { id: "sy_b6_2", bereich: "B6", label: "Durchschlafstörungen (nächtliches Erwachen, erschwertes Wiedereinschlafen)" },
+    { id: "sy_b6_3", bereich: "B6", label: "Nicht erholsamer Schlaf (morgens unausgeschlafen trotz ausreichender Schlafdauer)" },
+    { id: "sy_b7_1", bereich: "B7", label: "Kälteempfindlichkeit oder kalte Hände und Füße" },
+    { id: "sy_b7_2", bereich: "B7", label: "Gewichtszunahme ohne veränderte Ernährung" },
+    { id: "sy_b7_3", bereich: "B7", label: "Trockene Haut oder Haarausfall" },
+    { id: "sy_b7_4", bereich: "B7", label: "Schweißausbrüche oder Wärmeunverträglichkeit" },
     { id: "sy_b8_1", bereich: "B8", label: "Muskelkrämpfe oder Muskelzucken" },
-    { id: "sy_b8_2", bereich: "B8", label: "Gelenkschmerzen oder Steifigkeit am Morgen" },
-    { id: "sy_b8_3", bereich: "B8", label: "Schwindel, wenn Sie schnell aufstehen" },
+    { id: "sy_b8_2", bereich: "B8", label: "Gelenkschmerzen oder Morgensteifigkeit" },
+    { id: "sy_b8_3", bereich: "B8", label: "Schwindel beim raschen Aufstehen" },
     { id: "sy_b9_1", bereich: "B9", label: "Kopfschmerzen" },
-    { id: "sy_b9_2", bereich: "B9", label: "Konzentration oder Gedächtnis lassen nach" },
-    { id: "sy_b9_3", bereich: "B9", label: "Kribbeln oder Taubheitsgefühle" },
+    { id: "sy_b9_2", bereich: "B9", label: "Konzentrations- und Gedächtnisstörungen" },
+    { id: "sy_b9_3", bereich: "B9", label: "Kribbeln oder Taubheitsgefühle (Missempfindungen)" },
   ];
+  /* Stuhlgang nur noch hier, direkt hinter Teil 1 des Symptom-Checks (3.4, keine Doppelung mit den alten Zeilen sy_b3_1 und sy_b3_2) */
+  const STUHL_FREQUENZ = { id: "stuhl_frequenz", typ: "radio", label: "Wie häufig haben Sie Stuhlgang?", optionen: ["seltener als jeden zweiten Tag", "jeden zweiten Tag", "täglich", "2 bis 3 Mal am Tag", "häufiger"] };
+  const STUHL_FORM = { id: "stuhl_form", typ: "radio", label: "Welche Stuhlform haben Sie überwiegend?", hilfe: "Einteilung nach der Bristol-Stuhlformen-Skala.", optionen: ["Typ 1: einzelne, harte Kügelchen", "Typ 2: wurstförmig, aber klumpig und hart", "Typ 3: wurstförmig mit Rissen an der Oberfläche", "Typ 4: glatt und weich, wie eine Wurst", "Typ 5: weiche Stücke mit klaren Rändern", "Typ 6: breiig, mit ausgefransten Rändern", "Typ 7: wässrig, ohne feste Stücke", "wechselt stark"] };
+  const TEIL1 = ["B1", "B2", "B3", "B4", "B5"];
   const GESCHLECHT_ZEILEN = {
     weiblich: [
-      { id: "sy_f_1", label: "Beschwerden in den Tagen vor der Periode (Stimmung, Brustspannen, Wassereinlagerung)" },
-      { id: "sy_f_2", label: "Starke oder sehr schmerzhafte Periode" },
+      { id: "sy_f_1", label: "Prämenstruelle Beschwerden (Stimmungsschwankungen, Brustspannen, Wassereinlagerungen)" },
+      { id: "sy_f_2", label: "Starke oder schmerzhafte Regelblutung" },
       { id: "sy_f_3", label: "Hitzewallungen oder trockene Schleimhäute" },
     ],
     männlich: [
-      { id: "sy_m_1", label: "Weniger Lust auf Sex oder Erektionsprobleme" },
-      { id: "sy_m_4", label: "Muskeln bauen ab" },
-      { id: "sy_m_5", label: "An der Brust lagert sich Fett an" },
-      { id: "sy_m_3", label: "Schwacher Harnstrahl oder Nachtröpfeln" },
+      { id: "sy_m_1", label: "Libidoverlust oder Erektionsstörungen" },
+      { id: "sy_m_4", label: "Abnahme der Muskelmasse" },
+      { id: "sy_m_5", label: "Fettanlagerung an der Brust in letzter Zeit oder in den letzten Jahren" },
+      { id: "sy_m_3", label: "Abgeschwächter Harnstrahl oder Nachträufeln" },
     ],
   };
 
   const abschnitte = [
-    { id: "start", titel: "Bevor es losgeht", intro: `<p>Dieser Anamnesebogen hilft mir, Ihre Situation gründlich zu verstehen, bevor wir sprechen. Je mehr Sie beantworten, desto genauer wird die Einordnung.</p>
-      <div class="hinweis"><b>Alles ist freiwillig.</b> Was Sie nicht beantworten können, lassen Sie einfach frei. Ihre Antworten bleiben auf diesem Gerät, bis Sie den Anamnesebogen am Ende senden. Dauer: etwa 30 Minuten, gern in mehreren Etappen.</div>`,
+    { id: "start", titel: "Einleitung", intro: `<p>Mit diesem Anamnesebogen erfasse ich Ihre gesundheitliche Vorgeschichte vor unserem Gespräch. Je vollständiger Ihre Angaben, desto genauer die Einordnung.</p>
+      <div class="hinweis"><b>Alle Angaben sind freiwillig.</b> Fragen, die Sie nicht beantworten können, lassen Sie frei. Ihre Antworten bleiben auf diesem Gerät gespeichert, bis Sie den Anamnesebogen am Ende absenden. Bearbeitungszeit etwa 30 Minuten; Sie können jederzeit unterbrechen.</div>`,
       fragen: [
         { id: "fallnummer", typ: "fallnummer", label: "Ihre Fallnummer" },
         { id: "geschlecht", typ: "radio", label: "Geschlecht", optionen: ["weiblich", "männlich"] },
-        { id: "geburtsdatum", typ: "datum", label: "Geburtsdatum", hilfe: "Damit ordne ich Ihre Laborbefunde sicher Ihnen zu." },
+        { id: "geburtsdatum", typ: "datum", label: "Geburtsdatum", hilfe: "Dient der eindeutigen Zuordnung Ihrer Laborbefunde." },
         { id: "groesse", typ: "number", label: "Körpergröße in cm", hilfe: "Ein ungefährer Wert genügt." },
-        { id: "gewicht", typ: "number", label: "Aktuelles Gewicht in kg", hilfe: "Ein ungefährer Wert genügt." },
-        { id: "taille", typ: "number", label: "Taillenumfang in cm (optional)", hilfe: "Ein Maßband reicht. Gemessen in der Mitte zwischen unterster Rippe und Oberkante des Beckens. Der Wert sagt mehr über den Stoffwechsel als das Gewicht allein." },
-        { id: "gewicht_verlauf", typ: "radio", label: "Wie hat sich Ihr Gewicht in den letzten zwölf Monaten entwickelt?", optionen: ["etwa gleich geblieben", "zugenommen, gewollt", "zugenommen, ungewollt", "abgenommen, gewollt", "abgenommen, ungewollt"] },
+        { id: "gewicht", typ: "number", label: "Aktuelles Körpergewicht", hilfe: "Ein ungefährer Wert genügt." },
+        { id: "taille", typ: "number", label: "Taillenumfang in cm (optional)", hilfe: "Messung mit einem Maßband in der Mitte zwischen unterem Rippenbogen und Beckenkamm. Der Taillenumfang sagt mehr über den Stoffwechsel aus als das Gewicht allein." },
+        { id: "gewicht_verlauf", typ: "radio", label: "Wie hat sich Ihr Körpergewicht in den letzten zwölf Monaten verändert?", optionen: ["unverändert", "Zunahme, gewollt", "Zunahme, ungewollt", "Abnahme, gewollt", "Abnahme, ungewollt"] },
       ] },
-    { id: "sicherheit", titel: "Wichtig für Ihre Sicherheit", intro: `<p>Diese Fragen entscheiden, was in Ihrem Fall empfohlen werden darf und was nicht.</p>`,
+    { id: "sicherheit", titel: "Angaben zu Ihrer Sicherheit", intro: `<p>Diese Angaben bestimmen, welche Empfehlungen in Ihrem Fall infrage kommen.</p>`,
       fragen: [
-        { id: "warnzeichen", typ: "checks", label: "Gab es in den letzten Wochen eines dieser Zeichen?", hilfe: "Wenn ja: Bitte zeitnah abklären lassen, möglichst noch vor unserem Gespräch.",
-          optionen: ["ungewollter Gewichtsverlust von mehr als 5 Prozent in sechs Monaten (bei 70 kg etwa 3,5 kg)", "Blut im Stuhl oder Urin, schwarzer Stuhl", "Gelbfärbung von Haut oder Augen, sehr heller Stuhl oder dunkler Urin", "starker Durst mit häufigem Wasserlassen", "Schluckbeschwerden oder wiederholtes Erbrechen", "Brustdruck oder Atemnot bei Belastung", "Herzrasen in Ruhe, Herzstolpern oder Neigung zu Ohnmacht", "Wadenschmerz beim Gehen, der im Stehen vergeht", "neu geschwollene Beine", "Fieber oder Nachtschweiß über mehr als zwei Wochen", "neue, starke Kopfschmerzen oder Sehstörungen", "tastbare Knoten oder Lymphknoten, die länger als zwei Wochen bleiben", "Blutung nach den Wechseljahren oder zwischen den Perioden", "anhaltende Schmerzen im linken Oberbauch", "nichts davon"] },
-        { id: "warnzeichen_details", typ: "textarea", wenn: { id: "warnzeichen", ausser: ["nichts davon"] }, label: "Wie oft treten diese Zeichen auf, und seit wann?", hilfe: "Zum Beispiel: Blut im Stuhl etwa einmal pro Woche, seit März." },
-        { id: "schwanger", typ: "radio", nurFuer: "weiblich", label: "Sind Sie schwanger oder stillen Sie?", optionen: ["nein", "ja, schwanger", "ja, ich stille", "möglich, nicht sicher"] },
-        { id: "kinderwunsch", typ: "radio", label: "Besteht bei Ihnen ein Kinderwunsch?", optionen: ["nein", "ja, in den nächsten zwölf Monaten", "vielleicht später"] },
-        { id: "krebs", typ: "radio", label: "Gibt es aktuell eine Krebserkrankung oder eine Krebsbehandlung in den letzten zwei Jahren?", optionen: ["nein", "ja"] },
-        { id: "medikamente_gruppen", typ: "checks", label: "Nehmen Sie regelmäßig Medikamente aus diesen Gruppen?", hilfe: "Die genauen Namen kommen später in die Tabelle. Hier reicht die Gruppe.", optionen: ["Blutdruckmittel", "Herzmedikamente (z. B. Betablocker, Rhythmusmittel)", "Blutverdünner oder Gerinnungshemmer", "Cholesterinsenker (Statine)", "Diabetesmedikamente oder Insulin", "Abnehmspritzen (GLP-1)", "Schilddrüsenhormone", "Cortison als Dauertherapie", "Magensäureblocker (z. B. Pantoprazol, Omeprazol)", "Schmerzmittel regelmäßig (Ibuprofen, Diclofenac, ASS, Paracetamol)", "Antidepressiva, Beruhigungs- oder Schlafmittel", "Lithium als verordnetes Medikament (z. B. Lithiumcarbonat)", "Lithiumorotat als Nahrungsergänzung", "Hormonpräparate (Pille, Hormonersatz, Testosteron)", "Antihistaminika", "Antibiotika in den letzten 12 Monaten", "Immunsuppressiva oder Biologika (z. B. Methotrexat)", "Medikamente gegen Epilepsie", "Krebstherapie oder antihormonelle Therapie", "Abführmittel regelmäßig", "keines davon"] },
-        { id: "biotin", typ: "radio", label: "Nehmen Sie Biotin ein, auch versteckt in Präparaten für Haare, Haut und Nägel oder in Multivitaminen?", hilfe: "Biotin kann Blutwerte verfälschen, besonders die Schilddrüsenwerte. Vor einer Blutabnahme sprechen wir eine Pause ab.", optionen: ["nein", "ja", "weiß ich nicht"] },
-        { id: "belastbarkeit", typ: "radio", label: "Wie belastbar sind Sie im Alltag?", optionen: ["normal belastbar", "eingeschränkt, Alltag geht", "stark eingeschränkt", "überwiegend bettlägerig"] },
-        { id: "pem", typ: "radio", label: "Geht es Ihnen nach körperlicher oder geistiger Anstrengung mit Verzögerung deutlich schlechter, etwa am nächsten Tag?", hilfe: "Zum Beispiel nach einem Spaziergang, einem langen Arbeitstag oder einem Besuch.", optionen: ["nein", "manchmal", "ja, regelmäßig"] },
+        { id: "warnzeichen", typ: "checks", label: "Hatten Sie in den letzten Wochen eines der folgenden Symptome?",
+          optionen: ["ungewollter Gewichtsverlust von mehr als 5 Prozent in sechs Monaten (bei 70 kg etwa 3,5 kg)", "Blut im Stuhl oder Urin, schwarzer Stuhl (Teerstuhl)", "Gelbfärbung von Haut oder Augen, sehr heller Stuhl oder dunkler Urin", "starker Durst mit vermehrtem Wasserlassen", "Schluckbeschwerden oder wiederholtes Erbrechen", "Druckgefühl in der Brust oder Atemnot bei Belastung", "Herzrasen in Ruhe, Herzstolpern oder Ohnmachtsneigung", "Wadenschmerzen beim Gehen, die im Stehen nachlassen", "neu aufgetretene Beinschwellungen", "Fieber oder Nachtschweiß über mehr als zwei Wochen", "neu aufgetretene starke Kopfschmerzen oder Sehstörungen", "tastbare Knoten oder vergrößerte Lymphknoten seit mehr als zwei Wochen", "Blutungen nach den Wechseljahren oder zwischen den Regelblutungen", "anhaltende Schmerzen im linken Oberbauch", "nichts davon"] },
+        { id: "warnzeichen_details", typ: "textarea", wenn: { id: "warnzeichen", ausser: ["nichts davon"] }, label: "Wie häufig treten diese Symptome auf, und seit wann?", hilfe: "Zum Beispiel: Blut im Stuhl etwa einmal pro Woche, seit März." },
+        { id: "schwanger", typ: "radio", nurFuer: "weiblich", label: "Sind Sie schwanger oder stillen Sie?", optionen: ["nein", "ja, schwanger", "ja, ich stille"] },
+        { id: "kinderwunsch", typ: "radio", label: "Besteht ein Kinderwunsch?", optionen: ["nein", "ja"] },
+        { id: "krebs", typ: "radio", label: "Besteht aktuell eine Krebserkrankung, oder wurden Sie in den letzten zwei Jahren wegen einer Krebserkrankung behandelt?", optionen: ["nein", "ja"] },
+        { id: "medikamente_gruppen", typ: "checks", label: "Nehmen Sie regelmäßig Medikamente aus einer der folgenden Gruppen ein?", hilfe: "Die einzelnen Präparate tragen Sie später in die Medikamentenliste ein.", optionen: ["Blutdrucksenkende Medikamente", "Herzmedikamente (z. B. Betablocker, Antiarrhythmika)", "Gerinnungshemmer (Blutverdünner)", "Cholesterinsenker (Statine)", "Diabetesmedikamente oder Insulin", "GLP-1-Präparate (z. B. Abnehmspritzen)", "Schilddrüsenhormone", "Kortison als Dauertherapie", "Säureblocker (Protonenpumpenhemmer, z. B. Pantoprazol, Omeprazol)", "Regelmäßige Schmerzmittel (Ibuprofen, Diclofenac, ASS, Paracetamol)", "Antidepressiva, Beruhigungs- oder Schlafmittel", "Lithium als verordnetes Medikament (z. B. Lithiumcarbonat)", "Pille oder andere hormonelle Verhütung (z. B. Hormonspirale, Ring, Pflaster)", "Hormonersatz oder andere Hormone, auch bioidentische (z. B. Östrogen, Progesteron, Testosteron)", "Antihistaminika", "Antibiotika in den letzten 12 Monaten", "Immunsuppressiva oder Biologika (z. B. Methotrexat)", "Antiepileptika (Medikamente gegen Krampfanfälle)", "Krebstherapie oder antihormonelle Therapie", "Regelmäßige Abführmittel", "keines davon"] },
+        { id: "biotin", typ: "radio", label: "Nehmen Sie Biotin ein, auch als Bestandteil von Haut-, Haar- und Nagelpräparaten oder Multivitaminen?", hilfe: "Biotin kann Laborwerte verfälschen, insbesondere die Schilddrüsenwerte. Vor einer Blutentnahme wird eine Einnahmepause abgesprochen.", optionen: ["nein", "ja", "weiß ich nicht"] },
+        { id: "belastbarkeit", typ: "skala", von: 1, label: "Wie schätzen Sie Ihre körperliche und geistige Belastbarkeit im Alltag ein? 1 = nicht belastbar, 10 = voll belastbar" },
+        { id: "pem", typ: "radio", label: "Verschlechtert sich Ihr Befinden nach körperlicher oder geistiger Anstrengung deutlich und zeitverzögert, etwa am Folgetag?", hilfe: "Zum Beispiel nach einem Spaziergang, einem langen Arbeitstag oder einem Besuch.", optionen: ["nein", "manchmal", "ja, regelmäßig"] },
       ] },
-    { id: "beschwerden", titel: "Ihre Hauptbeschwerden und Ziele", intro: `<p>Was beschäftigt Sie am meisten? Bis zu fünf Punkte, die wichtigsten zuerst.</p>`,
+    { id: "beschwerden", titel: "Hauptbeschwerden und Ziel", intro: `<p>Bitte nennen Sie bis zu fünf Beschwerden, beginnend mit der wichtigsten.</p>`,
       fragen: [
         { id: "beschwerden", typ: "liste", label: "Beschwerden", anzahl: 5, felder: [
           { id: "was", typ: "text", label: "Beschwerden" },
-          { id: "staerke", typ: "skala", label: "Wie stark? 0 = gar nicht, 10 = unerträglich" },
-          { id: "seit", typ: "text", label: "Seit wann? (z. B. Oktober 2025, seit 3 Jahren)" },
-          { id: "verlauf", typ: "radio", label: "Verlauf", optionen: ["besser", "gleich", "schlechter", "schwankend"] },
+          { id: "staerke", typ: "skala", label: "Intensität: 0 = keine Beschwerden, 10 = unerträglich" },
+          { id: "seit", typ: "text", label: "Seit wann? (z. B. Oktober 2025 oder seit 3 Jahren)" },
+          { id: "verlauf", typ: "radio", label: "Verlauf", optionen: ["gleichbleibend", "zunehmend", "wechselnd"] },
         ] },
-        { id: "beginn", typ: "textarea", label: "Wie hat alles angefangen? Gab es einen Auslöser?", hilfe: "Zum Beispiel ein Infekt, eine Geburt, ein Umzug, eine belastende Zeit, eine Diät, ein neues Medikament." },
-        { id: "ziele", typ: "textarea", label: "Was möchten Sie erreichen? Woran würden Sie merken, dass es besser geworden ist?" },
+        { id: "beginn", typ: "textarea", label: "Wie haben die Beschwerden begonnen? Gab es einen erkennbaren Auslöser?", hilfe: "Zum Beispiel eine Infektion, eine Schwangerschaft oder Geburt, ein Umzug, eine Belastungsphase, eine Diät oder ein neues Medikament." },
+        { id: "ziele", typ: "textarea", label: "Was ist Ihr persönliches Ziel?" },
       ] },
-    { id: "befinden", titel: "Ihr Befinden in den letzten zwei Wochen", intro: `<p>Diese Fragen sind persönlich. Sie helfen, das Nervensystem einzuordnen, und werden bei der Verlaufskontrolle wiederholt.</p>`,
+    { id: "befinden", titel: "Ihr Befinden in den letzten zwei Wochen", intro: `<p>Die folgenden Fragen betreffen Ihr seelisches Befinden und Ihre Belastung. Sie werden bei der Verlaufskontrolle wiederholt.</p>`,
       fragen: [
-        { id: "energie", typ: "skala", label: "Ihre Energie an einem normalen Tag: 0 = keine, 10 = voll" },
-        { id: "stress", typ: "skala", label: "Wie hoch ist Ihr Stress derzeit? 0 = keiner, 10 = maximal" },
+        { id: "energie", typ: "skala", label: "Wie schätzen Sie Ihr durchschnittliches Energieniveau ein? 0 = keine Energie, 10 = volle Energie" },
+        { id: "stress", typ: "skala", label: "Wie hoch ist Ihre aktuelle Stressbelastung? 0 = keine, 10 = maximal" },
         { id: "phq4", typ: "matrix", auswertung: "phq4", label: "Wie oft fühlten Sie sich im Verlauf der letzten 2 Wochen durch die folgenden Beschwerden beeinträchtigt?", hilfe: "Eine Antwort je Zeile.", optionen: PHQ_SKALA, zeilen: PHQ4_ZEILEN },
       ] },
-    { id: "symptome", titel: "Symptom-Check, Teil 1: Verdauung und Stoffwechsel", intro: `<p>Wie oft ist das in den letzten <b>vier Wochen</b> vorgekommen? Eine Antwort je Zeile, eine grobe Schätzung genügt. Den Check wiederholen wir bei der Verlaufskontrolle, deshalb ist jede ausgefüllte Zeile wertvoll.</p>`,
+    { id: "symptome", titel: "Symptomerfassung, Teil 1: Verdauung und Stoffwechsel", intro: `<p>Wie häufig traten die folgenden Symptome in den letzten <b>vier Wochen</b> auf? Bitte eine Antwort je Zeile; eine Schätzung genügt. Die Symptomerfassung wird bei der Verlaufskontrolle wiederholt.</p>`,
       fragen: [
-        { id: "symptom_check", typ: "matrix", label: "Wie oft in den letzten vier Wochen?", optionen: CHECK_SKALA, zeilen: SYMPTOM_ZEILEN.slice(0, 15) },
+        { id: "symptom_check", typ: "matrix", label: "Häufigkeit in den letzten vier Wochen", optionen: CHECK_SKALA, zeilen: SYMPTOM_ZEILEN.filter((z) => TEIL1.includes(z.bereich)) },
+        STUHL_FREQUENZ, STUHL_FORM,
+        { id: "haut", typ: "checks", label: "Bestehen derzeit Hautveränderungen oder Hautbeschwerden?", optionen: ["Hautausschlag", "Juckreiz", "Ekzem", "andere Hauterkrankung (z. B. Neurodermitis, Schuppenflechte, Akne)", "nichts davon"] },
       ] },
-    { id: "symptome2", titel: "Symptom-Check, Teil 2: Schlaf, Hormone, Muskeln, Nerven", intro: `<p>Weiter wie im ersten Teil: Wie oft in den letzten <b>vier Wochen</b>?</p>`,
+    { id: "symptome2", titel: "Symptomerfassung, Teil 2: Schlaf, Hormone, Muskeln und Nerven", intro: `<p>Wie im ersten Teil: Häufigkeit in den letzten <b>vier Wochen</b>.</p>`,
       fragen: [
-        { id: "symptom_check2", typ: "matrix", auswertung: "symptom", label: "Wie oft in den letzten vier Wochen?", optionen: CHECK_SKALA, zeilen: SYMPTOM_ZEILEN.slice(15) },
-        { id: "symptom_frau", typ: "matrix", nurFuer: "weiblich", label: "Speziell für Frauen: Wie stark in den letzten Monaten?", optionen: GESCHLECHT_SKALA, zeilen: GESCHLECHT_ZEILEN.weiblich },
-        { id: "symptom_mann", typ: "matrix", nurFuer: "männlich", label: "Speziell für Männer: Wie stark in den letzten Monaten?", optionen: GESCHLECHT_SKALA, zeilen: GESCHLECHT_ZEILEN.männlich },
-        { id: "s_sonst", typ: "textarea", label: "Zusätzliche Anmerkungen (optional)" },
+        { id: "symptom_check2", typ: "matrix", auswertung: "symptom", label: "Häufigkeit in den letzten vier Wochen", optionen: CHECK_SKALA, zeilen: SYMPTOM_ZEILEN.filter((z) => !TEIL1.includes(z.bereich)) },
+        { id: "symptom_frau", typ: "matrix", nurFuer: "weiblich", label: "Dieser Teil ist nur von Frauen auszufüllen", optionen: GESCHLECHT_SKALA, zeilen: GESCHLECHT_ZEILEN.weiblich },
+        { id: "symptom_mann", typ: "matrix", nurFuer: "männlich", label: "Dieser Teil ist nur von Männern auszufüllen", optionen: GESCHLECHT_SKALA, zeilen: GESCHLECHT_ZEILEN.männlich },
+        { id: "s_sonst", typ: "textarea", label: "Weitere Symptome oder Anmerkungen" },
       ] },
-    { id: "medikation", titel: "Medikamente und Präparate", intro: `<p>Bitte alles aufführen, was Sie regelmäßig oder bei Bedarf einnehmen, auch Nahrungsergänzung, Hormone, Cremes und pflanzliche Mittel. Wenn Sie die Stärke nicht wissen, reicht der Name.</p>
-      <div class="hinweis">Am einfachsten: Fotografieren Sie Ihren Medikationsplan oder die Packungen und schicken Sie die Fotos mit, oder bringen Sie sie zum Gespräch mit.</div>`,
+    { id: "medikation", titel: "Medikamente und Nahrungsergänzung", intro: `<p>Bitte führen Sie alles auf, was Sie regelmäßig oder bei Bedarf anwenden, auch hormonhaltige Cremes, Nahrungsergänzungsmittel und pflanzliche Präparate. Ist Ihnen die Dosierung nicht bekannt, genügt der Name.</p>
+      <div class="hinweis">Alternativ können Sie Ihren Medikationsplan oder die Packungen fotografieren und die Fotos mitschicken oder zum Gespräch mitbringen.</div>`,
       fragen: [
-        { id: "medikamente", typ: "liste", label: "Medikamente (vom Arzt verordnet)", anzahl: 10, felder: [
-          { id: "name", typ: "text", label: "Name oder Wirkstoff" },
-          { id: "staerke", typ: "text", label: "Stärke (z. B. 50 mg, 75 µg)" },
-          { id: "schema", typ: "text", label: "Wie oft und wann (z. B. morgens 1, nur bei Bedarf)" },
-          { id: "seit", typ: "text", label: "Seit wann und wofür" },
+        { id: "medikamente", typ: "liste", label: "Medikamente und Hormone (auch Pille, Hormonspirale und bioidentische Hormone)", anzahl: 10, felder: [
+          { id: "name", typ: "text", label: "Präparat oder Wirkstoff" },
+          { id: "staerke", typ: "text", label: "Dosierung (z. B. 50 mg, 75 µg)" },
+          { id: "schema", typ: "text", label: "Einnahme (z. B. 1-0-0 für morgens eine, oder bei Bedarf)" },
+          { id: "seit", typ: "text", label: "Seit wann, Anlass" },
         ] },
-        { id: "supplemente", typ: "liste", label: "Nahrungsergänzung, Hormone, pflanzliche Mittel", hilfe: "Auch Multivitamine und angereicherte Drinks oder Riegel; sie enthalten oft Vitamin B12.", anzahl: 12, felder: [
-          { id: "name", typ: "text", label: "Name (bei Kombiprodukten bitte die Inhaltsstoffe vom Etikett)" },
-          { id: "dosis", typ: "text", label: "Menge und wie oft" },
-          { id: "seit", typ: "text", label: "Seit wann, warum, wer hat es empfohlen" },
+        { id: "supplemente", typ: "liste", label: "Nahrungsergänzungsmittel und pflanzliche Präparate", hilfe: "Auch Multivitaminpräparate sowie angereicherte Getränke oder Riegel; diese enthalten häufig Vitamin B12.", anzahl: 12, felder: [
+          { id: "name", typ: "text", label: "Präparat (bei Kombinationspräparaten bitte die Inhaltsstoffe laut Etikett)" },
+          { id: "dosis", typ: "text", label: "Dosierung und Häufigkeit" },
+          { id: "seit", typ: "text", label: "Seit wann, Anlass, auf wessen Empfehlung" },
         ] },
-        { id: "frueher_abgesetzt", typ: "textarea", label: "Was haben Sie in den letzten zwei Jahren eingenommen und wieder abgesetzt? Warum?" },
-        { id: "vertraeglichkeit", typ: "textarea", label: "Unverträglichkeiten oder Nebenwirkungen bei Medikamenten oder Präparaten?" },
+        { id: "lithiumorotat", typ: "radio", label: "Nehmen Sie Lithiumorotat als Nahrungsergänzung?", optionen: ["nein", "ja"] },
+        { id: "frueher_abgesetzt", typ: "textarea", label: "Welche Medikamente oder Präparate haben Sie in den letzten zwei Jahren abgesetzt, und aus welchem Grund?" },
+        { id: "vertraeglichkeit", typ: "textarea", label: "Sind Unverträglichkeiten, Allergien oder Nebenwirkungen auf Medikamente oder Präparate bekannt?" },
       ] },
     { id: "vorerkrankungen", titel: "Vorerkrankungen und Diagnosen",
       fragen: [
         { id: "diag_stoffwechsel", typ: "checks", label: "Stoffwechsel und Hormone", optionen: ["Diabetes Typ 2", "Diabetes Typ 1", "Prädiabetes oder Insulinresistenz", "Fettleber", "Gicht oder erhöhte Harnsäure", "Schilddrüsenunterfunktion", "Schilddrüsenüberfunktion", "Hashimoto", "Morbus Basedow", "Schilddrüsenknoten oder Kropf", "PCOS", "Endometriose", "Osteoporose oder Osteopenie", "keines davon"] },
-        { id: "diag_immun", typ: "checks", label: "Immunsystem, Darm, Allergien", optionen: ["Zöliakie", "Morbus Crohn oder Colitis ulcerosa", "Reizdarm", "Gastritis, Magengeschwür oder Helicobacter", "Refluxkrankheit", "Rheumatoide Arthritis", "Andere Autoimmunerkrankung", "Heuschnupfen oder andere Allergien", "Histaminintoleranz", "Laktose- oder Fruktoseintoleranz", "Glutenunverträglichkeit ohne Zöliakie", "Neurodermitis oder Psoriasis", "Asthma", "häufige Infekte", "keines davon"] },
-        { id: "diag_organe", typ: "checks", label: "Organe und Infektionen", optionen: ["Nierenerkrankung oder Nierensteine", "Lebererkrankung oder Hepatitis", "Gallensteine oder Gallenblase entfernt", "Bauchspeicheldrüsenentzündung", "COPD oder chronische Bronchitis", "Schlafapnoe", "Blutarmut (Anämie)", "Eisenüberladung (Hämochromatose)", "Pfeiffersches Drüsenfieber (EBV)", "Borreliose", "Long Covid", "Häufige Harnwegs- oder Blaseninfekte", "Krebserkrankung (früher oder aktuell)", "keines davon"] },
-        { id: "diag_neuro_psyche", typ: "checks", label: "Nerven, Psyche, Schlaf", optionen: ["Migräne", "Neuropathie (Kribbeln, Taubheit)", "Epilepsie", "Multiple Sklerose", "Gehirnerschütterung oder Kopfverletzung", "Depression", "Angststörung oder Panikattacken", "Burnout", "ADHS", "Essstörung (aktuell oder früher)", "Schlafstörung", "Tinnitus", "keines davon"] },
-        { id: "diagnosen_text", typ: "textarea", label: "Weitere Diagnosen oder Details zu den angekreuzten Punkten (seit wann, wie behandelt)" },
-        { id: "kindheit", typ: "checks", label: "Was trifft auf Ihre Kindheit zu?", hilfe: "Prägt Immunsystem und Darmflora oft bis ins Erwachsenenalter. Was Sie nicht wissen, zum Beispiel weil Sie adoptiert sind, lassen Sie frei.",
-          optionen: ["natürliche Geburt", "Kaiserschnitt", "gestillt worden", "nicht gestillt worden", "häufige Antibiotika in der Kindheit", "häufige Infekte in der Kindheit", "Mandeln oder Rachenmandeln entfernt", "nichts davon"] },
+        { id: "diag_immun", typ: "checks", label: "Immunsystem, Verdauung und Allergien", optionen: ["Zöliakie", "Morbus Crohn oder Colitis ulcerosa", "Reizdarmsyndrom", "Gastritis, Magengeschwür oder Helicobacter", "Refluxkrankheit", "Rheumatoide Arthritis", "Andere Autoimmunerkrankung", "Heuschnupfen oder andere Allergien", "Histaminintoleranz", "Laktose- oder Fruktoseintoleranz", "Glutensensitivität (ohne Zöliakie)", "Neurodermitis oder Psoriasis", "Asthma", "erhöhte Infektanfälligkeit", "keines davon"] },
+        { id: "diag_organe", typ: "checks", label: "Organe und Infektionskrankheiten", optionen: ["Nierenerkrankung oder Nierensteine", "Lebererkrankung oder Hepatitis", "Gallensteine oder Gallenblase entfernt", "Bauchspeicheldrüsenentzündung", "COPD oder chronische Bronchitis", "Schlafapnoe", "Blutarmut (Anämie)", "Eisenüberladung (Hämochromatose)", "Pfeiffersches Drüsenfieber (EBV)", "Borreliose", "Long Covid", "Wiederkehrende Harnwegsinfekte", "Krebserkrankung (früher oder aktuell)", "keines davon"] },
+        { id: "diag_neuro_psyche", typ: "checks", label: "Nervensystem, Psyche und Schlaf", optionen: ["Migräne", "Polyneuropathie (Kribbeln, Taubheitsgefühle)", "Epilepsie", "Multiple Sklerose", "Gehirnerschütterung oder Schädel-Hirn-Verletzung", "Depression", "Angststörung oder Panikattacken", "Burnout", "ADHS", "Essstörung (aktuell oder früher)", "Schlafstörung", "Tinnitus", "keines davon"] },
+        { id: "diagnosen_text", typ: "textarea", label: "Weitere Diagnosen oder Erläuterungen zu Ihren Angaben (seit wann, bisherige Behandlung)" },
+        { id: "kindheit", typ: "checks", label: "Angaben zu Geburt und Kindheit", hilfe: "Geburt, Stillzeit und Infekte in der Kindheit prägen Immunsystem und Darmflora oft bis ins Erwachsenenalter. Was Sie nicht wissen, lassen Sie einfach frei.",
+          optionen: ["natürliche Geburt", "Kaiserschnitt", "gestillt", "nicht gestillt", "häufige Antibiotikagaben in der Kindheit", "häufige Infekte in der Kindheit", "Entfernung der Gaumen- oder Rachenmandeln", "nichts davon"] },
       ] },
-    { id: "herzkreislauf", titel: "Herz, Kreislauf und vorhandene Befunde", intro: `<p>Herz und Gefäße bestimmen mit, welche Empfehlungen sicher sind. Bitte auch frühere Ereignisse angeben.</p>`,
+    { id: "herzkreislauf", titel: "Herz-Kreislauf-System und Vorbefunde", intro: `<p>Angaben zu Herz und Gefäßen beeinflussen, welche Empfehlungen sicher sind. Bitte auch zurückliegende Ereignisse angeben.</p>`,
       fragen: [
-        { id: "hk_diagnosen", typ: "checks", label: "Wurde bei Ihnen jemals festgestellt?", optionen: ["Bluthochdruck", "Niedriger Blutdruck", "Herzinfarkt", "Koronare Herzkrankheit, Stent oder Bypass", "Schlaganfall oder kurzzeitige Durchblutungsstörung (TIA)", "Herzrhythmusstörung (z. B. Vorhofflimmern)", "Herzschwäche (Herzinsuffizienz)", "Herzklappenfehler", "Herzmuskelentzündung", "Thrombose oder Lungenembolie", "Durchblutungsstörung der Beine (Schaufensterkrankheit)", "Krampfadern", "Erhöhte Blutfette oder Cholesterin", "Erhöhtes Lipoprotein(a)", "keines davon"] },
-        { id: "hk_messwerte", typ: "text", label: "Ihr Blutdruck und Ruhepuls, falls bekannt", hilfe: "Zum Beispiel: 125 zu 80, Puls 64. Gern der Durchschnitt der letzten Messungen, und ob unter Medikamenten." },
-        { id: "hk_kontrolle", typ: "radio", label: "Waren Sie in den letzten zwei Jahren beim Kardiologen, oder gab es ein EKG, Belastungs-EKG oder Herzultraschall?", optionen: ["nein", "ja, unauffällig", "ja, mit Befund"] },
-        { id: "vorbefunde", typ: "textarea", label: "Welche Befunde liegen Ihnen schon vor?", hilfe: "Zum Beispiel Laborwerte, Gentest, Stuhltest, Hormonwerte, Bildgebung, jeweils mit Datum. Die Befunde selbst gern mitschicken oder zum Gespräch mitbringen." },
+        { id: "hk_diagnosen", typ: "checks", label: "Wurde bei Ihnen jemals eine der folgenden Erkrankungen festgestellt?", optionen: ["Bluthochdruck", "Niedriger Blutdruck", "Herzinfarkt", "Koronare Herzkrankheit, Stent oder Bypass", "Schlaganfall oder kurzzeitige Durchblutungsstörung (TIA)", "Herzrhythmusstörung (z. B. Vorhofflimmern)", "Herzschwäche (Herzinsuffizienz)", "Herzklappenfehler", "Herzmuskelentzündung", "Thrombose oder Lungenembolie", "Durchblutungsstörung der Beine (pAVK, Schaufensterkrankheit)", "Krampfadern", "Fettstoffwechselstörung (erhöhte Blutfette oder Cholesterin)", "Erhöhtes Lipoprotein(a)", "keines davon"] },
+        { id: "hk_messwerte", typ: "text", label: "Blutdruck und Ruhepuls, falls bekannt", hilfe: "Zum Beispiel 125/80 mmHg, Puls 64/min. Gern der Durchschnitt der letzten Messungen und ob unter Medikation gemessen." },
+        { id: "hk_kontrolle", typ: "radio", label: "Gab es in den letzten zwei Jahren eine kardiologische Untersuchung (EKG, Belastungs-EKG oder Herzultraschall)?", optionen: ["nein", "ja, unauffällig", "ja, mit auffälligem Befund"] },
+        { id: "vorbefunde", typ: "textarea", label: "Welche Vorbefunde liegen Ihnen vor?", hilfe: "Zum Beispiel Laborbefunde, Gentests, Stuhlanalysen, Hormonbefunde oder Bildgebung, jeweils mit Datum. Die Befunde gern mitschicken oder zum Gespräch mitbringen." },
       ] },
-    { id: "verlauf", titel: "Zeitachse", intro: `<p>Wichtige Ereignisse Ihrer Gesundheitsgeschichte, grob in Reihenfolge. Jahreszahl reicht.</p>`,
+    { id: "verlauf", titel: "Krankheitsverlauf und wichtige Ereignisse", intro: `<p>Wichtige Ereignisse Ihrer gesundheitlichen Vorgeschichte in zeitlicher Reihenfolge. Die Jahreszahl genügt.</p>`,
       fragen: [
-        { id: "besondere_ereignisse", typ: "checks", label: "Gab es eines dieser Ereignisse?", hilfe: "Auch wenn es lange her ist. Das Jahr kommt in die Liste darunter, wenn Sie es wissen.",
-          optionen: ["Zeckenstich, mit oder ohne Ausschlag", "längere Reise in tropische Länder", "Vollnarkose oder größere Operation", "Unfall mit Kopfverletzung oder Schleudertrauma", "schwere oder langwierige Infektion", "belastendes Lebensereignis", "nichts davon"] },
-        { id: "ereignisse", typ: "liste", label: "Ereignisse mit Jahr", anzahl: 10, felder: [
+        { id: "besondere_ereignisse", typ: "checks", label: "Trifft eines der folgenden Ereignisse auf Sie zu?", hilfe: "Auch länger zurückliegende Ereignisse. Das Jahr tragen Sie, falls bekannt, in die Liste darunter ein.",
+          optionen: ["Zeckenstich (mit oder ohne Hautrötung)", "längerer Aufenthalt in tropischen Ländern", "Vollnarkose oder größere Operation", "Unfall mit Kopfverletzung oder Schleudertrauma", "schwere oder langwierige Infektionskrankheit", "belastendes Lebensereignis", "nichts davon"] },
+        { id: "ereignisse", typ: "liste", label: "Ereignisse mit Jahresangabe", anzahl: 10, felder: [
           { id: "wann", typ: "text", label: "Wann (Jahr oder Monat)" },
-          { id: "was", typ: "text", label: "Was (Diagnose, Operation, Unfall, Infekt, Herz-Ereignis, Lebensereignis, Therapie)" },
+          { id: "was", typ: "text", label: "Ereignis (z. B. Diagnose, Operation, Unfall, Infektion, Herzereignis, Lebensereignis, Therapie)" },
         ] },
       ] },
-    { id: "covid", titel: "Covid-Erkrankungen und Covid-Impfungen", intro: `<p>Bitte so genau, wie Sie es noch wissen. Der Impfpass hilft bei den Daten.</p>`,
+    { id: "covid", titel: "Covid-Erkrankungen und Covid-Impfungen", intro: `<p>Bitte so genau wie möglich; der Impfpass hilft bei den Daten.</p>`,
       fragen: [
         { id: "covid_erkrankungen", typ: "liste", label: "Covid-Erkrankungen", anzahl: 5, felder: [
           { id: "wann", typ: "text", label: "Wann (Monat und Jahr)" },
-          { id: "verlauf", typ: "radio", label: "Verlauf", optionen: ["leicht", "mittel", "schwer", "im Krankenhaus"] },
-          { id: "folgen", typ: "text", label: "Beschwerden, die länger als vier Wochen blieben" },
+          { id: "verlauf", typ: "radio", label: "Verlauf", optionen: ["leicht", "mittelschwer", "schwer", "stationär behandelt"] },
+          { id: "folgen", typ: "text", label: "Beschwerden, die länger als vier Wochen anhielten" },
         ] },
         { id: "covid_impfungen", typ: "liste", label: "Covid-Impfungen", anzahl: 6, felder: [
           { id: "wann", typ: "text", label: "Wann (Monat und Jahr)" },
@@ -282,96 +297,93 @@ window.BOGEN = (function () {
       ] },
     { id: "familie", titel: "Familie",
       fragen: [
-        { id: "familie", typ: "checks", label: "Gibt es bei Eltern, Geschwistern oder Großeltern eines davon?", optionen: ["Schilddrüsenerkrankung", "Autoimmunerkrankung", "Diabetes", "Herzinfarkt oder Schlaganfall vor dem 60. Lebensjahr", "Krebs", "Depression oder andere psychische Erkrankung", "Demenz", "Osteoporose", "Zöliakie oder Darmerkrankung", "nichts davon bekannt"] },
+        { id: "familie", typ: "checks", label: "Sind bei Eltern, Geschwistern oder Großeltern folgende Erkrankungen bekannt?", optionen: ["Schilddrüsenerkrankung", "Autoimmunerkrankung", "Diabetes", "Herzinfarkt oder Schlaganfall vor dem 60. Lebensjahr", "Krebs", "Depression oder andere psychische Erkrankung", "Demenz", "Osteoporose", "Zöliakie oder Darmerkrankung", "nichts davon bekannt"] },
       ] },
-    { id: "ernaehrung", titel: "Ernährung", intro: `<p>Es gibt hier kein richtig oder falsch. Beschreiben Sie, wie es tatsächlich ist.</p>`,
+    { id: "ernaehrung", titel: "Ernährung", intro: `<p>Bitte beschreiben Sie Ihre tatsächlichen Essgewohnheiten; es gibt kein richtig oder falsch.</p>`,
       fragen: [
-        { id: "kostform", typ: "radio", label: "Wie würden Sie Ihre Ernährung beschreiben?", optionen: ["gemischt, ohne besondere Regeln", "überwiegend pflanzlich", "vegetarisch", "vegan", "kohlenhydratarm oder ketogen", "tierisch betont (viel Fleisch, Eier, Fisch)", "glutenfrei", "eine andere Form"] },
-        { id: "mahlzeiten", typ: "radio", label: "Wie viele Mahlzeiten essen Sie an einem normalen Tag?", optionen: ["1", "2", "3", "4 oder mehr", "sehr unregelmäßig"] },
+        { id: "kostform", typ: "radio", label: "Welche Ernährungsform trifft am ehesten auf Sie zu?", optionen: ["gemischt, ohne besondere Regeln", "überwiegend pflanzlich", "vegetarisch", "vegan", "kohlenhydratarm oder ketogen", "tierisch betont (viel Fleisch, Eier, Fisch)", "glutenfrei", "eine andere Form"] },
+        { id: "mahlzeiten", typ: "radio", label: "Wie viele Mahlzeiten nehmen Sie üblicherweise am Tag zu sich?", optionen: ["1", "2", "3", "4 oder mehr", "sehr unregelmäßig"] },
         { id: "fasten", typ: "radio", label: "Lassen Sie bewusst Mahlzeiten aus oder fasten Sie?", optionen: ["nein", "gelegentlich", "regelmäßig (z. B. Intervallfasten)"] },
-        { id: "esshygiene", typ: "radio", label: "Wie essen Sie meistens?", optionen: ["in Ruhe, am Tisch", "oft nebenbei (Bildschirm, Arbeit, unterwegs)", "meist sehr schnell"] },
-        { id: "ern_matrix", typ: "matrix", label: "Wie oft essen oder trinken Sie das?", hilfe: "Eine Antwort je Zeile. Grobe Schätzung genügt.", optionen: HAEUFIG,
+        { id: "esshygiene", typ: "radio", label: "Wie nehmen Sie Ihre Mahlzeiten überwiegend ein?", optionen: ["in Ruhe, am Tisch", "oft nebenbei (Bildschirm, Arbeit, unterwegs)", "meist sehr schnell"] },
+        { id: "ern_matrix", typ: "matrix", label: "Wie häufig verzehren Sie folgende Lebensmittel und Getränke?", hilfe: "Eine Antwort je Zeile; eine Schätzung genügt.", optionen: HAEUFIG,
           zeilen: [
             { id: "fisch", label: "Fisch oder Meeresfrüchte" },
             { id: "fleisch", label: "Fleisch, Wurst oder Eier" },
             { id: "milch", label: "Milchprodukte" },
             { id: "gemuese", label: "Gemüse" },
             { id: "obst", label: "Obst, auch Trockenobst" },
-            { id: "zucker", label: "Süßes, Gebäck, Saft oder Limonade" },
+            { id: "zucker", label: "Süßigkeiten, Gebäck, Säfte oder Limonaden" },
             { id: "kaffee_haeufig", label: "Kaffee oder schwarzer Tee" },
             { id: "alkohol_haeufig", label: "Alkohol" },
           ] },
-        { id: "salz", typ: "radio", label: "Welches Salz verwenden Sie zu Hause?", optionen: ["jodiertes Speisesalz", "Meersalz oder Steinsalz ohne Jod", "weiß ich nicht", "gemischt"] },
-        { id: "unvertraeglich", typ: "textarea", label: "Lebensmittel, die Sie nicht vertragen oder meiden? Mit welcher Reaktion?" },
-        { id: "essverhalten", typ: "checks", label: "Trifft etwas davon auf Sie zu?", hilfe: "Die Antwort hilft, Empfehlungen sicher zu gestalten.", optionen: ["Heißhungerattacken", "Ich habe schon viele Diäten gemacht", "Ich esse aus Stress oder Kummer", "Es gab Phasen mit Erbrechen oder Abführmitteln", "Ich fühle mich beim Essen unter Druck oder kontrolliert", "nichts davon"] },
-        { id: "wasser", typ: "radio", label: "Wie viel trinken Sie am Tag (Wasser, Tee)?", optionen: ["unter 1 Liter", "1 bis 2 Liter", "über 2 Liter"] },
+        { id: "salz", typ: "radio", label: "Welches Speisesalz verwenden Sie im Haushalt?", optionen: ["jodiertes Speisesalz", "Meersalz oder Steinsalz ohne Jod", "weiß ich nicht", "gemischt"] },
+        { id: "unvertraeglich", typ: "textarea", label: "Welche Lebensmittel vertragen Sie nicht oder meiden Sie, und mit welcher Reaktion?" },
+        { id: "essverhalten", typ: "checks", label: "Trifft eine der folgenden Aussagen zu Ihrem Essverhalten auf Sie zu?", hilfe: "Die Antwort hilft, Empfehlungen sicher zu gestalten.", optionen: ["Heißhungerattacken", "Ich habe schon viele Diäten gemacht", "Ich esse aus Stress oder Kummer", "Es gab Phasen mit Erbrechen oder Abführmitteln", "Ich fühle mich beim Essen unter Druck oder kontrolliert", "nichts davon"] },
+        { id: "wasser", typ: "radio", label: "Wie viel trinken Sie täglich (Wasser, ungesüßter Tee)?", optionen: ["unter 1 Liter", "1 bis 2 Liter", "über 2 Liter"] },
       ] },
-    { id: "alltag", titel: "Verdauung, Schlaf und Belastungen",
+    { id: "alltag", titel: "Schlaf und Belastungen",
       fragen: [
-        { id: "stuhl_frequenz", typ: "radio", label: "Wie oft haben Sie Stuhlgang?", optionen: ["seltener als jeden zweiten Tag", "jeden zweiten Tag", "täglich", "2 bis 3 Mal am Tag", "häufiger"] },
-        { id: "stuhl_form", typ: "radio", label: "Wie sieht Ihr Stuhl meistens aus?", hilfe: "Die Einteilung folgt der Bristol-Stuhlformen-Skala, einem gängigen Hilfsmittel in der Medizin.", optionen: ["Typ 1: einzelne, harte Kügelchen", "Typ 2: wurstförmig, aber klumpig und hart", "Typ 3: wurstförmig mit Rissen an der Oberfläche", "Typ 4: glatt und weich, wie eine Wurst", "Typ 5: weiche Stücke mit klaren Rändern", "Typ 6: breiig, mit ausgefransten Rändern", "Typ 7: wässrig, ohne feste Stücke", "wechselt stark"] },
-        { id: "schlafdauer", typ: "radio", label: "Wie lange schlafen Sie normalerweise?", optionen: ["unter 5 Stunden", "5 bis 6 Stunden", "6 bis 7 Stunden", "7 bis 8 Stunden", "über 8 Stunden"] },
+        { id: "schlafdauer", typ: "radio", label: "Wie lange schlafen Sie üblicherweise pro Nacht?", optionen: ["unter 5 Stunden", "5 bis 6 Stunden", "6 bis 7 Stunden", "7 bis 8 Stunden", "über 8 Stunden"] },
         { id: "schnarchen", typ: "radio", label: "Schnarchen Sie?", optionen: ["nein", "ja, ohne beobachtete Atempausen", "ja, mit beobachteten Atempausen", "weiß ich nicht, niemand kann es beobachten"] },
-        { id: "belastungen", typ: "checks", label: "Aktuelle Belastungen", optionen: ["Beruf", "Familie oder Partnerschaft", "Finanzen", "Pflege eines Angehörigen", "Umzug oder Veränderung", "Trauer oder Verlust", "Eigene Gesundheit", "Einsamkeit", "keine besonderen"] },
-        { id: "therapie", typ: "radio", label: "Sind Sie aktuell in psychotherapeutischer Begleitung?", optionen: ["nein", "ja", "früher, jetzt nicht mehr"] },
+        { id: "belastungen", typ: "checks", label: "Welche Belastungen bestehen derzeit?", optionen: ["Beruf", "Familie oder Partnerschaft", "Finanzen", "Pflege eines Angehörigen", "Umzug oder Veränderung", "Trauer oder Verlust", "Eigene Gesundheit", "Einsamkeit", "keine besonderen"] },
+        { id: "therapie", typ: "radio", label: "Sind Sie derzeit in psychotherapeutischer Behandlung?", optionen: ["nein", "ja", "früher, derzeit nicht"] },
       ] },
     { id: "bewegung", titel: "Bewegung und Umwelt",
       fragen: [
-        { id: "bewegung", typ: "radio", label: "Wie oft bewegen Sie sich so, dass Sie außer Atem kommen?", optionen: ["nie", "1 Mal pro Woche", "2 bis 3 Mal", "4 Mal oder öfter"] },
-        { id: "kraft", typ: "radio", label: "Wie oft trainieren Sie Ihre Muskelkraft (Geräte, Gewichte, Übungen mit dem eigenen Körpergewicht)?", optionen: ["nie", "1 Mal pro Woche", "2 bis 3 Mal", "4 Mal oder öfter"] },
-        { id: "rauchen", typ: "radio", label: "Rauchen oder dampfen Sie?", optionen: ["nie", "früher", "gelegentlich", "täglich"] },
-        { id: "rauchen_art", typ: "checks", wenn: { id: "rauchen", ausser: ["nie"] }, label: "Was rauchen oder dampfen Sie (oder haben Sie früher)?", optionen: ["Zigaretten", "E-Zigarette", "Tabakerhitzer", "Zigarren oder Zigarillos", "Pfeife", "Shisha"] },
-        { id: "beruf", typ: "text", label: "Beruf und typische Arbeitsbelastung", hilfe: "Schichtdienst, Bildschirmarbeit, körperliche Arbeit, Chemikalien, Lärm." },
-        { id: "umwelt", typ: "checks", label: "Trifft etwas davon zu?", optionen: ["Amalgamfüllungen", "Wurzelbehandlungen", "Zähneknirschen oder Kieferschmerzen", "Schimmel in der Wohnung (aktuell oder früher)", "Viel Kontakt mit Chemikalien oder Lösungsmitteln", "Regelmäßig Thunfisch oder größere Raubfische", "Trinkwasser aus eigenem Brunnen", "Wohnung an stark befahrener Straße", "Neubau oder Renovierung in den letzten zwei Jahren", "beruflicher Kontakt mit Staub, Farben, Metallen oder Reinigungsmitteln", "täglich mehrere Körperpflege- oder Kosmetikprodukte", "nichts davon"] },
+        { id: "bewegung", typ: "radio", label: "Wie oft betreiben Sie Ausdauerbewegung, bei der Sie außer Atem kommen?", optionen: ["nie", "1 Mal pro Woche", "2 bis 3 Mal pro Woche", "4 Mal pro Woche oder öfter"] },
+        { id: "kraft", typ: "radio", label: "Wie oft betreiben Sie Krafttraining (Geräte, Gewichte oder Übungen mit dem eigenen Körpergewicht)?", optionen: ["nie", "1 Mal pro Woche", "2 bis 3 Mal pro Woche", "4 Mal pro Woche oder öfter"] },
+        { id: "rauchen", typ: "radio", label: "Rauchen Sie?", optionen: ["nie", "früher", "gelegentlich", "täglich"] },
+        { id: "rauchen_art", typ: "checks", wenn: { id: "rauchen", ausser: ["nie"] }, label: "Was rauchen Sie (oder haben Sie früher geraucht)?", optionen: ["Zigaretten", "Zigarren oder Zigarillos", "E-Zigarette", "Tabakerhitzer", "Pfeife", "Shisha"] },
+        { id: "rauchen_menge", typ: "text", wenn: { id: "rauchen", ausser: ["nie", "früher", "gelegentlich"] }, label: "Wie viel rauchen Sie am Tag?", hilfe: "Zum Beispiel: 10 Zigaretten oder 2 Zigarren." },
+        { id: "beruf", typ: "text", label: "Beruf und berufliche Belastungen", hilfe: "Zum Beispiel Schichtarbeit, Bildschirmarbeit, körperliche Arbeit, Kontakt mit Chemikalien oder Lärm." },
+        { id: "umwelt", typ: "checks", label: "Welche der folgenden Umwelt- und Lebensbedingungen treffen auf Sie zu?", optionen: ["Amalgamfüllungen", "Wurzelbehandlungen", "Zähneknirschen oder Kieferschmerzen", "Schimmel in der Wohnung (aktuell oder früher)", "häufiger Kontakt mit Chemikalien oder Lösungsmitteln", "regelmäßiger Verzehr von Thunfisch oder anderen großen Raubfischen", "Trinkwasser aus eigenem Brunnen", "Wohnung an stark befahrener Straße", "Neubau oder Renovierung in den letzten zwei Jahren", "beruflicher Kontakt mit Staub, Farben, Metallen oder Reinigungsmitteln", "tägliche Anwendung mehrerer Körperpflege- oder Kosmetikprodukte", "nichts davon"] },
       ] },
-    { id: "frauen", titel: "Zyklus und Hormone", nurFuer: "weiblich", intro: `<p>Nur relevant, wenn Sie einen Zyklus haben oder hatten. Sonst einfach weiter.</p>`,
+    { id: "frauen", titel: "Zyklus und Schwangerschaften", nurFuer: "weiblich", intro: `<p>Bitte beantworten, sofern Sie einen Menstruationszyklus haben oder hatten; andernfalls weiter.</p>`,
       fragen: [
-        { id: "zyklus", typ: "radio", label: "Ihr Zyklus", optionen: ["regelmäßig", "unregelmäßig", "bleibt aus", "Wechseljahre", "keine Regel mehr (nach Wechseljahren oder Operation)", "trifft nicht zu"] },
+        { id: "zyklus", typ: "radio", label: "Wie ist Ihr Menstruationszyklus?", optionen: ["regelmäßig", "unregelmäßig", "ausbleibend", "in den Wechseljahren", "keine Regelblutung mehr (nach den Wechseljahren oder einer Operation)", "trifft nicht zu"] },
         { id: "zyklus_laenge", typ: "text", label: "Zykluslänge in Tagen, Dauer und Stärke der Blutung", hilfe: "Zum Beispiel: 28 Tage, Blutung 5 Tage, stark." },
-        { id: "verhuetung", typ: "text", label: "Verhütung oder Hormonpräparate (Pille, Spirale, Hormoncremes, Hormonersatz)", hilfe: "Auch frühere, mit Zeitraum." },
         { id: "schwangerschaften", typ: "text", label: "Schwangerschaften, Geburten, Fehlgeburten, Stillzeiten (mit Jahr)" },
-        { id: "letzter_zyklus", typ: "text", label: "Erster Tag der letzten Regel", hilfe: "Wichtig, falls Hormone im Blut gemessen werden." },
       ] },
     { id: "maenner", titel: "Prostata", nurFuer: "männlich",
       fragen: [
-        { id: "m_prostata", typ: "radio", label: "Gab es eine Prostatauntersuchung oder einen PSA-Wert?", optionen: ["nein", "ja, unauffällig", "ja, mit Befund"] },
+        { id: "m_prostata", typ: "radio", label: "Wurde bereits eine Prostatauntersuchung durchgeführt oder ein PSA-Wert bestimmt?", optionen: ["nein", "ja, unauffällig", "ja, mit auffälligem Befund"] },
       ] },
     { id: "schluss", titel: "Zum Schluss",
       fragen: [
-        { id: "fragen", typ: "textarea", label: "Welche Fragen haben Sie? Gibt es etwas, das ich unbedingt wissen sollte?" },
+        { id: "fragen", typ: "textarea", label: "Haben Sie Fragen, oder gibt es etwas, das ich darüber hinaus wissen sollte?" },
         { id: "anrede", typ: "radio", label: "Wie möchten Sie in Ihrem Plan angesprochen werden?", optionen: ["Sie", "Du"] },
-        { id: "grossdruck", typ: "radio", label: "Brauchen Sie große Schrift zum Lesen?", optionen: ["nein", "ja"] },
+        { id: "brille", typ: "radio", label: "Tragen Sie eine Brille?", hilfe: "Bei ja bekommen Sie Ihren Plan in größerer Schrift.", optionen: ["nein", "ja"] },
       ] },
-    { id: "ende", titel: "Fertig: Anamnesebogen senden", intro: "", fragen: [] },
+    { id: "ende", titel: "Anamnesebogen absenden", intro: "", fragen: [] },
   ];
   /* Verlaufsbogen (seit 3.2, Plan 5.1): derselbe Bogen mit dem Zusatz art=verlauf im Link. Er zeigt nur, was sich
      seit der Auswertung verändert hat; gemeinsame Fragen werden aus dem Erstbogen übernommen, nicht kopiert. */
   const abschnitt = (id) => abschnitte.find((a) => a.id === id);
   const frage = (id) => abschnitte.flatMap((a) => a.fragen).find((f) => f.id === id);
   const verlaufAbschnitte = [
-    { id: "vstart", titel: "Bevor es losgeht", intro: `<p>Dieser kurze Verlaufsbogen zeigt, was sich seit unserem letzten Stand verändert hat. Er wiederholt einige Fragen aus dem Anamnesebogen, damit wir vergleichen können.</p>
-      <div class="hinweis"><b>Alles ist freiwillig.</b> Was Sie nicht beantworten können, lassen Sie einfach frei. Dauer: etwa zehn Minuten.</div>`,
+    { id: "vstart", titel: "Einleitung", intro: `<p>Mit diesem kurzen Verlaufsbogen erfasse ich, was sich seit der letzten Auswertung verändert hat. Einige Fragen aus dem Anamnesebogen werden zum Vergleich wiederholt.</p>
+      <div class="hinweis"><b>Alle Angaben sind freiwillig.</b> Fragen, die Sie nicht beantworten können, lassen Sie frei. Bearbeitungszeit etwa zehn Minuten.</div>`,
       fragen: [frage("fallnummer"), frage("geschlecht"), frage("gewicht"), frage("taille")] },
-    { id: "vsicherheit", titel: "Wichtig für Ihre Sicherheit",
+    { id: "vsicherheit", titel: "Angaben zu Ihrer Sicherheit",
       fragen: [frage("warnzeichen"), frage("warnzeichen_details"), frage("schwanger"), frage("kinderwunsch"),
-        { id: "neue_medikamente", typ: "radio", label: "Nehmen Sie seit unserem letzten Stand neue Medikamente, oder hat sich eine Dosis geändert?", optionen: ["nein", "ja"] },
-        { id: "neue_medikamente_text", typ: "textarea", wenn: { id: "neue_medikamente", ausser: ["nein"] }, label: "Welche, in welcher Stärke, seit wann und wofür?" },
+        { id: "neue_medikamente", typ: "radio", label: "Haben sich seit der letzten Auswertung Ihre Medikamente oder deren Dosierung geändert?", optionen: ["nein", "ja"] },
+        { id: "neue_medikamente_text", typ: "textarea", wenn: { id: "neue_medikamente", ausser: ["nein"] }, label: "Welche Präparate, in welcher Dosierung, seit wann und aus welchem Anlass?" },
         { id: "neue_diagnosen", typ: "textarea", label: "Gab es seitdem neue Diagnosen, Operationen oder Krankenhausaufenthalte?" },
         frage("belastbarkeit"), frage("pem")] },
-    { id: "vbeschwerden", titel: "Ihre Hauptbeschwerden heute", intro: `<p>Bitte dieselben Beschwerden wie im Anamnesebogen, jeweils mit der Stärke heute. Neue Beschwerden gern dazu.</p>`,
+    { id: "vbeschwerden", titel: "Hauptbeschwerden aktuell", intro: `<p>Bitte dieselben Beschwerden wie im Anamnesebogen, jeweils mit der aktuellen Intensität; neue Beschwerden gern ergänzen.</p>`,
       fragen: [frage("beschwerden")] },
-    { id: "vumsetzung", titel: "Was Sie umgesetzt haben", intro: `<p>Es gibt kein richtig oder falsch. Ehrliche Angaben helfen, den Plan an Ihren Alltag anzupassen.</p>`,
+    { id: "vumsetzung", titel: "Umsetzung der Empfehlungen", intro: `<p>Offene Angaben helfen, den Plan an Ihren Alltag anzupassen; es gibt kein richtig oder falsch.</p>`,
       fragen: [
-        { id: "umsetzung", typ: "radio", label: "Wie viel von Ihrem Plan konnten Sie umsetzen?", optionen: ["fast alles", "das meiste", "etwa die Hälfte", "wenig", "noch nichts"] },
-        { id: "umsetzung_text", typ: "textarea", label: "Was hat gut geklappt, was war schwierig?" },
-        { id: "praeparate_einnahme", typ: "textarea", label: "Welche Präparate nehmen Sie, seit wann und wie regelmäßig?", hilfe: "Zum Beispiel: Vitamin D seit 1. März, fast täglich." },
-        { id: "vertraeglichkeit_verlauf", typ: "textarea", label: "Gab es Beschwerden oder Unverträglichkeiten mit einer Empfehlung oder einem Präparat?" },
+        { id: "umsetzung", typ: "radio", label: "In welchem Umfang konnten Sie Ihren Plan umsetzen?", optionen: ["fast alles", "das meiste", "etwa die Hälfte", "wenig", "noch nichts"] },
+        { id: "umsetzung_text", typ: "textarea", label: "Was ließ sich gut umsetzen, was war schwierig?" },
+        { id: "praeparate_einnahme", typ: "textarea", label: "Welche Präparate nehmen Sie derzeit ein, seit wann und wie regelmäßig?", hilfe: "Zum Beispiel: Vitamin D seit 1. März, fast täglich." },
+        { id: "vertraeglichkeit_verlauf", typ: "textarea", label: "Traten unter einer Empfehlung oder einem Präparat Beschwerden oder Unverträglichkeiten auf?" },
       ] },
     abschnitt("befinden"), abschnitt("symptome"), abschnitt("symptome2"),
     { id: "vschluss", titel: "Zum Schluss", fragen: [frage("fragen")] },
-    { ...abschnitt("ende"), titel: "Fertig: Verlaufsbogen senden" },
+    { ...abschnitt("ende"), titel: "Verlaufsbogen absenden" },
   ];
-  return { version: "3.3", abschnitte, verlaufAbschnitte, bereiche: BEREICHE, checkSkala: CHECK_SKALA, geschlechtSkala: GESCHLECHT_SKALA, phqSkala: PHQ_SKALA, symptomZeilen: SYMPTOM_ZEILEN, phq4Zeilen: PHQ4_ZEILEN, geschlechtZeilen: GESCHLECHT_ZEILEN };
+  return { version: "3.4", abschnitte, verlaufAbschnitte, bereiche: BEREICHE, checkSkala: CHECK_SKALA, geschlechtSkala: GESCHLECHT_SKALA, phqSkala: PHQ_SKALA, symptomZeilen: SYMPTOM_ZEILEN, phq4Zeilen: PHQ4_ZEILEN, geschlechtZeilen: GESCHLECHT_ZEILEN };
 })();
 </script>
 <script>
@@ -480,7 +492,7 @@ window.BOGEN = (function () {
       case "textarea": return `<textarea name="${name}">${esc(wert)}</textarea>`;
       case "radio": return `<div class="optionen">${f.optionen.map((o) => `<label><input type="radio" name="${name}" value="${esc(o)}" ${wert === o ? "checked" : ""}>${esc(o)}</label>`).join("")}</div>`;
       case "checks": { const w = Array.isArray(wert) ? wert : []; return `<div class="optionen">${f.optionen.map((o) => `<label><input type="checkbox" name="${name}" value="${esc(o)}" ${w.includes(o) ? "checked" : ""}>${esc(o)}</label>`).join("")}</div>`; }
-      case "skala": return `<div class="skala">${Array.from({ length: 11 }, (_, i) => `<label><input type="radio" name="${name}" value="${i}" ${String(wert) === String(i) ? "checked" : ""}>${i}</label>`).join("")}</div><div class="skala-legende"><span>0</span><span>10</span></div>`;
+      case "skala": { const von = f.von ?? 0; return `<div class="skala" style="grid-template-columns:repeat(${11 - von},1fr)">${Array.from({ length: 11 - von }, (_, i) => i + von).map((i) => `<label><input type="radio" name="${name}" value="${i}" ${String(wert) === String(i) ? "checked" : ""}>${i}</label>`).join("")}</div><div class="skala-legende"><span>${von}</span><span>10</span></div>`; }
       case "matrix": {
         /* Viele gleichartige Fragen in einem Block. Die Werte bleiben flach unter der jeweiligen Zeilen-ID.
            Zeilen mit Bereich bekommen eine Zwischenüberschrift, sobald der Bereich wechselt. */
@@ -509,8 +521,7 @@ window.BOGEN = (function () {
 
   function frageHtml(f) {
     if (f.typ === "fallnummer") {
-      const fall = BRIEFKASTEN && BRIEFKASTEN.fall ? esc(BRIEFKASTEN.fall) : "Vorschau, ohne persönlichen Link";
-      return `<div class="frage" data-frage="fallnummer"><label class="haupt">${esc(f.label)}: <span class="fall">${fall}</span></label><div class="hilfe">Ist über Ihren persönlichen Link bereits eingetragen. Ihr Name ist nicht nötig.</div></div>`;
+      return ""; /* kommt aus dem persönlichen Link und wird nicht angezeigt (3.4, Durchsicht Niko) */
     }
     const wert = daten.antworten[f.id];
     return `<div class="frage" data-frage="${esc(f.id)}"${bedingungErfuellt(f) ? "" : " hidden"}>
@@ -564,7 +575,7 @@ window.BOGEN = (function () {
     const geschlechtsteil = D.geschlechtZeilen[g] ? teilsumme(D.geschlechtZeilen[g].map((z) => z.id), D.geschlechtSkala) : { wert: null, vollstaendig: false };
     return {
       version: "3.0", zeitraum: "letzte 4 Wochen", skala: D.checkSkala, geschlechtSkala: D.geschlechtSkala, bereiche,
-      gesamt: beantwortet === D.symptomZeilen.length ? punkte.reduce((a, b) => a + b, 0) : null, max: 81,
+      gesamt: beantwortet === D.symptomZeilen.length ? punkte.reduce((a, b) => a + b, 0) : null, max: D.symptomZeilen.length * 3,
       beantwortet, zeilen_mit_wert: punkte.filter((p) => p >= 1).length, geschlechtsteil,
     };
   }
@@ -579,10 +590,10 @@ window.BOGEN = (function () {
     const box = app.querySelector("[data-scorebox]");
     if (box) {
       const r = berechneSymptomCheck();
-      box.innerHTML = !r.beantwortet ? "Sobald Sie die Zeilen ausfüllen, erscheint hier Ihr Wert."
+      box.innerHTML = !r.beantwortet ? "Sobald Sie die Zeilen ausfüllen, erscheint hier Ihr Symptomwert."
         : (r.gesamt == null ? `<b>${r.beantwortet} von ${D.symptomZeilen.length} Zeilen ausgefüllt.</b> Der Gesamtwert erscheint, sobald alle Zeilen beantwortet sind.`
-          : `<b>Ihr Symptom-Wert: ${r.gesamt} von 81</b>`) +
-          `<br><span class="klein">Der Wert ist kein Urteil. Er dient dazu, in einigen Wochen zu sehen, ob sich etwas bewegt hat.</span>`;
+          : `<b>Ihr Symptomwert: ${r.gesamt} von ${r.max}</b>`) +
+          `<br><span class="klein">Der Wert ist keine Bewertung. Er dient dem Vergleich bei der Verlaufskontrolle.</span>`;
     }
     /* Bedingte Fragen ein- oder ausblenden; ausgeblendete verlieren ihre Antwort. */
     for (const f of aktuelleFragen()) {
@@ -708,8 +719,8 @@ window.BOGEN = (function () {
       });
       return;
     }
-    app.innerHTML = `<h1>Fertig</h1>
-      <p>Sie haben ${n} von ${gesamt} Fragen beantwortet. Das reicht, auch wenn Lücken bleiben.</p>
+    app.innerHTML = `<h1>Abschluss</h1>
+      <p>Sie haben ${n} von ${gesamt} Fragen beantwortet. Einzelne Lücken sind kein Problem.</p>
       <div class="hinweis">Mit dem Knopf werden Ihre Antworten auf diesem Gerät verschlüsselt und an mich übertragen. Nur ich kann sie lesen. Nach dem Senden werden die Antworten auf diesem Gerät automatisch gelöscht.</div>
       <div class="aktionen"><button class="knopf" type="button" id="absenden">${NAME} speichern und senden</button></div>
       <h2>Ihre Antworten in der Übersicht</h2>
